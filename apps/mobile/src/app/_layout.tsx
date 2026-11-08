@@ -5,8 +5,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { DataProvider } from '@/data/DataProvider';
 import { I18nProvider, useLocaleSettings } from '@/i18n/I18nProvider';
 import { initSentry } from '@/lib/sentry';
+import { PrototypeStoreProvider } from '@/prototype/PrototypeStore';
 import { fontAssets } from '@/theme/fonts';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 
@@ -62,7 +64,11 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <I18nProvider>
           <ThemeProvider>
-            <RootNavigator />
+            <DataProvider>
+              <PrototypeStoreProvider>
+                <RootNavigator />
+              </PrototypeStoreProvider>
+            </DataProvider>
           </ThemeProvider>
         </I18nProvider>
       </SafeAreaProvider>

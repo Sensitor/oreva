@@ -1,0 +1,7 @@
+{
+  "extends": "@oreva/config/tsconfig.library.json",
+  "compilerOptions": {
+    "lib": ["ES2023"]
+  },
+  "include": ["src"]
+}
