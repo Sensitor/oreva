@@ -1,6 +1,6 @@
 # 0002 · Discover map provider (P-09 comparison)
 
-Status: **proposed, awaiting the founders' decision**
+Status: **Mapbox preferred by the founders (8 Nov 2026); final choice after the iPhone A/B prototype** (section 7, A/B variant)
 Date: 8 November 2026
 Related: decision P-09 (interactive map approved, provider chosen after comparison), P-03 (PostGIS), P-12 (location privacy), technical plan section 5.6
 

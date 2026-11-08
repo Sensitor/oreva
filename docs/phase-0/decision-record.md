@@ -167,3 +167,17 @@ If the trademark check advises it, the identifier can still change at no cost un
 | 7 Data model | `_en/_fr` columns become JSONB localized fields (D-04). `partners` becomes `organizations`. New: `cities`, `venues`, `instructor_affiliations`, `specialties`, payment-ready booking fields, plus other tables listed in the technical plan. |
 | 10 Navigation | Tabs renamed by pillar (P-08) |
 | Addendum A | Locales are configuration, and RTL is prepared (P-06) |
+
+---
+
+## 9. Amendments after Phase 0
+
+Decisions approved after Phase 0 that change or extend this record. Details are in the linked documents.
+
+| ID | Decision | Status | Date | Changes |
+| --- | --- | --- | --- | --- |
+| C-1 | **Professional self-signup** for studios and instructors, with **mandatory ORÉVA review before a profile is published** | Approved | 8 Nov 2026 | Replaces "provider accounts are created by ORÉVA staff" for V1 (section 1). Brings the onboarding and verification part of horizon H3 forward. Instructor subscriptions and payouts stay post-MVP. |
+| C-2 | **UI first on demo data**: real interfaces on all five tabs before each backend slice, with demo data strictly separated from production | Approved | 8 Nov 2026 | Replaces the phase order in technical plan section 7 with [roadmap revision 4](../roadmap/revision-4.md) |
+| C-3 | **Fictional international demo data** (Monaco and the Côte d'Azur, Paris, London, Dubai, New York) in development and staging only, every fictional profile clearly identified | Approved | 8 Nov 2026 | Extends A-06 and P-11 (demo data never in production) |
+| C-4 | **Map provider: Mapbox preferred**, confirmed only after an A/B prototype on iPhone (Mapbox vs Apple Maps) | Pending the iPhone A/B | 8 Nov 2026 | Resolves O-11 once confirmed. See [note 0002](../decisions/0002-discover-map-provider.md). |
+| P-14 | Typeface: compare Manrope and Onest **on the real Phase 2 screens** before choosing | Pending | 8 Nov 2026 | Both typefaces stay bundled until the choice |

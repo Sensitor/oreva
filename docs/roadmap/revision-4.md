@@ -1,6 +1,6 @@
 # Roadmap revision 4 (proposal)
 
-Status: **proposal, awaiting the founders' approval**. Until it is approved, the roadmap in `docs/phase-0/technical-plan.md` section 7 stays in force.
+Status: **approved by the founders on 8 November 2026** (C-1, C-2, C-3). C-4: Mapbox preferred, confirmed after the iPhone A/B prototype in Phase 2. This roadmap replaces the phase order in `docs/phase-0/technical-plan.md` section 7. See the decision record, section 9.
 Date: 8 November 2026
 Basis: the founders' brief of 8 November 2026 (after testing Phase 1 on iPhone), the decision record, and decision note 0002 (map provider).
 
