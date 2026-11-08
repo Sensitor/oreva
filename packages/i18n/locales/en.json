@@ -1,0 +1,112 @@
+{
+  "app": {
+    "name": "ORÉVA",
+    "tagline": "Your movement. Your moment."
+  },
+  "common": {
+    "seeAll": "See all",
+    "sampleData": "Sample data",
+    "comingSoon": "Coming soon",
+    "retry": "Try again",
+    "durationMinutes_one": "{{count}} min",
+    "durationMinutes_other": "{{count}} min"
+  },
+  "tabs": {
+    "home": "Home",
+    "discover": "Discover",
+    "practice": "Practice",
+    "connect": "Connect",
+    "profile": "Profile"
+  },
+  "home": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "headline": "Welcome to your Pilates moment",
+    "today": {
+      "label": "Today",
+      "programDay": "Day {{day}}",
+      "exercises_one": "{{count}} exercise",
+      "exercises_other": "{{count}} exercises",
+      "start": "Start"
+    },
+    "categories": {
+      "all": "All",
+      "core": "Core",
+      "fullBody": "Full body",
+      "lowerBody": "Lower body",
+      "upperBody": "Upper body",
+      "mobility": "Mobility & stretch",
+      "breath": "Breath & relax"
+    },
+    "upcoming": {
+      "title": "Upcoming classes",
+      "outdoor": "Outdoor",
+      "spotsLeft_one": "{{count}} spot left",
+      "spotsLeft_other": "{{count}} spots left",
+      "viewClass": "View class"
+    },
+    "programs": {
+      "title": "Programs",
+      "weeks_one": "{{count}} week",
+      "weeks_other": "{{count}} weeks"
+    }
+  },
+  "pillars": {
+    "discover": {
+      "title": "Discover",
+      "description": "Find Pilates instructors, studios and classes near you, wherever you are."
+    },
+    "practice": {
+      "title": "Practice",
+      "description": "Premium workouts, programs and guided sessions, anytime and anywhere."
+    },
+    "connect": {
+      "title": "Connect",
+      "description": "Instructors, Pilates communities and private Circles with your friends."
+    },
+    "preparing": "We're preparing this space with care."
+  },
+  "profile": {
+    "title": "Profile",
+    "language": "Language",
+    "languageHint": "ORÉVA will be shown in this language.",
+    "designPreview": "Design preview",
+    "version": "Version {{version}}",
+    "environment": "Build: {{name}}"
+  },
+  "language": {
+    "en": "English",
+    "fr": "Français",
+    "ru": "Русский"
+  },
+  "designPreview": {
+    "title": "Design preview",
+    "intro": "Compare the two candidate typefaces with real text in every language.",
+    "typeface": "Typeface",
+    "sampleHeadline": "Your movement. Your moment.",
+    "sampleBody": "Breathe in, lengthen through the spine and let your shoulders soften. Your next class starts tomorrow at 8:00 on the beach.",
+    "note": "Shown in development and staging builds only."
+  },
+  "a11y": {
+    "notifications": "Notifications",
+    "startSession": "Start today's session",
+    "sampleBadge": "This content is sample data"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "You seem to be offline. Check your connection and try again."
+  },
+  "admin": {
+    "title": "Admin & provider portal",
+    "intro": "One place for the ORÉVA team, partner studios and instructors to manage classes, content and community.",
+    "signInSoon": "Secure sign-in is coming soon.",
+    "teamTitle": "ORÉVA team",
+    "teamBody": "Partners, classes, content, moderation and member requests.",
+    "providerTitle": "Studios & instructors",
+    "providerBody": "Your profile, your classes, attendance and class updates.",
+    "language": "Language"
+  }
+}

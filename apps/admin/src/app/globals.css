@@ -1,0 +1,43 @@
+@import 'tailwindcss';
+
+/*
+ * Colors, spacing and radii come from @oreva/tokens (injected as --oreva-* custom
+ * properties in layout.tsx). Never hardcode brand values here.
+ */
+@theme inline {
+  --color-background: var(--oreva-color-background);
+  --color-tint: var(--oreva-color-background-tint);
+  --color-surface: var(--oreva-color-surface);
+  --color-surface-muted: var(--oreva-color-surface-muted);
+  --color-ink: var(--oreva-color-text-primary);
+  --color-ink-secondary: var(--oreva-color-text-secondary);
+  --color-link: var(--oreva-color-text-link);
+  --color-accent: var(--oreva-color-accent);
+  --color-accent-strong: var(--oreva-color-accent-strong);
+  --color-border-subtle: var(--oreva-color-border-subtle);
+  --color-border-control: var(--oreva-color-border-control);
+  --color-tile-mint: var(--oreva-color-tile-mint);
+  --color-tile-orchid: var(--oreva-color-tile-orchid);
+  --color-tile-violet: var(--oreva-color-tile-violet);
+  --radius-card: var(--oreva-radius-lg);
+  --font-sans: 'Manrope Variable', 'Onest Variable', system-ui, sans-serif;
+}
+
+body {
+  background: var(--oreva-color-background);
+  color: var(--oreva-color-text-primary);
+}
+
+:focus-visible {
+  outline: 3px solid var(--oreva-color-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

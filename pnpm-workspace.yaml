@@ -1,0 +1,10 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Packages allowed to run install scripts. Anything not listed here is blocked.
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - supabase
+  - unrs-resolver

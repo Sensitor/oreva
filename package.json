@@ -1,0 +1,31 @@
+{
+  "name": "oreva",
+  "private": true,
+  "description": "ORÉVA: premium Pilates platform (mobile app, admin and provider portal, Supabase backend).",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.12 <23"
+  },
+  "scripts": {
+    "dev:mobile": "pnpm --filter @oreva/mobile start",
+    "dev:admin": "pnpm --filter @oreva/admin dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "check": "turbo run lint typecheck test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db",
+    "db:types": "supabase gen types typescript --local > packages/core/src/database.types.ts"
+  },
+  "devDependencies": {
+    "prettier": "3.9.10",
+    "supabase": "3.0.0",
+    "turbo": "2.11.10",
+    "typescript": "~6.0.3"
+  }
+}

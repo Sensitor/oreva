@@ -1,0 +1,23 @@
+{
+  "name": "@oreva/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ORÉVA design tokens: color, typography, spacing, radii, elevation and motion.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@oreva/config": "workspace:*",
+    "eslint": "9.39.5",
+    "typescript": "~6.0.3",
+    "vitest": "5.1.0"
+  }
+}
