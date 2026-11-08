@@ -14,9 +14,15 @@ permissions:
 
 jobs:
   checks:
-    name: Lint, typecheck, test, build
+    # Node 22.13.0 is the minimum required by Expo SDK 58 / React Native 0.88;
+    # "22" is the latest Node 22 release.
+    name: Lint, typecheck, test, build (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.13.0', '22']
     env:
       NEXT_TELEMETRY_DISABLED: '1'
       EXPO_NO_TELEMETRY: '1'
@@ -25,13 +31,16 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version: ${{ matrix.node }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Formatting
         run: pnpm format:check
       - name: Lint, typecheck and unit tests (includes EN/FR/RU parity and contrast checks)
         run: pnpm check
+      - name: Mobile tests without NODE_PATH (as on Windows)
+        working-directory: apps/mobile
+        run: env -u NODE_PATH node node_modules/jest/bin/jest.js
       - name: Build admin portal
         run: pnpm --filter @oreva/admin build
       - name: Bundle mobile app for iOS and Android

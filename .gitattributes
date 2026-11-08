@@ -1,0 +1,12 @@
+# Keep LF line endings in the repository and in every checkout, including on
+# Windows, so Prettier, shell scripts and SQL behave the same everywhere.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary

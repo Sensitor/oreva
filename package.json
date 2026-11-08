@@ -4,7 +4,7 @@
   "description": "ORÉVA: premium Pilates platform (mobile app, admin and provider portal, Supabase backend).",
   "packageManager": "pnpm@10.28.0",
   "engines": {
-    "node": ">=22.12 <23"
+    "node": "^22.13.0"
   },
   "scripts": {
     "dev:mobile": "pnpm --filter @oreva/mobile start",

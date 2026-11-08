@@ -33,7 +33,7 @@ docs/            Decisions, technical plan, design notes, runbooks
 
 ## Getting started
 
-Prerequisites: Node 22 (`.nvmrc`), pnpm 10 (via Corepack), Docker for the local database. iOS and Android builds can run in the cloud with EAS.
+Prerequisites: **Node 22.13 or later in the 22 line** (`.nvmrc`; Expo SDK 58 and React Native 0.88 need 22.13+), pnpm 10 (via Corepack), Docker for the local database. iOS and Android builds can run in the cloud with EAS.
 
 ```bash
 corepack enable

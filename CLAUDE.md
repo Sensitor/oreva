@@ -42,6 +42,9 @@ pnpm db:test          # pgTAP tests
 
 ## Tooling notes
 
+- Node **22.13+ in the 22 line** (`engines`, `.nvmrc`). CI tests 22.13.0 and the latest 22.
+- Every package must declare what its code requires. Do not rely on pnpm's internal store or NODE_PATH: Windows exposes missing declarations (see `apps/mobile/src/__tests__/toolchain.test.ts`).
+
 - Mobile dependencies: install with `npx expo install <pkg>` from `apps/mobile` so versions match SDK 58. Without access to api.expo.dev, prefix with `EXPO_OFFLINE=1`.
 - Expo and Next.js change quickly. Check the installed packages' own types and docs (`node_modules/next/dist/docs/`, `apps/mobile/AGENTS.md`) rather than memory.
 - React Native Testing Library 14: `render` and `fireEvent` are async; always `await` them.

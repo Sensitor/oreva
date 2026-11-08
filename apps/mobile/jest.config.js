@@ -10,6 +10,11 @@ module.exports = {
   preset: 'jest-expo',
   setupFiles: ['./jest.setup.js'],
   testPathIgnorePatterns: ['/node_modules/', '/.expo/'],
+  // Workspace packages (@oreva/*) are TypeScript source compiled by the app's
+  // Babel preset, which adds requires to @babel/runtime. Like Metro in a
+  // monorepo, resolve those from the app's own node_modules too. Without this,
+  // the tests only passed where pnpm's launcher sets NODE_PATH (not on Windows).
+  modulePaths: [path.join(__dirname, 'node_modules')],
   moduleNameMapper: {
     '^lucide-react-native$': path.join(lucideRoot, 'dist/cjs/lucide-react-native.js'),
   },
