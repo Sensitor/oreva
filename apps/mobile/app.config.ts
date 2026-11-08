@@ -1,3 +1,6 @@
+import en from '@oreva/i18n/locales/en.json';
+import fr from '@oreva/i18n/locales/fr.json';
+import ru from '@oreva/i18n/locales/ru.json';
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 /**
@@ -49,6 +52,13 @@ export function identityFor(
   }
 }
 
+/** iOS system strings (permission prompts) in each interface language, from @oreva/i18n. */
+export const nativeLocales = {
+  en: { NSLocationWhenInUseUsageDescription: en.native.locationWhenInUse },
+  fr: { NSLocationWhenInUseUsageDescription: fr.native.locationWhenInUse },
+  ru: { NSLocationWhenInUseUsageDescription: ru.native.locationWhenInUse },
+};
+
 export default ({ config }: ConfigContext): ExpoConfig => {
   const variant = resolveVariant(process.env.APP_VARIANT);
   const identity = identityFor(variant, process.env.APP_ID_BASE ?? DEFAULT_APP_ID_BASE);
@@ -62,6 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
+    locales: nativeLocales,
     ios: {
       bundleIdentifier: identity.applicationId,
       supportsTablet: false,
@@ -100,6 +111,29 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ],
       'expo-font',
       '@sentry/react-native',
+      [
+        'expo-location',
+        {
+          // Foreground only, asked when the member taps "Near me" (decision P-12).
+          locationWhenInUsePermission: en.native.locationWhenInUse,
+          locationAlwaysAndWhenInUsePermission: false,
+          locationAlwaysPermission: false,
+          isIosBackgroundLocationEnabled: false,
+          isAndroidBackgroundLocationEnabled: false,
+        },
+      ],
+      ['expo-video', { supportsBackgroundPlayback: false, supportsPictureInPicture: false }],
+      // Map A/B prototype (decision note 0002). Apple Maps on iOS needs no key;
+      // Google Maps on Android reads an optional key from the build environment.
+      [
+        'react-native-maps',
+        process.env.GOOGLE_MAPS_ANDROID_API_KEY
+          ? { androidGoogleMapsApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY }
+          : {},
+      ],
+      // Mapbox: the iOS SDK no longer needs a secret download token. The public
+      // token is read at runtime from EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN.
+      '@rnmapbox/maps',
     ],
     extra: {
       variant,

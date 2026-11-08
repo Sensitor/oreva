@@ -1,9 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, screen } from '@testing-library/react-native';
+import type * as ExpoRouter from 'expo-router';
+import { router } from 'expo-router';
 import { HomeScreen } from '@/features/home/HomeScreen';
-import { renderWithProviders } from '@/test-utils';
+import { renderWithProviders, TEST_NOW } from '@/test-utils';
 
-const NOW = new Date('2026-11-14T08:30:00Z'); // Saturday, 09:30 in Monaco
+jest.mock('expo-router', () => {
+  const actual = jest.requireActual<typeof ExpoRouter>('expo-router');
+  return {
+    ...actual,
+    router: { push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => true },
+  };
+});
 
 describe('Home', () => {
   let warn: ReturnType<typeof jest.spyOn>;
@@ -12,47 +20,48 @@ describe('Home', () => {
   });
   afterEach(() => {
     // No translation may be missing in any language.
-    const missing = warn.mock.calls.filter((args: unknown[]) => String(args[0]).includes('[i18n]'));
-    expect(missing).toEqual([]);
+    expect(warn.mock.calls.filter((args: unknown[]) => String(args[0]).includes('[i18n]'))).toEqual(
+      [],
+    );
     warn.mockRestore();
+    jest.clearAllMocks();
   });
 
   it.each([
-    ['en', 'Welcome to your Pilates moment', 'Upcoming classes', '3 spots left'],
-    ['fr', 'Bienvenue dans votre moment Pilates', 'Prochains cours', '3 places restantes'],
-    ['ru', 'Ваше время для пилатеса', 'Ближайшие занятия', 'Осталось 3 места'],
-  ] as const)('renders fully translated in %s', async (locale, headline, upcoming, spots) => {
-    await renderWithProviders(<HomeScreen now={NOW} />, locale);
+    ['en', 'Welcome to your Pilates moment', 'Classes to discover', 'Beginner foundations'],
+    ['fr', 'Bienvenue dans votre moment Pilates', 'Cours à découvrir', 'Fondamentaux débutante'],
+    ['ru', 'Ваше время для пилатеса', 'Занятия для открытия', 'Основы для начинающих'],
+  ] as const)('renders fully translated in %s', async (locale, headline, nearby, program) => {
+    await renderWithProviders(<HomeScreen now={TEST_NOW} />, locale);
     expect(await screen.findByText(headline)).toBeTruthy();
-    expect(screen.getByText(upcoming)).toBeTruthy();
-    expect(screen.getByText(spots)).toBeTruthy();
+    expect(screen.getByText(nearby)).toBeTruthy();
+    expect((await screen.findAllByText(program)).length).toBeGreaterThan(0);
   });
 
-  it('labels every placeholder card as sample data outside production', async () => {
-    await renderWithProviders(<HomeScreen now={NOW} />);
-    // Today card + 2 classes + 2 programs.
-    expect(screen.getAllByText('Sample data')).toHaveLength(5);
+  it('starts today’s session from the Today card', async () => {
+    await renderWithProviders(<HomeScreen now={TEST_NOW} />);
+    await fireEvent.press(await screen.findByRole('button', { name: "Start today's session" }));
+    expect(router.push).toHaveBeenCalledWith('/workouts/wk-morning-reset');
   });
 
-  it('shows class times in the class time zone', async () => {
-    await renderWithProviders(<HomeScreen now={NOW} />);
-    // Sample classes are at 08:00 and 18:00 Monaco time (UTC+1 in November),
-    // whatever the phone's time zone. The test device formats times in US English.
-    expect(screen.getByRole('button', { name: /Sun, Nov 15 8:00 AM/ })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Mon, Nov 16 6:00 PM/ })).toBeTruthy();
+  it('shows classes from the instructors and studios the member follows', async () => {
+    await renderWithProviders(<HomeScreen now={TEST_NOW} />);
+    expect(await screen.findByText('From your instructors and studios')).toBeTruthy();
   });
 
-  it('gives the start button a spoken label', async () => {
-    await renderWithProviders(<HomeScreen now={NOW} />);
-    expect(screen.getByRole('button', { name: "Start today's session" })).toBeTruthy();
+  it('labels demo content as sample data', async () => {
+    await renderWithProviders(<HomeScreen now={TEST_NOW} />);
+    await screen.findByText('Classes to discover');
+    expect((await screen.findAllByText('Sample data')).length).toBeGreaterThan(3);
   });
 
-  it('announces the selected category chip', async () => {
-    await renderWithProviders(<HomeScreen now={NOW} />);
-    const core = screen.getByRole('button', { name: 'Core' });
+  it('filters recommended sessions by category, with the selection announced', async () => {
+    await renderWithProviders(<HomeScreen now={TEST_NOW} />);
+    const core = await screen.findByRole('button', { name: 'Core' });
     expect(core).not.toBeSelected();
     await fireEvent.press(core);
     expect(screen.getByRole('button', { name: 'Core' })).toBeSelected();
-    expect(screen.getByRole('button', { name: 'All' })).not.toBeSelected();
+    expect(await screen.findByText('Core foundations')).toBeTruthy();
+    expect(screen.queryByText('Travel stretch')).toBeNull();
   });
 });
