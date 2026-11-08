@@ -12,13 +12,14 @@ The pilot launches in Monaco and on the Côte d'Azur with **Gym & Tonic** as Fou
 
 ## Project status
 
-**Phase 0 (planning) is waiting for the founders' final approval.** There is no application code yet.
+**Phase 0 (planning): all decisions approved, final document review in progress.** There is no application code yet. Phase 1 (foundation) starts after the founders' explicit approval.
 
 | Document | Purpose |
 | --- | --- |
 | [`docs/phase-0/decision-record.md`](docs/phase-0/decision-record.md) | Every Phase 0 decision and its status, the identifier check, and open items |
 | [`docs/phase-0/technical-plan.md`](docs/phase-0/technical-plan.md) | Architecture, folder structure, dependencies, data model, security, roadmap |
 | [`docs/design/visual-reference.md`](docs/design/visual-reference.md) | Visual reference analysis, palette, accessibility fixes |
+| [`docs/README.md`](docs/README.md) | Index of all documentation |
 
 ## Stack (approved)
 
