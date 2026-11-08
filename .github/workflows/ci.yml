@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      EXPO_NO_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Formatting
+        run: pnpm format:check
+      - name: Lint, typecheck and unit tests (includes EN/FR/RU parity and contrast checks)
+        run: pnpm check
+      - name: Build admin portal
+        run: pnpm --filter @oreva/admin build
+      - name: Bundle mobile app for iOS and Android
+        run: pnpm --filter @oreva/mobile exec expo export --platform ios --platform android --output-dir dist
+
+  database:
+    name: Database migrations and pgTAP tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+      - name: Start local Postgres and apply migrations
+        run: supabase db start
+      - name: Apply seed (local environment marker)
+        run: supabase db reset
+      - name: Run pgTAP tests (RLS, placeholder guard, localized text, roles)
+        run: supabase test db
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.18.4 detect --source /repo --redact --verbose

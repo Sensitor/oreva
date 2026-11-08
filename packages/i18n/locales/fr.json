@@ -1,0 +1,116 @@
+{
+  "app": {
+    "name": "ORÉVA",
+    "tagline": "Votre mouvement. Votre moment."
+  },
+  "common": {
+    "seeAll": "Tout voir",
+    "sampleData": "Données d’exemple",
+    "comingSoon": "Bientôt disponible",
+    "retry": "Réessayer",
+    "durationMinutes_one": "{{count}} min",
+    "durationMinutes_many": "{{count}} min",
+    "durationMinutes_other": "{{count}} min"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "discover": "Découvrir",
+    "practice": "Pratiquer",
+    "connect": "Communauté",
+    "profile": "Profil"
+  },
+  "home": {
+    "greeting": {
+      "morning": "Bonjour",
+      "afternoon": "Bon après-midi",
+      "evening": "Bonsoir"
+    },
+    "headline": "Bienvenue dans votre moment Pilates",
+    "today": {
+      "label": "Aujourd’hui",
+      "programDay": "Jour {{day}}",
+      "exercises_one": "{{count}} exercice",
+      "exercises_many": "{{count}} d’exercices",
+      "exercises_other": "{{count}} exercices",
+      "start": "Commencer"
+    },
+    "categories": {
+      "all": "Tout",
+      "core": "Centre",
+      "fullBody": "Corps entier",
+      "lowerBody": "Bas du corps",
+      "upperBody": "Haut du corps",
+      "mobility": "Mobilité et étirements",
+      "breath": "Respiration et détente"
+    },
+    "upcoming": {
+      "title": "Prochains cours",
+      "outdoor": "En plein air",
+      "spotsLeft_one": "{{count}} place restante",
+      "spotsLeft_many": "{{count}} de places restantes",
+      "spotsLeft_other": "{{count}} places restantes",
+      "viewClass": "Voir le cours"
+    },
+    "programs": {
+      "title": "Programmes",
+      "weeks_one": "{{count}} semaine",
+      "weeks_many": "{{count}} de semaines",
+      "weeks_other": "{{count}} semaines"
+    }
+  },
+  "pillars": {
+    "discover": {
+      "title": "Découvrir",
+      "description": "Trouvez des instructeurs, des studios et des cours de Pilates près de vous, où que vous soyez."
+    },
+    "practice": {
+      "title": "Pratiquer",
+      "description": "Des séances, des programmes et des cours guidés premium, partout et à tout moment."
+    },
+    "connect": {
+      "title": "Communauté",
+      "description": "Vos instructeurs, des communautés Pilates et des Circles privés avec vos amies."
+    },
+    "preparing": "Nous préparons cet espace avec soin."
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Langue",
+    "languageHint": "ORÉVA s’affichera dans cette langue.",
+    "designPreview": "Aperçu du design",
+    "version": "Version {{version}}",
+    "environment": "Build : {{name}}"
+  },
+  "language": {
+    "en": "English",
+    "fr": "Français",
+    "ru": "Русский"
+  },
+  "designPreview": {
+    "title": "Aperçu du design",
+    "intro": "Comparez les deux polices candidates avec de vrais textes dans chaque langue.",
+    "typeface": "Police",
+    "sampleHeadline": "Votre mouvement. Votre moment.",
+    "sampleBody": "Inspirez, allongez la colonne et laissez vos épaules se relâcher. Votre prochain cours a lieu demain à 8 h sur la plage.",
+    "note": "Visible uniquement dans les versions de développement et de recette."
+  },
+  "a11y": {
+    "notifications": "Notifications",
+    "startSession": "Commencer la séance du jour",
+    "sampleBadge": "Ce contenu est un exemple"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue. Veuillez réessayer.",
+    "network": "Vous semblez hors ligne. Vérifiez votre connexion puis réessayez."
+  },
+  "admin": {
+    "title": "Portail admin et partenaires",
+    "intro": "Un seul espace pour l’équipe ORÉVA, les studios partenaires et les instructeurs pour gérer les cours, les contenus et la communauté.",
+    "signInSoon": "La connexion sécurisée arrive bientôt.",
+    "teamTitle": "Équipe ORÉVA",
+    "teamBody": "Partenaires, cours, contenus, modération et demandes des membres.",
+    "providerTitle": "Studios et instructeurs",
+    "providerBody": "Votre profil, vos cours, les présences et les mises à jour de cours.",
+    "language": "Langue"
+  }
+}
