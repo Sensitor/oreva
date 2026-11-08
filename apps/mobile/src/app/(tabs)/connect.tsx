@@ -1,6 +1,5 @@
-import { UsersRound } from 'lucide-react-native';
-import { PillarPlaceholder } from '@/features/pillars/PillarPlaceholder';
+import { ConnectScreen } from '@/features/connect/ConnectScreen';
 
 export default function ConnectRoute() {
-  return <PillarPlaceholder pillar="connect" icon={UsersRound} />;
+  return <ConnectScreen />;
 }

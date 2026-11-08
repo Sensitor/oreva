@@ -9,6 +9,7 @@ export { IconButton } from './IconButton';
 export { InfoRow } from './InfoRow';
 export { PillButton } from './PillButton';
 export { PillTabBar } from './PillTabBar';
+export { ProgressRing } from './ProgressRing';
 export { SampleBadge } from './SampleBadge';
 export { Screen, TAB_BAR_CLEARANCE } from './Screen';
 export { ScreenHeader } from './ScreenHeader';

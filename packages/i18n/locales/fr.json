@@ -280,7 +280,8 @@
     "restDay": "Jour de repos",
     "startProgram": "Commencer le programme",
     "empty": "Aucune séance ne correspond à ces filtres.",
-    "sampleVideo": "Vidéo d’exemple"
+    "sampleVideo": "Vidéo d’exemple",
+    "schedule": "Planning"
   },
   "player": {
     "exerciseOf": "Exercice {{current}} sur {{total}}",

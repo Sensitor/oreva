@@ -94,7 +94,12 @@ export interface PracticeRepository {
 export interface ConnectRepository {
   circles(): Promise<Circle[]>;
   circle(id: string): Promise<Circle | null>;
-  suggestedFollowing(): Promise<{ organizations: Organization[]; instructors: Instructor[] }>;
+  /** Public organizations, instructors and cities (used to show who the member follows). */
+  directory(): Promise<{
+    organizations: Organization[];
+    instructors: Instructor[];
+    cities: City[];
+  }>;
 }
 
 export interface OrevaRepositories {

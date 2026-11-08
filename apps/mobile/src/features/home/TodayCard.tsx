@@ -4,10 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { AppText, Card, PillButton, SampleBadge } from '@/ui';
-import type { SampleTodaySession } from './sampleHomeData';
+import type { LocalizedText } from '@oreva/core';
+
+export interface TodaySession {
+  isPlaceholder: boolean;
+  programTitle: LocalizedText;
+  day: number;
+  exercises: number;
+  minutes: number;
+}
 
 export interface TodayCardProps {
-  session: SampleTodaySession;
+  session: TodaySession;
   onStart: () => void;
 }
 

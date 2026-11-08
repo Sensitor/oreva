@@ -69,7 +69,7 @@ export function useCircle(id: string) {
   return useQuery({ queryKey: ['circle', id], queryFn: () => connect.circle(id) });
 }
 
-export function useSuggestedFollowing() {
+export function useDirectory() {
   const { connect } = useRepositories();
-  return useQuery({ queryKey: ['following'], queryFn: () => connect.suggestedFollowing() });
+  return useQuery({ queryKey: ['directory'], queryFn: () => connect.directory() });
 }

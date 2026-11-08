@@ -24,7 +24,7 @@ export function createUnavailableRepositories(): OrevaRepositories {
     connect: {
       circles: async () => [],
       circle: async () => null,
-      suggestedFollowing: async () => ({ organizations: [], instructors: [] }),
+      directory: async () => ({ organizations: [], instructors: [], cities: [] }),
     },
   };
 }

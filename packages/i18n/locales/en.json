@@ -269,7 +269,8 @@
     "restDay": "Rest day",
     "startProgram": "Start the program",
     "empty": "No sessions match these filters.",
-    "sampleVideo": "Sample video"
+    "sampleVideo": "Sample video",
+    "schedule": "Schedule"
   },
   "player": {
     "exerciseOf": "Exercise {{current}} of {{total}}",

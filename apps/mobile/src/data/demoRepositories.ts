@@ -97,11 +97,10 @@ export function createDemoRepositories(now: Date = new Date()): OrevaRepositorie
     connect: {
       circles: async () => data.circles,
       circle: async (id) => data.circles.find((c) => c.id === id) ?? null,
-      suggestedFollowing: async () => ({
-        organizations: data.organizations.filter((o) =>
-          data.following.organizationIds.includes(o.id),
-        ),
-        instructors: data.instructors.filter((i) => data.following.instructorIds.includes(i.id)),
+      directory: async () => ({
+        organizations: data.organizations,
+        instructors: data.instructors,
+        cities: data.cities,
       }),
     },
   };

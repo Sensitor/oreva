@@ -291,7 +291,8 @@
     "restDay": "День отдыха",
     "startProgram": "Начать программу",
     "empty": "Нет занятий по этим фильтрам.",
-    "sampleVideo": "Демонстрационное видео"
+    "sampleVideo": "Демонстрационное видео",
+    "schedule": "Расписание"
   },
   "player": {
     "exerciseOf": "Упражнение {{current}} из {{total}}",

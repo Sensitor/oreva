@@ -1,6 +1,5 @@
-import { CirclePlay } from 'lucide-react-native';
-import { PillarPlaceholder } from '@/features/pillars/PillarPlaceholder';
+import { PracticeScreen } from '@/features/practice/PracticeScreen';
 
 export default function PracticeRoute() {
-  return <PillarPlaceholder pillar="practice" icon={CirclePlay} />;
+  return <PracticeScreen />;
 }
