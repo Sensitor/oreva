@@ -88,7 +88,7 @@
     "title": "Profil",
     "language": "Langue",
     "languageHint": "ORÉVA s’affichera dans cette langue.",
-    "designPreview": "Aperçu du design",
+    "designPreview": "Système de design",
     "version": "Version {{version}}",
     "environment": "Build : {{name}}"
   },
@@ -98,11 +98,78 @@
     "ru": "Русский"
   },
   "designPreview": {
-    "title": "Aperçu du design",
-    "intro": "Comparez les deux polices candidates avec de vrais textes dans chaque langue.",
-    "typeface": "Police",
+    "title": "Système de design",
+    "intro": "Les fondations d'ORÉVA telles qu'elles sont dans l'app : couleurs, typographie, formes, profondeur et mouvement. Chaque écran s'appuie sur ces valeurs.",
+    "kicker": "ORÉVA · Fondations",
+    "sections": {
+      "color": "Couleurs",
+      "type": "Typographie",
+      "shape": "Formes",
+      "depth": "Profondeur",
+      "motion": "Mouvement"
+    },
+    "contrast_one": "La paire de couleurs utilisée dans l'app respecte le niveau AA du WCAG.",
+    "contrast_many": "Les {{count}} paires de couleurs utilisées dans l'app respectent le niveau AA du WCAG.",
+    "contrast_other": "Les {{count}} paires de couleurs utilisées dans l'app respectent le niveau AA du WCAG.",
+    "sampleKicker": "Semaine 2 · Monaco",
     "sampleHeadline": "Votre mouvement. Votre moment.",
     "sampleBody": "Inspirez, allongez la colonne et laissez vos épaules se relâcher. Votre prochain cours a lieu demain à 8 h sur la plage.",
+    "typeNote": "Titres et chiffres en Cormorant Garamond, tout le reste en Manrope.",
+    "colors": {
+      "cream": {
+        "name": "Crème",
+        "role": "Fond"
+      },
+      "paper": {
+        "name": "Papier",
+        "role": "Surfaces"
+      },
+      "sand": {
+        "name": "Sable",
+        "role": "Zones en retrait"
+      },
+      "lilac": {
+        "name": "Lilas",
+        "role": "Mises en valeur douces"
+      },
+      "lavender": {
+        "name": "Lavande",
+        "role": "Aplats d'accent, texte encre uniquement"
+      },
+      "iris": {
+        "name": "Iris",
+        "role": "Progression et liens"
+      },
+      "plum": {
+        "name": "Prune",
+        "role": "Actions et titres"
+      },
+      "ink": {
+        "name": "Encre",
+        "role": "Texte"
+      },
+      "stone": {
+        "name": "Pierre",
+        "role": "Texte secondaire"
+      },
+      "sage": {
+        "name": "Sauge",
+        "role": "Succès"
+      }
+    },
+    "depth": {
+      "soft": "Léger relief",
+      "raised": "Surélevé",
+      "floating": "Flottant : barre d'onglets, feuilles"
+    },
+    "motion": {
+      "press": "Retour au toucher",
+      "tab": "Changement d'onglet",
+      "entrance": "Arrivée d'un écran",
+      "progress": "Progression"
+    },
+    "motionValue": "{{ms}} ms",
+    "reduceMotion": "Avec « Réduire les animations », chaque animation devient instantanée ou un simple fondu.",
     "note": "Visible uniquement dans les versions de développement et de recette."
   },
   "a11y": {
@@ -385,7 +452,7 @@
     "mapbox": "Mapbox",
     "apple": "Apple Plans",
     "stressTest": "Afficher 2 000 points de test sur la carte",
-    "typeface": "Comparer les polices",
+    "designSystem": "Système de design",
     "reset": "Réinitialiser les données du prototype",
     "resetDone": "Données du prototype réinitialisées.",
     "intro": "Visible uniquement dans les versions de développement et de recette."

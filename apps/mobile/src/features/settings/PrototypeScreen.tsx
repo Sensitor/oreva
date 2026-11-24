@@ -11,7 +11,7 @@ import { AppText, Card, Chip, LinkRow, PillButton, Screen, ScreenHeader, ToggleR
 /**
  * Prototype settings for the founders' iPhone tests (development and staging
  * only): map provider A/B (note 0002), 2,000-point performance check,
- * typeface comparison (P-14), reset.
+ * link to the design system, reset.
  */
 export function PrototypeScreen() {
   const { t } = useTranslation();
@@ -53,7 +53,7 @@ export function PrototypeScreen() {
         />
         <LinkRow
           icon={Sparkles}
-          label={t('prototypeScreen.typeface')}
+          label={t('prototypeScreen.designSystem')}
           onPress={() => router.push('/design-preview')}
         />
       </Card>

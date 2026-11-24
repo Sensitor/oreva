@@ -1,5 +1,4 @@
 import '@fontsource-variable/manrope';
-import '@fontsource-variable/onest';
 import { cssVariablesRule } from '@oreva/tokens';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';

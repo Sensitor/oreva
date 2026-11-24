@@ -109,13 +109,13 @@ Profile → **Prototype settings** → **Map provider**: switch between **Mapbox
 - **Connect:** open _Morning crew_. Look at the challenge, then send a message. Long-press a message from someone else to see Report / Block. Also try **Create a Circle**.
 - **Profile:** language, notifications (news is off by default), privacy, accessibility, about.
 
-### Typeface (decision P-14)
+### Design system (phase A)
 
-Profile → **Design preview**: choose Manrope or Onest. **The choice applies to the whole app**, so you can compare on the real screens in all three languages.
+Profile → **Design system** shows the approved palette, the type scale and samples in English, French and Russian. Check that the Cormorant Garamond titles and numerals render correctly in Russian, and that the warmer colors read well on screen. No new build is needed: the fonts load with the JavaScript update.
 
 ## 4. Sending feedback
 
 For each point, note the screen, the language, what you expected and what you saw. Include a screenshot if possible. Then tell us:
 
 - **C-4:** Mapbox or Apple Maps
-- **P-14:** Manrope or Onest
+- **Phase A:** approved, or what to change

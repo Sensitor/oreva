@@ -16,8 +16,9 @@ export interface AppTextProps extends TextProps {
 }
 
 /**
- * The only text component screens should use. It applies the type scale and the
- * chosen typeface, and keeps system text scaling on (Dynamic Type / font scale).
+ * The only text component screens should use. It applies the type scale (Manrope
+ * or Cormorant Garamond per style) and keeps system text scaling on (Dynamic Type /
+ * font scale).
  */
 export function AppText({
   variant = 'body',
@@ -29,17 +30,20 @@ export function AppText({
 }: AppTextProps) {
   const { fontFamily } = useTheme();
   const token = textStyles[variant];
+  const large = token.fontSize >= 28;
   return (
     <Text
-      maxFontSizeMultiplier={variant === 'display' || variant === 'title1' ? 1.6 : 2}
+      maxFontSizeMultiplier={large ? 1.6 : 2}
       {...rest}
       style={[
         styles.base,
         {
-          fontFamily: fontFamily(weight ?? token.weight),
+          fontFamily: fontFamily(weight ?? token.weight, token.family),
           fontSize: token.fontSize,
           lineHeight: token.lineHeight,
           letterSpacing: 'letterSpacing' in token ? token.letterSpacing : 0,
+          textTransform: 'textTransform' in token ? token.textTransform : undefined,
+          fontVariant: 'fontVariant' in token ? [...token.fontVariant] : undefined,
           color: colors[color],
           textAlign: align,
         },
