@@ -89,18 +89,19 @@ After a JavaScript change, the app reloads from the server: no new build is need
 3. Search **Лондон**, **Londres** or **London**. Also try Paris, Dubai and New York.
 4. **Near me** shows an explanation first, then the iOS prompt. Refusing it offers Settings or city search instead.
 5. **Filters** (for example Reformer) leaves only the matching studios on the map. **List** shows the same results as cards.
+6. Tap the **X** in the search field: the city is cleared, the field reads "Search a city or explore", and the map zooms out to every city. Your filters stay on. Pick another city: the map moves there. The X also leaves **Near me**.
 
 ### Map A/B (decision C-4)
 
 Profile → **Prototype settings** → **Map provider**: switch between **Mapbox** and **Apple Maps**. Compare them using the criteria in note 0002, section 7:
 
-| Check       | Pass criterion                                                                        |
-| ----------- | ------------------------------------------------------------------------------------- |
-| Brand look  | Which one feels like ORÉVA?                                                           |
-| Performance | Turn on **Show 2,000 test points**, then pan and zoom around the world. Is it smooth? |
-| Privacy     | Private studios show only an approximate area at every zoom level                     |
-| VoiceOver   | Every result can be reached with the **List** view                                    |
-| Telemetry   | Profile → **Privacy** → Mapbox switch: turning it off persists                        |
+| Check       | Pass criterion                                                                                                   |
+| ----------- | ---------------------------------------------------------------------------------------------------------------- |
+| Brand look  | Which one feels like ORÉVA?                                                                                      |
+| Performance | Turn on **Show 2,000 test points**, clear the city with the X, then pan and zoom around the world. Is it smooth? |
+| Privacy     | Private studios show only an approximate area at every zoom level                                                |
+| VoiceOver   | Every result can be reached with the **List** view                                                               |
+| Telemetry   | Profile → **Privacy** → Mapbox switch: turning it off persists                                                   |
 
 ### Practice, Connect, Profile
 

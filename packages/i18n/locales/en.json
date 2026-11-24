@@ -170,6 +170,9 @@
   },
   "discover": {
     "searchPlaceholder": "Search a city",
+    "searchOrExplore": "Search a city or explore",
+    "clearCity": "Clear {{city}}",
+    "clearNearMe": "Stop using Near me",
     "nearMe": "Near me",
     "showList": "List",
     "showMap": "Map",
