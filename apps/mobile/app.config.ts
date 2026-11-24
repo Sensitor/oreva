@@ -27,6 +27,13 @@ export interface VariantIdentity {
   applicationId: string;
   /** Name under the icon. */
   displayName: string;
+  /**
+   * ASCII name for Expo's `name`, from which Xcode derives the target and scheme.
+   * Tools disagree on accents: eas-cli turns "ORÉVA Dev" into `ORVADev` while
+   * Expo 58 prebuild creates `OREVADev`, so the build cannot find its target.
+   * Plain ASCII gives the same target everywhere (`OREVADev`).
+   */
+  projectName: string;
   /** Deep link scheme, e.g. oreva://classes/123 */
   scheme: string;
 }
@@ -40,15 +47,26 @@ export function identityFor(
   }
   switch (variant) {
     case 'production':
-      return { applicationId: base, displayName: 'ORÉVA', scheme: 'oreva' };
+      return {
+        applicationId: base,
+        displayName: 'ORÉVA',
+        projectName: 'OREVA',
+        scheme: 'oreva',
+      };
     case 'staging':
       return {
         applicationId: `${base}.staging`,
         displayName: 'ORÉVA Staging',
+        projectName: 'OREVA Staging',
         scheme: 'oreva-staging',
       };
     case 'development':
-      return { applicationId: `${base}.dev`, displayName: 'ORÉVA Dev', scheme: 'oreva-dev' };
+      return {
+        applicationId: `${base}.dev`,
+        displayName: 'ORÉVA Dev',
+        projectName: 'OREVA Dev',
+        scheme: 'oreva-dev',
+      };
   }
 }
 
@@ -65,7 +83,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   return {
     ...config,
-    name: identity.displayName,
+    name: identity.projectName,
     slug: 'oreva',
     version: '0.1.0',
     scheme: identity.scheme,
@@ -75,6 +93,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     locales: nativeLocales,
     ios: {
       bundleIdentifier: identity.applicationId,
+      // The name under the icon keeps its accent; `name` stays ASCII (see projectName).
+      infoPlist: { CFBundleDisplayName: identity.displayName },
       supportsTablet: false,
       config: { usesNonExemptEncryption: false },
     },
