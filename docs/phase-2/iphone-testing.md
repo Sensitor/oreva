@@ -2,6 +2,43 @@
 
 This version adds native modules: maps (Mapbox and Apple Maps), location and video. **A new development build is required.** A JavaScript update alone isn't enough.
 
+## 0. One-time setup: Apple Developer and EAS
+
+Run these on your own computer (Mac or Windows), from `apps/mobile`, after `git pull` and `pnpm install`. EAS builds in the cloud, so Xcode isn't needed.
+
+1. **Wait for Apple to activate the membership.** After payment it can take up to 48 hours. You're ready when [developer.apple.com/account](https://developer.apple.com/account) shows your team and "Certificates, Identifiers & Profiles".
+2. **Sign in to Expo:**
+
+   ```bash
+   npx eas-cli@latest login
+   ```
+
+3. **Link the EAS project.** This writes the project ID and owner into `apps/mobile/app.json` (the project ID isn't a secret). Commit that change, or send the project ID to whoever maintains the repository.
+
+   ```bash
+   npx eas-cli@latest init
+   ```
+
+4. **Register each iPhone** (both founders). Choose "Website", open the link or QR code on the iPhone in Safari, and install the profile (Settings, General, VPN & Device Management).
+
+   ```bash
+   npx eas-cli@latest device:create
+   ```
+
+5. **Build.** When asked, sign in with the Apple ID of the developer account (two-factor code on your phone), and let EAS create the certificate and the provisioning profile, with the iPhones from step 4 selected. EAS registers the development bundle ID `com.oreva.app.dev` by itself.
+
+   ```bash
+   npx eas-cli@latest build --profile development --platform ios
+   ```
+
+6. **Turn on Developer Mode** on each iPhone the first time you open the app: Settings, Privacy & Security, Developer Mode, then restart.
+
+Notes:
+
+- An iPhone registered after the build needs a new build (repeat step 5).
+- Only the development identifier is registered here. The production identifier `com.oreva.app` waits for the trademark and domain checks (decision record, section 5), because it can't change after the first store submission.
+- Sentry's upload step is switched off in `eas.json` (`SENTRY_DISABLE_AUTO_UPLOAD`) until a Sentry project exists; without it, the iOS build would fail.
+
 ## 1. One-time setup: the Mapbox token
 
 The Mapbox side of the A/B needs a **public** token (it starts with `pk.`). It's designed to live inside the app, so it isn't a secret. Still, it never goes in git or in the chat.
@@ -36,6 +73,10 @@ Install the build on the iPhone from the link or QR code EAS shows. Then start t
 ```bash
 pnpm dev:mobile
 ```
+
+Open ORÉVA Dev on the iPhone and pick the server it lists, or scan the QR code from the terminal. The computer and the iPhone must be on the same Wi-Fi; if that's not possible, start the server with `npx expo start --tunnel` from `apps/mobile`.
+
+After a JavaScript change, the app reloads from the server: no new build is needed. A new build is only needed when a native module, a permission or `app.config.ts` changes.
 
 ## 3. What to test
 

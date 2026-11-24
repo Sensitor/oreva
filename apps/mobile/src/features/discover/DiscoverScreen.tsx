@@ -13,6 +13,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useClock } from '@/data/DataProvider';
 import { applyClassFilters, countActiveFilters } from '@/data/filters';
 import { useCities, useClasses, useMapPoints } from '@/data/hooks';
 import { DEFAULT_CLASS_FILTERS, type ClassFilters, type ClassListItem } from '@/data/types';
@@ -63,7 +64,8 @@ export function DiscoverScreen() {
   const points = useMapPoints(state.mapStressTest);
   const allClasses = useClasses(DEFAULT_CLASS_FILTERS);
 
-  const now = useMemo(() => new Date(), []);
+  const clock = useClock();
+  const now = useMemo(() => clock(), [clock]);
   const filtered = useMemo(
     () => applyClassFilters(allClasses.data ?? [], filters, now),
     [allClasses.data, filters, now],

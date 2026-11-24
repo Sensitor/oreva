@@ -7,6 +7,7 @@ import type { OrevaRepositories } from './types';
 import { createUnavailableRepositories } from './unavailableRepositories';
 
 const RepositoriesContext = createContext<OrevaRepositories | null>(null);
+const ClockContext = createContext<() => Date>(() => new Date());
 
 export function createRepositories(now: Date = new Date()): OrevaRepositories {
   const source = resolveDataSource(appVariant, process.env.EXPO_PUBLIC_DATA_SOURCE);
@@ -19,12 +20,15 @@ interface DataProviderProps {
   repositories?: OrevaRepositories;
   /** Injected in tests (no background timers). */
   queryClient?: QueryClient;
+  /** Injected in tests: a fixed clock, so demo classes never drift into the past. */
+  clock?: () => Date;
 }
 
 export function DataProvider({
   children,
   repositories,
   queryClient: injectedClient,
+  clock,
 }: DataProviderProps) {
   const [value] = useState(() => repositories ?? createRepositories());
   const [queryClient] = useState(
@@ -34,9 +38,20 @@ export function DataProvider({
   );
   return (
     <QueryClientProvider client={queryClient}>
-      <RepositoriesContext.Provider value={value}>{children}</RepositoriesContext.Provider>
+      <ClockContext.Provider value={clock ?? defaultClock}>
+        <RepositoriesContext.Provider value={value}>{children}</RepositoriesContext.Provider>
+      </ClockContext.Provider>
     </QueryClientProvider>
   );
+}
+
+function defaultClock(): Date {
+  return new Date();
+}
+
+/** The current time, from the injected clock in tests or the device otherwise. */
+export function useClock(): () => Date {
+  return useContext(ClockContext);
 }
 
 export function useRepositories(): OrevaRepositories {
