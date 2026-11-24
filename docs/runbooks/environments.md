@@ -10,6 +10,8 @@ ORÉVA has three environments (cahier des charges 6.3, decision P-10).
 | Sample data labels and Design preview  | Visible                                                      | Visible                                                          | Hidden                                                  |
 | Placeholder content (`is_placeholder`) | Can be published                                             | Can be published                                                 | **Blocked by the database**                             |
 
+**ORÉVA Preview** (`APP_VARIANT=preview` → `com.oreva.app.preview`) is the internal testing app: it uses the local and demo setup like ORÉVA Dev, shows the sample data labels, and receives every change merged into `main` through EAS Update. See [eas-update.md](eas-update.md).
+
 ## Marking a database's environment
 
 The placeholder guard reads `private.runtime_settings`. When the `environment` key is absent, the database **behaves as production** (fail closed).

@@ -1,0 +1,253 @@
+# Publishes every change merged into main to the internal ORÉVA Preview app
+# (docs/runbooks/eas-update.md).
+#
+# - Runs only after the CI workflow passed on a push to main, or by hand on main.
+# - Publishes to the "preview" channel only. Development and production builds
+#   never receive these updates.
+# - If the native code changed (a new runtime fingerprint), it does not publish
+#   an update the installed app could not run: it starts a new preview build.
+
+name: EAS Update (preview)
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # One publish at a time, and never cancelled halfway.
+  group: eas-update-preview
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # Hard-coded on purpose: this workflow can only reach the internal preview app.
+  EAS_CHANNEL: preview
+  EAS_BUILD_PROFILE: preview
+  EAS_ENVIRONMENT: preview
+  # Same variant as the preview build profile, so the fingerprint matches.
+  APP_VARIANT: preview
+  EAS_CLI_VERSION: 27.11.0
+  EXPO_ACCOUNT: orevawellness
+  EXPO_PROJECT: oreva
+  EXPO_NO_TELEMETRY: '1'
+
+jobs:
+  publish:
+    name: Publish to ORÉVA Preview (iOS)
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Check out the commit that passed CI
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+
+      - name: Guard (preview only)
+        run: |
+          if [ "$EAS_CHANNEL" != "preview" ] || [ "$EAS_BUILD_PROFILE" != "preview" ] || [ "$APP_VARIANT" != "preview" ]; then
+            echo "::error::This workflow only publishes to the preview channel."
+            exit 1
+          fi
+          node -e "
+            const p = require('./apps/mobile/eas.json').build.preview;
+            if (!p || p.channel !== 'preview' || p.developmentClient || p.env?.APP_VARIANT !== 'preview') {
+              console.error('::error::The preview profile in apps/mobile/eas.json is missing or changed.');
+              process.exit(1);
+            }"
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::The EXPO_TOKEN secret is missing (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+      - name: Did the app change?
+        id: changes
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || ! git rev-parse -q --verify HEAD^1 >/dev/null; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only HEAD^1 HEAD -- apps/mobile packages pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc)
+          if [ -n "$changed" ]; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "relevant=false" >> "$GITHUB_OUTPUT"
+            echo "### ORÉVA Preview: nothing to publish" >> "$GITHUB_STEP_SUMMARY"
+            echo "This merge does not touch the app (apps/mobile, packages, dependencies)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: pnpm/action-setup@v4
+        if: steps.changes.outputs.relevant == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.relevant == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.changes.outputs.relevant == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Set up EAS CLI
+        if: steps.changes.outputs.relevant == 'true'
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: ${{ env.EAS_CLI_VERSION }}
+          packager: pnpm
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Compute the native fingerprint (runtime version)
+        if: steps.changes.outputs.relevant == 'true'
+        id: runtime
+        working-directory: apps/mobile
+        run: |
+          # The same computation eas update uses: preview variables from EAS, preview variant.
+          eas env:exec "$EAS_ENVIRONMENT" "npx expo-updates runtimeversion:resolve --platform ios" --non-interactive > runtime.out
+          runtime=$(node -e "
+            const lines = require('fs').readFileSync('runtime.out', 'utf8').split('\n');
+            const line = lines.reverse().find((l) => l.trim().startsWith('{') && l.includes('runtimeVersion'));
+            if (!line) process.exit(1);
+            console.log(JSON.parse(line).runtimeVersion);")
+          echo "Runtime version (fingerprint): $runtime"
+          echo "value=$runtime" >> "$GITHUB_OUTPUT"
+
+      - name: Find a preview build with this fingerprint
+        if: steps.changes.outputs.relevant == 'true'
+        id: builds
+        working-directory: apps/mobile
+        env:
+          RUNTIME: ${{ steps.runtime.outputs.value }}
+        run: |
+          count() {
+            eas build:list --platform ios --build-profile "$EAS_BUILD_PROFILE" "$@" --limit 1 --json --non-interactive \
+              | node -e "let s='';process.stdin.on('data',(d)=>(s+=d)).on('end',()=>console.log(JSON.parse(s||'[]').length))"
+          }
+          finished=$(count --runtime-version "$RUNTIME" --status finished)
+          running=0
+          for status in new in-queue in-progress; do
+            n=$(count --runtime-version "$RUNTIME" --status "$status")
+            running=$((running + n))
+          done
+          any=$(count --status finished)
+          echo "Finished builds with this fingerprint: $finished; running: $running; any finished preview build: $any"
+          if [ "$finished" -gt 0 ] || [ "$running" -gt 0 ]; then
+            echo "decision=update" >> "$GITHUB_OUTPUT"
+          elif [ "$any" -gt 0 ]; then
+            echo "decision=build" >> "$GITHUB_OUTPUT"
+          else
+            echo "decision=first-build" >> "$GITHUB_OUTPUT"
+          fi
+          echo "running=$running" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare the update message
+        if: steps.changes.outputs.relevant == 'true'
+        id: message
+        run: |
+          # Merge commits read "Merge pull request #N from ..."; the PR title is on the next line.
+          subject=$(git log -1 --format=%s)
+          title=$(git log -1 --format=%b | sed '/^\s*$/d' | head -n 1)
+          case "$subject" in
+            "Merge pull request"*) text="${title:-$subject}" ;;
+            *) text="$subject" ;;
+          esac
+          short=$(git rev-parse --short HEAD)
+          {
+            echo "text<<ORE_EOF"
+            echo "${text} (${short})" | cut -c1-200
+            echo "ORE_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish the iOS update to the preview channel
+        if: steps.changes.outputs.relevant == 'true' && steps.builds.outputs.decision == 'update'
+        id: update
+        working-directory: apps/mobile
+        env:
+          MESSAGE: ${{ steps.message.outputs.text }}
+          RUNTIME: ${{ steps.runtime.outputs.value }}
+        run: |
+          eas update --channel "$EAS_CHANNEL" --environment "$EAS_ENVIRONMENT" --platform ios \
+            --message "$MESSAGE" --json --non-interactive > update.json
+          node -e "
+            const updates = require('./update.json');
+            const ios = updates.find((u) => u.platform === 'ios');
+            if (!ios) { console.error('::error::No iOS update in the EAS response.'); process.exit(1); }
+            if (ios.runtimeVersion !== process.env.RUNTIME) {
+              console.error('::error::The update runtime (' + ios.runtimeVersion + ') differs from the fingerprint checked (' + process.env.RUNTIME + '). Compare them with: eas fingerprint:compare');
+              process.exit(1);
+            }
+            require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'group=' + ios.group + '\n');"
+
+      - name: Start a new preview build (native code changed)
+        if: steps.changes.outputs.relevant == 'true' && steps.builds.outputs.decision == 'build'
+        id: build
+        working-directory: apps/mobile
+        env:
+          MESSAGE: ${{ steps.message.outputs.text }}
+        run: |
+          # --freeze-credentials: CI never creates or changes certificates and profiles.
+          eas build --profile "$EAS_BUILD_PROFILE" --platform ios --non-interactive --no-wait \
+            --freeze-credentials --message "$MESSAGE" --json > build.json
+          node -e "
+            const builds = require('./build.json');
+            const id = builds[0]?.id;
+            if (!id) { console.error('::error::EAS did not return a build.'); process.exit(1); }
+            require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'id=' + id + '\n');"
+
+      - name: Summary
+        if: always() && steps.changes.outputs.relevant == 'true'
+        env:
+          DECISION: ${{ steps.builds.outputs.decision }}
+          RUNNING: ${{ steps.builds.outputs.running }}
+          RUNTIME: ${{ steps.runtime.outputs.value }}
+          GROUP: ${{ steps.update.outputs.group }}
+          BUILD_ID: ${{ steps.build.outputs.id }}
+          MESSAGE: ${{ steps.message.outputs.text }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          base="https://expo.dev/accounts/$EXPO_ACCOUNT/projects/$EXPO_PROJECT"
+          {
+            echo "### ORÉVA Preview (iOS)"
+            echo ""
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| Commit | \`$(git rev-parse --short HEAD)\` $MESSAGE |"
+            echo "| Channel | \`$EAS_CHANNEL\` (development and production untouched) |"
+            echo "| Native fingerprint | \`${RUNTIME:-not computed}\` |"
+            case "$DECISION" in
+              update)
+                echo "| Result | Update published: [view on expo.dev]($base/updates/$GROUP) |"
+                if [ "${RUNNING:-0}" -gt 0 ]; then
+                  echo "| Note | A preview build with this fingerprint is still running; it will pick this update up. |"
+                fi
+                echo ""
+                echo "Open ORÉVA Preview on the iPhone: the update loads at launch." ;;
+              build)
+                echo "| Result | Native code changed: new preview build started, [follow it on expo.dev]($base/builds/$BUILD_ID) |"
+                echo ""
+                echo "No update was published: the installed app could not run it. Install the new build from the link when it is ready." ;;
+              first-build)
+                echo "| Result | No ORÉVA Preview build exists yet |"
+                echo ""
+                echo "Run the first preview build by hand (Apple sign-in needed), then this workflow takes over. See docs/runbooks/eas-update.md." ;;
+              *)
+                echo "| Result | Stopped before deciding (status: $JOB_STATUS). See the failed step above. |" ;;
+            esac
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$DECISION" = "first-build" ]; then
+            echo "::error::No ORÉVA Preview build yet. Run: cd apps/mobile && npx eas-cli@latest build --profile preview --platform ios"
+            exit 1
+          fi

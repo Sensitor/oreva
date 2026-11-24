@@ -1,10 +1,12 @@
 import Constants from 'expo-constants';
 
-export type AppVariant = 'development' | 'staging' | 'production';
+export type AppVariant = 'development' | 'preview' | 'staging' | 'production';
 
 function readVariant(): AppVariant {
   const value: unknown = Constants.expoConfig?.extra?.variant;
-  return value === 'staging' || value === 'production' ? value : 'development';
+  return value === 'preview' || value === 'staging' || value === 'production'
+    ? value
+    : 'development';
 }
 
 export const appVariant: AppVariant = readVariant();

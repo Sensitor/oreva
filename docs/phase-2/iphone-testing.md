@@ -76,7 +76,7 @@ pnpm dev:mobile
 
 Open ORÉVA Dev on the iPhone and pick the server it lists, or scan the QR code from the terminal. The computer and the iPhone must be on the same Wi-Fi; if that's not possible, start the server with `npx expo start --tunnel` from `apps/mobile`.
 
-After a JavaScript change, the app reloads from the server: no new build is needed. A new build is only needed when a native module, a permission or `app.config.ts` changes.
+After a JavaScript change, the app reloads from the server: no new build is needed. To test what was merged into `main` without a computer, use the **ORÉVA Preview** app instead: it updates itself after each merge ([runbook](../runbooks/eas-update.md)). A new build is only needed when a native module, a permission or `app.config.ts` changes.
 
 ## 3. What to test
 
