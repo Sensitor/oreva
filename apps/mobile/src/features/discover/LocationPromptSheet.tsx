@@ -2,7 +2,7 @@ import { colors, radii, spacing } from '@oreva/tokens';
 import { LocateFixed } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
-import { AppText, PillButton, Sheet } from '@/ui';
+import { AppText, Button, Sheet } from '@/ui';
 import type { NearMeStatus } from './useNearMe';
 
 export interface LocationPromptSheetProps {
@@ -36,10 +36,10 @@ export function LocationPromptSheet({
           <AppText variant="body" testID="location-denied">
             {t('discover.locationDenied')}
           </AppText>
-          <PillButton label={t('discover.openSettings')} onPress={onOpenSettings} fullWidth />
-          <PillButton
+          <Button label={t('discover.openSettings')} onPress={onOpenSettings} fullWidth />
+          <Button
             label={t('discover.chooseCity')}
-            tone="light"
+            variant="secondary"
             onPress={onChooseCity}
             fullWidth
           />
@@ -47,15 +47,15 @@ export function LocationPromptSheet({
       ) : (
         <>
           <AppText variant="body">{t('discover.locationBody')}</AppText>
-          <PillButton
+          <Button
             label={t('discover.locationAllow')}
             onPress={onAllow}
             fullWidth
             testID="location-allow"
           />
-          <PillButton
+          <Button
             label={t('discover.locationNotNow')}
-            tone="light"
+            variant="secondary"
             onPress={onClose}
             fullWidth
           />

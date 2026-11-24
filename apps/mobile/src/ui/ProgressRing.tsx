@@ -11,24 +11,31 @@ export interface ProgressRingProps {
   label?: string;
 }
 
-/** Ring from the reference's player ("70%"). Shows session progress, never calories. */
-export function ProgressRing({ progress, size = 64, strokeWidth = 5, label }: ProgressRingProps) {
+/** From this size the label uses the serif numerals. */
+const LARGE_RING = 96;
+
+/**
+ * A fine iris ring on a hairline track. Shows session progress, never calories.
+ * Iris, not lavender: lavender is 2.66:1 on cream, below the 3:1 for graphics.
+ */
+export function ProgressRing({ progress, size = 64, strokeWidth = 4, label }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.min(Math.max(progress, 0), 1);
+  const percent = Math.round(clamped * 100);
   return (
     <View
       style={{ width: size, height: size }}
       accessible
       accessibilityRole="progressbar"
-      accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
+      accessibilityValue={{ min: 0, max: 100, now: percent }}
     >
       <Svg width={size} height={size}>
         <Circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={colors.surfaceMuted}
+          stroke={colors.borderSubtle}
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -36,18 +43,22 @@ export function ProgressRing({ progress, size = 64, strokeWidth = 5, label }: Pr
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={colors.accent}
+          stroke={colors.progress}
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"
-          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDasharray={`${String(circumference)} ${String(circumference)}`}
           strokeDashoffset={circumference * (1 - clamped)}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          transform={`rotate(-90 ${String(size / 2)} ${String(size / 2)})`}
         />
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.center]}>
-        <AppText variant="callout" weight="bold">
-          {label ?? `${String(Math.round(clamped * 100))}%`}
+        <AppText
+          variant={size >= LARGE_RING ? 'numeralSmall' : 'callout'}
+          weight={size >= LARGE_RING ? undefined : 'semibold'}
+          color="textBrand"
+        >
+          {label ?? `${String(percent)}%`}
         </AppText>
       </View>
     </View>

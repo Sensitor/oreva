@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { contrastPairs } from '@oreva/tokens';
-import { screen } from '@testing-library/react-native';
+import { screen, within } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import { DesignPreviewScreen } from '@/features/design-preview/DesignPreviewScreen';
 import { fontAssets } from '@/theme/fonts';
 import { AppText } from '@/ui';
 import { renderWithProviders } from '@/test-utils';
 
-describe('Design system (phase A)', () => {
+describe('Design system (phases A and B)', () => {
   let warn: ReturnType<typeof jest.spyOn>;
   beforeEach(() => {
     warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -28,11 +28,29 @@ describe('Design system (phase A)', () => {
     await renderWithProviders(<DesignPreviewScreen />, locale);
     expect(await screen.findByText(title)).toBeTruthy();
     expect(screen.getByText(cream)).toBeTruthy();
-    expect(screen.getByText(plum)).toBeTruthy();
+    expect(within(screen.getByTestId('swatch-plum')).getByText(plum)).toBeTruthy();
     expect(screen.getAllByTestId(/^swatch-/)).toHaveLength(10);
     expect(screen.getByText('#4B365D')).toBeTruthy();
     expect(screen.getByText('#A78BC6')).toBeTruthy();
   });
+
+  it.each([
+    ['en', 'Components', 'Signatures', 'Program progress'],
+    ['fr', 'Composants', 'Signatures', 'Progression du programme'],
+    ['ru', 'Компоненты', 'Фирменные элементы', 'Прогресс программы'],
+  ] as const)(
+    'shows the components and signatures in %s',
+    async (locale, components, signatures, progress) => {
+      await renderWithProviders(<DesignPreviewScreen />, locale);
+      expect(await screen.findByText(components)).toBeTruthy();
+      expect(screen.getByText(signatures)).toBeTruthy();
+      expect(screen.getByRole('progressbar', { name: progress })).toBeTruthy();
+      expect(screen.getAllByTestId(/^voile-/)).toHaveLength(4);
+      expect(
+        screen.getAllByTestId(/^icon-/, { includeHiddenElements: true }).length,
+      ).toBeGreaterThanOrEqual(12);
+    },
+  );
 
   it('confirms every color pairing passes AA', async () => {
     await renderWithProviders(<DesignPreviewScreen />);

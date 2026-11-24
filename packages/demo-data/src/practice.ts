@@ -82,7 +82,7 @@ export const demoWorkouts: Workout[] = [
     videoKey: 'breath',
     audioLanguage: 'en',
     premium: false,
-    tone: 'tileViolet',
+    tone: 'lilac',
     isPlaceholder: true,
   },
   {
@@ -101,7 +101,7 @@ export const demoWorkouts: Workout[] = [
     videoKey: 'core',
     audioLanguage: 'en',
     premium: false,
-    tone: 'tileMint',
+    tone: 'sand',
     isPlaceholder: true,
   },
   {
@@ -120,7 +120,7 @@ export const demoWorkouts: Workout[] = [
     videoKey: 'flow',
     audioLanguage: 'fr',
     premium: true,
-    tone: 'tileOrchid',
+    tone: 'mist',
     isPlaceholder: true,
   },
   {
@@ -139,7 +139,7 @@ export const demoWorkouts: Workout[] = [
     videoKey: 'flow',
     audioLanguage: 'fr',
     premium: false,
-    tone: 'tileMint',
+    tone: 'sand',
     isPlaceholder: true,
   },
   {
@@ -162,7 +162,7 @@ export const demoWorkouts: Workout[] = [
     videoKey: 'core',
     audioLanguage: 'en',
     premium: true,
-    tone: 'tileViolet',
+    tone: 'lilac',
     isPlaceholder: true,
   },
   {
@@ -181,7 +181,7 @@ export const demoWorkouts: Workout[] = [
     videoKey: 'breath',
     audioLanguage: 'en',
     premium: false,
-    tone: 'tileOrchid',
+    tone: 'mist',
     isPlaceholder: true,
   },
 ];
@@ -211,7 +211,7 @@ export const demoPrograms: Program[] = [
       { day: 6, workoutId: null },
       { day: 7, workoutId: 'wk-morning-reset' },
     ],
-    tone: 'tileViolet',
+    tone: 'lilac',
     isPlaceholder: true,
   },
   {
@@ -230,7 +230,7 @@ export const demoPrograms: Program[] = [
       { day: 3, workoutId: null },
       { day: 4, workoutId: 'wk-travel-stretch' },
     ],
-    tone: 'tileMint',
+    tone: 'sand',
     isPlaceholder: true,
   },
   {
@@ -250,7 +250,7 @@ export const demoPrograms: Program[] = [
       { day: 4, workoutId: 'wk-hips-legs' },
       { day: 5, workoutId: 'wk-upper-posture' },
     ],
-    tone: 'tileOrchid',
+    tone: 'mist',
     isPlaceholder: true,
   },
 ];

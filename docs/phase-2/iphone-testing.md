@@ -113,9 +113,18 @@ Profile → **Prototype settings** → **Map provider**: switch between **Mapbox
 
 Profile → **Design system** shows the approved palette, the type scale and samples in English, French and Russian. Check that the Cormorant Garamond titles and numerals render correctly in Russian, and that the warmer colors read well on screen. No new build is needed: the fonts load with the JavaScript update.
 
+### Components and signatures (phase B)
+
+No new build is needed: reload the development build. Report: `docs/design/phase-b/report.md`.
+
+1. Profile → **Design system**, then scroll to **Components** and **Signatures**. Tap the buttons and chips: they press in softly, and chips and primary buttons give a light tap you can feel.
+2. Check the covers (Voile) in Russian and French: titles and meta text readable, the line never under text.
+3. The **tab bar**: every tab has a label; the active one is plum with a small wave under it. Switching tabs gives a light tap. Try it with a larger text size (Settings, Display & Brightness, Text Size) and with VoiceOver.
+4. Turn on **Reduce Motion** (Settings, Accessibility, Motion): buttons dim slightly instead of scaling.
+
 ## 4. Sending feedback
 
 For each point, note the screen, the language, what you expected and what you saw. Include a screenshot if possible. Then tell us:
 
 - **C-4:** Mapbox or Apple Maps
-- **Phase A:** approved, or what to change
+- **Phase B:** approved, or what to change

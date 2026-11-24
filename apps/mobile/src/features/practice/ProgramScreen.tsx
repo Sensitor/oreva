@@ -1,5 +1,5 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, radii, spacing } from '@oreva/tokens';
+import { colors, radii, spacing, tints } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { ChevronRight, Moon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import {
   AppText,
   Card,
   EmptyState,
-  PillButton,
+  Button,
   SampleBadge,
   Screen,
   ScreenHeader,
@@ -60,7 +60,7 @@ export function ProgramScreen({ id }: { id: string }) {
       </Card>
       <AppText variant="body">{resolveLocalizedText(data.description, locale)?.text}</AppText>
       {firstWorkout ? (
-        <PillButton
+        <Button
           label={t('practice.startProgram')}
           withArrow
           onPress={() => router.push(`/workouts/${firstWorkout}`)}
@@ -100,7 +100,7 @@ export function ProgramScreen({ id }: { id: string }) {
                 style={({ pressed }) => [styles.row, pressed && styles.pressed]}
                 testID={`program-day-${day.day}`}
               >
-                <View style={[styles.dayBadge, { backgroundColor: colors[workout.tone] }]}>
+                <View style={[styles.dayBadge, { backgroundColor: tints[workout.tone] }]}>
                   <AppText variant="callout" weight="bold">
                     {String(day.day)}
                   </AppText>

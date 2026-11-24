@@ -1,5 +1,5 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, radii, spacing } from '@oreva/tokens';
+import { colors, radii, spacing, tints } from '@oreva/tokens';
 import { router } from 'expo-router';
 import {
   CalendarClock,
@@ -25,7 +25,7 @@ import {
   EmptyState,
   FictionalBanner,
   InfoRow,
-  PillButton,
+  Button,
   SampleBadge,
   Screen,
   ScreenHeader,
@@ -145,7 +145,7 @@ export function ClassDetailScreen({ id }: { id: string }) {
           style={({ pressed }) => [styles.row, pressed && styles.pressed]}
           testID="class-studio"
         >
-          <View style={[styles.swatch, { backgroundColor: colors[organization.tone] }]} />
+          <View style={[styles.swatch, { backgroundColor: tints[organization.tone] }]} />
           <View style={styles.flex}>
             <AppText variant="footnote" color="textSecondary">
               {t('classDetail.studio')}
@@ -157,7 +157,7 @@ export function ClassDetailScreen({ id }: { id: string }) {
       </Card>
 
       <View style={styles.book}>
-        <PillButton label={t('classDetail.book')} fullWidth disabled testID="book-class" />
+        <Button label={t('classDetail.book')} fullWidth disabled testID="book-class" />
         <AppText variant="footnote" color="textSecondary" align="center">
           {t('classDetail.bookingSoon')}
         </AppText>

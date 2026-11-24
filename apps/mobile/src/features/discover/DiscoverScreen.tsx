@@ -27,7 +27,7 @@ import { DEFAULT_CLASS_FILTERS, type ClassFilters, type ClassListItem } from '@/
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import { useReduceMotion } from '@/theme/useReduceMotion';
-import { AppText, EmptyState, IconButton, PillButton, TAB_BAR_CLEARANCE } from '@/ui';
+import { AppText, EmptyState, IconButton, Button, TAB_BAR_CLEARANCE } from '@/ui';
 import {
   EXPLORE,
   EXPLORE_CAMERA,
@@ -188,6 +188,7 @@ export function DiscoverScreen() {
           accessibilityLabel={t('discover.nearMe')}
           onPress={() => void nearMe.start().then(goNearMe)}
           testID="near-me"
+          floating
         />
       </View>
       <View style={styles.actionRow}>
@@ -279,9 +280,9 @@ export function DiscoverScreen() {
                 <AppText variant="bodyStrong" accessibilityLiveRegion="polite">
                   {t('discover.classesFound', { count: areaItems.length })}
                 </AppText>
-                <PillButton
+                <Button
                   label={t('discover.showList')}
-                  tone="light"
+                  variant="secondary"
                   onPress={() => setMode('list')}
                 />
               </View>

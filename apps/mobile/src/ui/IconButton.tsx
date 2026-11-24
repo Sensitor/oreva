@@ -1,24 +1,27 @@
 import { colors, elevation, radii, touchTarget } from '@oreva/tokens';
-import type { LucideIcon } from 'lucide-react-native';
-import { Pressable, StyleSheet, type PressableProps } from 'react-native';
+import { StyleSheet } from 'react-native';
+import type { IconComponent } from './icons';
+import { PressableScale, type PressableScaleProps } from './PressableScale';
 
-export interface IconButtonProps extends Omit<PressableProps, 'children' | 'style'> {
-  icon: LucideIcon;
+export interface IconButtonProps extends Omit<PressableScaleProps, 'children' | 'style'> {
+  icon: IconComponent;
   /** Required: icon-only buttons need a spoken label. */
   accessibilityLabel: string;
+  /** Lifts the button with a shadow, for controls that float over a map or a photo. */
+  floating?: boolean;
 }
 
-/** Round icon button with soft depth (back, notifications, music in the reference). */
-export function IconButton({ icon: Icon, ...rest }: IconButtonProps) {
+/** Round paper button with a hairline edge (back, notifications, near me). */
+export function IconButton({ icon: Icon, floating, ...rest }: IconButtonProps) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       hitSlop={4}
-      style={({ pressed }) => [styles.base, pressed && styles.pressed]}
+      style={[styles.base, floating && styles.floating]}
       {...rest}
     >
-      <Icon size={22} color={colors.textPrimary} strokeWidth={1.75} />
-    </Pressable>
+      <Icon size={22} color={colors.textPrimary} strokeWidth={1.5} />
+    </PressableScale>
   );
 }
 
@@ -30,11 +33,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: elevation.soft,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle,
   },
-  pressed: {
-    opacity: 0.8,
+  floating: {
+    boxShadow: elevation.floating,
   },
 });

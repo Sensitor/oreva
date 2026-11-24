@@ -95,14 +95,16 @@
   },
   "designPreview": {
     "title": "Design system",
-    "intro": "ORÉVA's foundations as they are in the app: color, type, shapes, depth and motion. Every screen draws from these tokens.",
-    "kicker": "ORÉVA · Foundations",
+    "intro": "ORÉVA's foundations and components as they are in the app: color, type, shapes, depth, motion, the shared components and the signature elements. Every screen draws from them.",
+    "kicker": "ORÉVA · Foundations and components",
     "sections": {
       "color": "Color",
       "type": "Typography",
       "shape": "Shapes",
       "depth": "Depth",
-      "motion": "Motion"
+      "motion": "Motion",
+      "components": "Components",
+      "signatures": "Signatures"
     },
     "contrast_one": "The color pairing used in the app passes WCAG AA.",
     "contrast_other": "All {{count}} color pairings used in the app pass WCAG AA.",
@@ -165,7 +167,67 @@
     },
     "motionValue": "{{ms}} ms",
     "reduceMotion": "With Reduce Motion on, every animation becomes instant or a simple fade.",
-    "note": "Shown in development and staging builds only."
+    "note": "Shown in development and staging builds only.",
+    "components": {
+      "buttons": "Buttons",
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "paper": "On a cover",
+      "accent": "Accent",
+      "quiet": "Quiet",
+      "text": "Text link",
+      "disabled": "Unavailable",
+      "buttonsNote": "One primary action per screen. Text on lavender is always ink.",
+      "chips": "Chips",
+      "chipSelected": "Selected",
+      "chipOption": "Option",
+      "chipOther": "Another option",
+      "tags": "Tags",
+      "iconButtons": "Icon buttons",
+      "iconNote": "The floating button sits over a map or a photo.",
+      "rows": "Rows",
+      "rowLink": "Link row",
+      "rowHint": "Opens another screen",
+      "rowToggle": "Toggle row",
+      "progress": "Progress"
+    },
+    "signatures": {
+      "line": "La Ligne",
+      "lineNote": "The signature wave: under editorial titles, under the active tab, and as program progress.",
+      "lineProgress": "Program progress",
+      "voile": "Voile",
+      "voileNote": "Layered gradients that stand in for photography until real photos, used with permission, exist. They show no place and no person.",
+      "tints": {
+        "lilac": "Lilac",
+        "sand": "Sand",
+        "mist": "Mist",
+        "plum": "Plum"
+      },
+      "cover": "Editorial cover",
+      "coverKicker": "Week 1 · Day 3",
+      "coverTitle": "Long spine, quiet core",
+      "coverMeta": "Example text for the style guide",
+      "header": "Editorial header",
+      "headerKicker": "Monaco · This week",
+      "headerTitle": "Discover",
+      "headerIntro": "The title of a main screen, with the line beneath it.",
+      "icons": "Icons",
+      "iconsNote": "Drawn on a 24 grid with a single 1.5 stroke and round ends.",
+      "iconNames": {
+        "today": "Today",
+        "discover": "Discover",
+        "practice": "Practice",
+        "connect": "Connect",
+        "profile": "Profile",
+        "play": "Play",
+        "pause": "Pause",
+        "complete": "Complete",
+        "lotus": "Lotus",
+        "mat": "Mat",
+        "breath": "Breath",
+        "near": "Near me"
+      }
+    }
   },
   "a11y": {
     "notifications": "Notifications",

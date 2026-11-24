@@ -1,5 +1,5 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, radii, spacing } from '@oreva/tokens';
+import { colors, radii, spacing, tints } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { Clock, Gauge, Package } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ import {
   AppText,
   Card,
   EmptyState,
-  PillButton,
+  Button,
   SampleBadge,
   Screen,
   ScreenHeader,
@@ -53,19 +53,19 @@ export function WorkoutScreen({ id }: { id: string }) {
       icon: Gauge,
       value: t(`level.${workout.level}`),
       label: t('classDetail.level'),
-      tone: 'tileMint' as const,
+      tone: 'sand' as const,
     },
     {
       icon: Clock,
       value: t('common.durationMinutes', { count: workoutMinutes(workout) }),
       label: t('classDetail.duration'),
-      tone: 'tileViolet' as const,
+      tone: 'lilac' as const,
     },
     {
       icon: Package,
       value: workout.equipment.map((e) => t(`equipment.${e}`)).join(', '),
       label: t('practice.equipment'),
-      tone: 'tileOrchid' as const,
+      tone: 'mist' as const,
     },
   ];
 
@@ -122,7 +122,7 @@ export function WorkoutScreen({ id }: { id: string }) {
               accessible
               accessibilityLabel={`${String(index + 1)}. ${resolveLocalizedText(exercise.name, locale)?.text ?? ''}, ${formatTimer(exercise.durationSec)}`}
             >
-              <View style={[styles.number, { backgroundColor: colors[workout.tone] }]}>
+              <View style={[styles.number, { backgroundColor: tints[workout.tone] }]}>
                 <AppText variant="callout" weight="bold">
                   {String(index + 1)}
                 </AppText>
@@ -138,7 +138,7 @@ export function WorkoutScreen({ id }: { id: string }) {
         </Card>
       </Section>
 
-      <PillButton
+      <Button
         label={resumeAt > 0 ? t('practice.resume') : t('practice.start')}
         fullWidth
         onPress={() => router.push(`/player/${workout.id}`)}

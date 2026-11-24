@@ -1,10 +1,11 @@
-import { colors, radii, spacing } from '@oreva/tokens';
-import { ChevronRight, type LucideIcon } from 'lucide-react-native';
+import { colors, spacing } from '@oreva/tokens';
+import { ChevronRight } from 'lucide-react-native';
 import { Pressable, StyleSheet, Switch, View } from 'react-native';
 import { AppText } from './AppText';
+import type { IconComponent } from './icons';
 
 interface BaseRowProps {
-  icon?: LucideIcon;
+  icon?: IconComponent;
   label: string;
   hint?: string;
   testID?: string;
@@ -15,10 +16,11 @@ export interface LinkRowProps extends BaseRowProps {
   onPress: () => void;
 }
 
-function RowIcon({ icon: Icon }: { icon: LucideIcon }) {
+/** A plain line icon: no tinted circle, the row stays quiet. */
+function RowIcon({ icon: Icon }: { icon: IconComponent }) {
   return (
     <View style={styles.icon}>
-      <Icon size={20} color={colors.textPrimary} strokeWidth={1.75} />
+      <Icon size={22} color={colors.textBrand} strokeWidth={1.5} />
     </View>
   );
 }
@@ -48,7 +50,7 @@ export function LinkRow({ icon, label, hint, value, onPress, testID }: LinkRowPr
           {value}
         </AppText>
       ) : null}
-      <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.75} />
+      <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.5} />
     </Pressable>
   );
 }
@@ -76,7 +78,7 @@ export function ToggleRow({ icon, label, hint, value, onValueChange, testID }: T
         value={value}
         onValueChange={onValueChange}
         testID={testID}
-        trackColor={{ true: colors.accent, false: colors.borderControl }}
+        trackColor={{ true: colors.progress, false: colors.borderControl }}
         thumbColor={colors.surface}
         ios_backgroundColor={colors.borderControl}
       />
@@ -96,10 +98,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.borderSubtle,
   },
   icon: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.pill,
-    backgroundColor: colors.backgroundTint,
+    width: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },

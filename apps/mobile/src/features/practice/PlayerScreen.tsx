@@ -13,7 +13,7 @@ import {
   AppText,
   Badge,
   EmptyState,
-  PillButton,
+  Button,
   ProgressRing,
   Screen,
   ScreenHeader,
@@ -160,7 +160,7 @@ function Player({ workout }: { workout: NonNullable<ReturnType<typeof useWorkout
           <AppText variant="body" color="textSecondary" align="center">
             {t('player.finishedBody')}
           </AppText>
-          <PillButton label={t('common.done')} onPress={() => router.back()} testID="player-done" />
+          <Button label={t('common.done')} onPress={() => router.back()} testID="player-done" />
         </View>
       </Screen>
     );

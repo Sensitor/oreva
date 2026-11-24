@@ -3,7 +3,7 @@ import { colors, radii, spacing } from '@oreva/tokens';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
-import { AppText, Card, PillButton, SampleBadge } from '@/ui';
+import { AppText, Card, Button, SampleBadge } from '@/ui';
 import type { LocalizedText } from '@oreva/core';
 
 export interface TodaySession {
@@ -58,10 +58,10 @@ export function TodayCard({ session, onStart }: TodayCardProps) {
           {t('common.durationMinutes', { count: session.minutes })}
         </AppText>
       </View>
-      <PillButton
+      <Button
         label={t('home.today.start')}
         accessibilityLabel={t('a11y.startSession')}
-        tone="light"
+        variant="paper"
         withArrow
         onPress={onStart}
       />

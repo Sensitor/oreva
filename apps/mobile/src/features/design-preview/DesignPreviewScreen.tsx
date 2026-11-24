@@ -11,12 +11,34 @@ import {
   spacing,
   textStyles,
   typefaces,
+  voiles,
   type TextStyleName,
+  type VoileTint,
 } from '@oreva/tokens';
-import type { ReactNode } from 'react';
+import { Bell, ChevronLeft } from 'lucide-react-native';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
-import { AppText, Screen } from '@/ui';
+import {
+  AppText,
+  Badge,
+  Button,
+  Chip,
+  EditorialCover,
+  EditorialHeader,
+  IconButton,
+  Line,
+  LinkRow,
+  NearIcon,
+  orevaIcons,
+  ProgressRing,
+  SampleBadge,
+  Screen,
+  ToggleRow,
+  Voile,
+  type ButtonVariant,
+  type OrevaIconName,
+} from '@/ui';
 
 type SwatchKey =
   'cream' | 'paper' | 'sand' | 'lilac' | 'lavender' | 'iris' | 'plum' | 'ink' | 'stone' | 'sage';
@@ -55,6 +77,11 @@ const MOTIONS = [
   { key: 'progress', ms: motion.duration.progress },
 ] as const;
 
+const BUTTONS: readonly ButtonVariant[] = ['primary', 'secondary', 'accent', 'quiet', 'text'];
+const CHIPS = ['chipSelected', 'chipOption', 'chipOther'] as const;
+const VOILE_TINTS = Object.keys(voiles) as VoileTint[];
+const ICON_NAMES = Object.keys(orevaIcons) as OrevaIconName[];
+
 /** Sample numerals for the serif: a class time and a timer, as the app shows them. */
 const SAMPLE_TIME = '07:30';
 const SAMPLE_TIMER = '01:00';
@@ -85,6 +112,8 @@ const passingPairs = contrastPairs.filter(
  */
 export function DesignPreviewScreen() {
   const { t, i18n } = useTranslation();
+  const [chip, setChip] = useState<(typeof CHIPS)[number]>('chipSelected');
+  const [toggle, setToggle] = useState(true);
 
   return (
     <Screen withTabBar={false}>
@@ -230,6 +259,181 @@ export function DesignPreviewScreen() {
         </AppText>
       </Section>
 
+      <Section title={t('designPreview.sections.components')}>
+        <Sub title={t('designPreview.components.buttons')}>
+          <View style={styles.stack}>
+            {BUTTONS.map((variant) => (
+              <Button
+                key={variant}
+                variant={variant}
+                label={t(`designPreview.components.${variant}`)}
+                onPress={() => undefined}
+                testID={`button-${variant}`}
+              />
+            ))}
+            <Button label={t('designPreview.components.disabled')} disabled />
+          </View>
+          <View style={styles.plumPanel}>
+            <Button
+              variant="paper"
+              label={t('designPreview.components.paper')}
+              withArrow
+              onPress={() => undefined}
+              testID="button-paper"
+            />
+          </View>
+          <AppText variant="footnote" color="textSecondary">
+            {t('designPreview.components.buttonsNote')}
+          </AppText>
+        </Sub>
+        <Sub title={t('designPreview.components.chips')}>
+          <View style={styles.wrap}>
+            {CHIPS.map((key) => (
+              <Chip
+                key={key}
+                label={t(`designPreview.components.${key}`)}
+                selected={chip === key}
+                onPress={() => setChip(key)}
+              />
+            ))}
+          </View>
+        </Sub>
+        <Sub title={t('designPreview.components.tags')}>
+          <View style={styles.wrap}>
+            <SampleBadge />
+            <Badge label={t('specialty.reformer')} />
+            <Badge label={t('level.beginner')} tone="backgroundTint" />
+            <Badge label={t('specialty.outdoor')} tone="successSurface" />
+          </View>
+        </Sub>
+        <Sub title={t('designPreview.components.iconButtons')}>
+          <View style={styles.wrap}>
+            <IconButton
+              icon={ChevronLeft}
+              accessibilityLabel={t('a11y.back')}
+              onPress={() => undefined}
+            />
+            <IconButton
+              icon={Bell}
+              accessibilityLabel={t('a11y.notifications')}
+              onPress={() => undefined}
+            />
+            <IconButton
+              icon={NearIcon}
+              accessibilityLabel={t('discover.nearMe')}
+              onPress={() => undefined}
+              floating
+            />
+          </View>
+          <AppText variant="footnote" color="textSecondary">
+            {t('designPreview.components.iconNote')}
+          </AppText>
+        </Sub>
+        <Sub title={t('designPreview.components.rows')}>
+          <View style={styles.rows}>
+            <LinkRow
+              icon={orevaIcons.lotus}
+              label={t('designPreview.components.rowLink')}
+              hint={t('designPreview.components.rowHint')}
+              onPress={() => undefined}
+            />
+            <ToggleRow
+              icon={orevaIcons.breath}
+              label={t('designPreview.components.rowToggle')}
+              value={toggle}
+              onValueChange={setToggle}
+            />
+          </View>
+        </Sub>
+        <Sub title={t('designPreview.components.progress')}>
+          <View style={styles.wrap}>
+            <ProgressRing progress={0.4} />
+            <ProgressRing progress={0.7} size={112} strokeWidth={5} />
+          </View>
+        </Sub>
+      </Section>
+
+      <Section title={t('designPreview.sections.signatures')}>
+        <Sub title={t('designPreview.signatures.header')}>
+          <EditorialHeader
+            kicker={t('designPreview.signatures.headerKicker')}
+            title={t('designPreview.signatures.headerTitle')}
+            intro={t('designPreview.signatures.headerIntro')}
+          />
+        </Sub>
+        <Sub title={t('designPreview.signatures.line')}>
+          <AppText variant="footnote" color="textSecondary">
+            {t('designPreview.signatures.lineNote')}
+          </AppText>
+          <View style={styles.lines}>
+            <Line />
+            <Line variant="tab" />
+          </View>
+          <Line
+            variant="progress"
+            value={3 / 7}
+            steps={7}
+            accessibilityLabel={t('designPreview.signatures.lineProgress')}
+            testID="line-progress"
+          />
+        </Sub>
+        <Sub title={t('designPreview.signatures.voile')}>
+          <AppText variant="footnote" color="textSecondary">
+            {t('designPreview.signatures.voileNote')}
+          </AppText>
+          <View style={styles.voiles}>
+            {VOILE_TINTS.map((tint) => (
+              <Voile key={tint} tint={tint} style={styles.voile} testID={`voile-${tint}`}>
+                <AppText variant="callout" weight="semibold" color={voiles[tint].text}>
+                  {t(`designPreview.signatures.tints.${tint}`)}
+                </AppText>
+              </Voile>
+            ))}
+          </View>
+        </Sub>
+        <Sub title={t('designPreview.signatures.cover')}>
+          <EditorialCover
+            tint="lilac"
+            kicker={t('designPreview.signatures.coverKicker')}
+            title={t('designPreview.signatures.coverTitle')}
+            meta={t('designPreview.signatures.coverMeta')}
+            badge={<SampleBadge />}
+          />
+          <EditorialCover
+            tint="plum"
+            kicker={t('designPreview.signatures.coverKicker')}
+            title={t('designPreview.signatures.coverTitle')}
+            meta={t('designPreview.signatures.coverMeta')}
+            minHeight={200}
+          >
+            <Button
+              variant="paper"
+              label={t('designPreview.components.paper')}
+              withArrow
+              onPress={() => undefined}
+            />
+          </EditorialCover>
+        </Sub>
+        <Sub title={t('designPreview.signatures.icons')}>
+          <View style={styles.icons}>
+            {ICON_NAMES.map((name) => {
+              const Icon = orevaIcons[name];
+              return (
+                <View key={name} style={styles.iconCell}>
+                  <Icon size={28} color={colors.textBrand} />
+                  <AppText variant="caption" color="textSecondary" align="center" numberOfLines={1}>
+                    {t(`designPreview.signatures.iconNames.${name}`)}
+                  </AppText>
+                </View>
+              );
+            })}
+          </View>
+          <AppText variant="footnote" color="textSecondary">
+            {t('designPreview.signatures.iconsNote')}
+          </AppText>
+        </Sub>
+      </Section>
+
       <AppText variant="footnote" color="textSecondary">
         {t('designPreview.note')}
       </AppText>
@@ -249,7 +453,64 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+function Sub({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View style={styles.sub}>
+      <AppText variant="kicker" color="textSecondary">
+        {title}
+      </AppText>
+      {children}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  sub: {
+    gap: spacing.sm,
+    paddingBottom: spacing.md,
+  },
+  stack: {
+    gap: spacing.sm,
+    alignItems: 'flex-start',
+  },
+  plumPanel: {
+    backgroundColor: colors.actionPrimary,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+  },
+  wrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  lines: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+  },
+  voiles: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  voile: {
+    width: '47%',
+    height: 96,
+    borderRadius: radii.lg,
+    padding: spacing.sm,
+    justifyContent: 'flex-end',
+  },
+  icons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    rowGap: spacing.md,
+  },
+  iconCell: {
+    width: '25%',
+    alignItems: 'center',
+    gap: spacing.xxs,
+  },
   header: {
     gap: spacing.xs,
   },

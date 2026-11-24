@@ -19,7 +19,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['mat', 'reformer', 'outdoor'],
     instructionLanguages: ['fr', 'en', 'ru'],
-    tone: 'tileViolet',
+    tone: 'lilac',
     isPlaceholder: true,
   },
   {
@@ -35,7 +35,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['mat', 'outdoor', 'stretch'],
     instructionLanguages: ['fr', 'en'],
-    tone: 'tileMint',
+    tone: 'sand',
     isPlaceholder: true,
   },
   {
@@ -51,7 +51,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['mat', 'barre'],
     instructionLanguages: ['fr', 'en'],
-    tone: 'tileOrchid',
+    tone: 'mist',
     isPlaceholder: true,
   },
   {
@@ -67,7 +67,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['outdoor', 'mat'],
     instructionLanguages: ['fr', 'en'],
-    tone: 'tileMint',
+    tone: 'sand',
     isPlaceholder: true,
   },
   {
@@ -83,7 +83,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['reformer', 'barre'],
     instructionLanguages: ['fr', 'en'],
-    tone: 'tileViolet',
+    tone: 'lilac',
     isPlaceholder: true,
   },
   {
@@ -99,7 +99,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['mat', 'outdoor'],
     instructionLanguages: ['fr', 'en'],
-    tone: 'tileOrchid',
+    tone: 'mist',
     isPlaceholder: true,
   },
   {
@@ -115,7 +115,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['mat', 'outdoor', 'stretch'],
     instructionLanguages: ['en'],
-    tone: 'tileMint',
+    tone: 'sand',
     isPlaceholder: true,
   },
   {
@@ -131,7 +131,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['reformer'],
     instructionLanguages: ['en', 'ru'],
-    tone: 'tileViolet',
+    tone: 'lilac',
     isPlaceholder: true,
   },
   {
@@ -147,7 +147,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['mat', 'outdoor'],
     instructionLanguages: ['en', 'ru'],
-    tone: 'tileOrchid',
+    tone: 'mist',
     isPlaceholder: true,
   },
   {
@@ -163,7 +163,7 @@ export const demoOrganizations: Organization[] = [
     },
     specialties: ['reformer', 'mat', 'outdoor'],
     instructionLanguages: ['en'],
-    tone: 'tileViolet',
+    tone: 'lilac',
     isPlaceholder: true,
   },
 ];

@@ -1,11 +1,12 @@
-import { colors, radii, type ColorToken } from '@oreva/tokens';
+import { radii, type TintName } from '@oreva/tokens';
+import { toneColor } from './Card';
 import { StyleSheet, View } from 'react-native';
 import { AppText } from './AppText';
 
 export interface AvatarProps {
   name: string;
   size?: number;
-  tone?: Extract<ColorToken, 'tileMint' | 'tileViolet' | 'tileOrchid' | 'backgroundTint'>;
+  tone?: TintName | 'backgroundTint';
 }
 
 export function initialsOf(name: string): string {
@@ -18,12 +19,12 @@ export function initialsOf(name: string): string {
 }
 
 /** Initials avatar. No photos until photos with documented consent exist (P-15). */
-export function Avatar({ name, size = 44, tone = 'tileViolet' }: AvatarProps) {
+export function Avatar({ name, size = 44, tone = 'lilac' }: AvatarProps) {
   return (
     <View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      style={[styles.avatar, { width: size, height: size, backgroundColor: colors[tone] }]}
+      style={[styles.avatar, { width: size, height: size, backgroundColor: toneColor(tone) }]}
     >
       <AppText variant={size >= 64 ? 'title2' : 'callout'} weight="bold">
         {initialsOf(name)}
