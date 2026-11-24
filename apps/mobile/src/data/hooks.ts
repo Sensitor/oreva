@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useRepositories } from './DataProvider';
+import { useClock, useRepositories } from './DataProvider';
 import type { ClassFilters, WorkoutFilters } from './types';
 
 export function useCities() {
@@ -17,10 +17,11 @@ export function useMapPoints(includeStressTest: boolean) {
 
 export function useClasses(filters: ClassFilters) {
   const { discover } = useRepositories();
+  const clock = useClock();
   // "Now" is read when the query runs, not during render.
   return useQuery({
     queryKey: ['classes', filters],
-    queryFn: () => discover.classes(filters, new Date()),
+    queryFn: () => discover.classes(filters, clock()),
   });
 }
 

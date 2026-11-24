@@ -52,4 +52,15 @@ describe('app identifiers per environment (decision P-10)', () => {
     expect(config.extra?.variant).toBe('production');
     process.env.APP_VARIANT = previous;
   });
+
+  it('keeps the EAS project id that eas init writes to app.json', () => {
+    const config = createConfig({
+      config: { extra: { eas: { projectId: 'test-project-id' } } },
+      projectRoot: '.',
+      staticConfigPath: null,
+      packageJsonPath: null,
+    });
+    expect(config.extra?.eas).toEqual({ projectId: 'test-project-id' });
+    expect(config.extra?.variant).toBe('development');
+  });
 });

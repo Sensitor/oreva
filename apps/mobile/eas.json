@@ -7,15 +7,24 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "env": { "APP_VARIANT": "development" }
+      "env": {
+        "APP_VARIANT": "development",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+      }
     },
     "staging": {
       "distribution": "internal",
-      "env": { "APP_VARIANT": "staging" },
+      "env": {
+        "APP_VARIANT": "staging",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+      },
       "channel": "staging"
     },
     "production": {
-      "env": { "APP_VARIANT": "production" },
+      "env": {
+        "APP_VARIANT": "production",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+      },
       "channel": "production",
       "autoIncrement": true
     }

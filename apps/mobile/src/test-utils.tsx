@@ -33,6 +33,7 @@ export function renderWithProviders(
         <ThemeProvider>
           <DataProvider
             repositories={createDemoRepositories(TEST_NOW)}
+            clock={() => TEST_NOW}
             // No garbage-collection timers, so Jest exits cleanly.
             queryClient={
               new QueryClient({ defaultOptions: { queries: { gcTime: Infinity, retry: false } } })

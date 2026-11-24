@@ -136,6 +136,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       '@rnmapbox/maps',
     ],
     extra: {
+      // Keeps what `eas init` writes to app.json (extra.eas.projectId).
+      ...config.extra,
       variant,
     },
   };
