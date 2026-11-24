@@ -178,6 +178,9 @@
   },
   "discover": {
     "searchPlaceholder": "Найти город",
+    "searchOrExplore": "Найдите город или исследуйте",
+    "clearCity": "Сбросить город: {{city}}",
+    "clearNearMe": "Выйти из режима «Рядом со мной»",
     "nearMe": "Рядом со мной",
     "showList": "Список",
     "showMap": "Карта",

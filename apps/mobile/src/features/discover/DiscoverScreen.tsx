@@ -8,7 +8,14 @@ import {
 import { formatDistance } from '@oreva/i18n';
 import { colors, elevation, radii, spacing, touchTarget } from '@oreva/tokens';
 import { router } from 'expo-router';
-import { List, LocateFixed, Map as MapIcon, Search, SlidersHorizontal } from 'lucide-react-native';
+import {
+  List,
+  LocateFixed,
+  Map as MapIcon,
+  Search,
+  SlidersHorizontal,
+  X,
+} from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
@@ -21,6 +28,14 @@ import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import { useReduceMotion } from '@/theme/useReduceMotion';
 import { AppText, EmptyState, IconButton, PillButton, TAB_BAR_CLEARANCE } from '@/ui';
+import {
+  EXPLORE,
+  EXPLORE_CAMERA,
+  itemsInArea,
+  pointsInArea,
+  venuePoint,
+  type DiscoverArea,
+} from './area';
 import { CityPickerSheet } from './CityPickerSheet';
 import { ClassCard } from './ClassCard';
 import { FiltersSheet } from './FiltersSheet';
@@ -30,9 +45,7 @@ import type { MapCamera } from './map/types';
 import { PointPreview } from './PointPreview';
 import { useNearMe } from './useNearMe';
 
-type Area = { kind: 'city'; cityId: string } | { kind: 'near'; point: GeoPoint };
-
-const NEAR_RADIUS_M = 30_000;
+/** Discover opens on Monaco, the first live area (roadmap revision 4). */
 const DEFAULT_CITY = 'monaco';
 const isWeb = Platform.OS === 'web';
 
@@ -49,7 +62,7 @@ export function DiscoverScreen() {
 
   const [mode, setMode] = useState<'map' | 'list'>(isWeb ? 'list' : 'map');
   const [filters, setFilters] = useState<ClassFilters>(DEFAULT_CLASS_FILTERS);
-  const [area, setArea] = useState<Area>({ kind: 'city', cityId: DEFAULT_CITY });
+  const [area, setArea] = useState<DiscoverArea>({ kind: 'city', cityId: DEFAULT_CITY });
   const [selected, setSelected] = useState<MapPoint | null>(null);
   const [cityPickerOpen, setCityPickerOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -75,32 +88,20 @@ export function DiscoverScreen() {
     setCamera((previous) => ({ center, zoom, revision: previous.revision + 1 }));
   }, []);
 
+  const activeFilterCount = countActiveFilters(filters);
+
   const city = area.kind === 'city' ? cities.data?.find((c) => c.id === area.cityId) : undefined;
-  const cityName = city
-    ? (resolveLocalizedText(city.name, locale)?.text ?? '')
-    : t('discover.nearMe');
+  const cityName = city ? (resolveLocalizedText(city.name, locale)?.text ?? '') : '';
+  // What the search field shows: the city, "Near me", or nothing (explore).
+  const areaLabel =
+    area.kind === 'city' ? cityName : area.kind === 'near' ? t('discover.nearMe') : null;
 
-  // Venues shown on the map: all of them, or only those with a matching class when filters are on.
-  const visiblePoints = useMemo(() => {
-    const all = points.data ?? [];
-    if (countActiveFilters(filters) === 0) {
-      return all;
-    }
-    const venueIds = new Set(filtered.map((item) => item.venue.id));
-    return all.filter((point) => venueIds.has(point.venueId));
-  }, [points.data, filters, filtered]);
-
-  // Classes in the current area, for the list and the summary.
-  const areaItems = useMemo(() => {
-    if (area.kind === 'city') {
-      return filtered.filter((item) => item.city.id === area.cityId);
-    }
-    return filtered
-      .map((item) => ({ item, meters: distanceMeters(area.point, venuePoint(item)) }))
-      .filter(({ meters }) => meters <= NEAR_RADIUS_M)
-      .sort((a, b) => a.meters - b.meters)
-      .map(({ item }) => item);
-  }, [filtered, area]);
+  // The list, the count and the map all use the same area (city, explore or near me).
+  const areaItems = useMemo(() => itemsInArea(filtered, area), [filtered, area]);
+  const visiblePoints = useMemo(
+    () => pointsInArea(points.data ?? [], area, areaItems, activeFilterCount > 0),
+    [points.data, area, areaItems, activeFilterCount],
+  );
 
   const selectCity = (next: City) => {
     setArea({ kind: 'city', cityId: next.id });
@@ -108,6 +109,14 @@ export function DiscoverScreen() {
     nearMe.clear();
     moveCamera(next.center, 11.5);
     setCityPickerOpen(false);
+  };
+
+  /** Back to explore: no city, no location. Filters stay as they are. */
+  const clearArea = () => {
+    setArea(EXPLORE);
+    setSelected(null);
+    nearMe.clear();
+    moveCamera(EXPLORE_CAMERA.center, EXPLORE_CAMERA.zoom);
   };
 
   const goNearMe = async (point: GeoPoint | null) => {
@@ -123,27 +132,57 @@ export function DiscoverScreen() {
       ? formatDistance(distanceMeters(area.point, venuePoint(item)), formatLocale)
       : undefined;
 
-  const activeFilterCount = countActiveFilters(filters);
-
   const controls = (
     <View
       style={[styles.controls, { paddingTop: insets.top + spacing.xs }]}
       pointerEvents="box-none"
     >
       <View style={styles.searchRow}>
-        <Pressable
-          accessibilityRole="search"
-          accessibilityLabel={t('discover.searchPlaceholder')}
-          accessibilityHint={cityName}
-          onPress={() => setCityPickerOpen(true)}
-          style={({ pressed }) => [styles.search, pressed && styles.pressed]}
-          testID="open-city-picker"
-        >
-          <Search size={20} color={colors.textSecondary} strokeWidth={1.75} />
-          <AppText variant="bodyStrong" numberOfLines={1} style={styles.searchText}>
-            {cityName}
-          </AppText>
-        </Pressable>
+        <View style={styles.search}>
+          <Pressable
+            accessibilityRole="search"
+            accessibilityLabel={t('discover.searchPlaceholder')}
+            accessibilityHint={areaLabel ?? t('discover.searchOrExplore')}
+            onPress={() => setCityPickerOpen(true)}
+            style={({ pressed }) => [styles.searchOpen, pressed && styles.pressed]}
+            testID="open-city-picker"
+          >
+            <Search size={20} color={colors.textSecondary} strokeWidth={1.75} />
+            {areaLabel ? (
+              <AppText variant="bodyStrong" numberOfLines={1} style={styles.searchText}>
+                {areaLabel}
+              </AppText>
+            ) : (
+              <AppText
+                variant="body"
+                color="textSecondary"
+                numberOfLines={1}
+                style={styles.searchText}
+                testID="search-placeholder"
+              >
+                {t('discover.searchOrExplore')}
+              </AppText>
+            )}
+          </Pressable>
+          {areaLabel ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={
+                area.kind === 'near'
+                  ? t('discover.clearNearMe')
+                  : t('discover.clearCity', { city: cityName })
+              }
+              hitSlop={4}
+              onPress={clearArea}
+              style={({ pressed }) => [styles.clear, pressed && styles.pressed]}
+              testID="clear-area"
+            >
+              <View style={styles.clearDot}>
+                <X size={14} color={colors.textPrimary} strokeWidth={2.25} />
+              </View>
+            </Pressable>
+          ) : null}
+        </View>
         <IconButton
           icon={LocateFixed}
           accessibilityLabel={t('discover.nearMe')}
@@ -321,12 +360,6 @@ export function DiscoverScreen() {
   );
 }
 
-function venuePoint(item: ClassListItem): GeoPoint {
-  return item.venue.visibility === 'public'
-    ? item.venue.location
-    : item.venue.approximateArea.center;
-}
-
 /** Opens a studio profile from anywhere in Discover. */
 export function openOrganization(id: string) {
   router.push(`/organizations/${id}`);
@@ -355,17 +388,38 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
     minHeight: touchTarget.comfortable + 4,
-    paddingHorizontal: spacing.md,
+    paddingStart: spacing.md,
+    paddingEnd: spacing.xxs,
     borderRadius: radii.pill,
     backgroundColor: colors.surface,
     boxShadow: elevation.raised,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle,
   },
+  searchOpen: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    minHeight: touchTarget.comfortable,
+  },
   searchText: {
     flex: 1,
+  },
+  clear: {
+    width: touchTarget.min,
+    height: touchTarget.min,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearDot: {
+    width: 24,
+    height: 24,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionRow: {
     flexDirection: 'row',

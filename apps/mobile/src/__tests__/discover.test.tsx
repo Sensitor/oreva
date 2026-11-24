@@ -10,7 +10,9 @@ import { InstructorScreen } from '@/features/discover/InstructorScreen';
 import type { DiscoverMapProps } from '@/features/discover/map/types';
 import { OrganizationScreen } from '@/features/discover/OrganizationScreen';
 import type * as ReactNative from 'react-native';
-import { renderWithProviders } from '@/test-utils';
+import { createDemoRepositories } from '@/data/demoRepositories';
+import { DEFAULT_CLASS_FILTERS } from '@/data/types';
+import { renderWithProviders, TEST_NOW } from '@/test-utils';
 
 // The native map SDKs cannot run in Jest. This test double renders one button
 // per map point and records the props it received.
@@ -55,6 +57,14 @@ jest.mock('expo-location', () => ({
 
 const location = Location as jest.Mocked<typeof Location>;
 
+const mapVenueIds = () => (mockLastMapProps.current?.points ?? []).map((p) => p.venueId).sort();
+
+async function applyReformerFilter() {
+  await fireEvent.press(screen.getByTestId('open-filters'));
+  await fireEvent.press(screen.getByTestId('filter-specialty-reformer'));
+  await fireEvent.press(screen.getByTestId('apply-filters'));
+}
+
 describe('Discover', () => {
   let warn: ReturnType<typeof jest.spyOn>;
   beforeEach(() => {
@@ -79,12 +89,13 @@ describe('Discover', () => {
     expect(screen.getByText(filters)).toBeTruthy();
   });
 
-  it('shows every demo venue on the map, private ones as approximate areas only', async () => {
+  it('shows the selected city on the map, private venues as approximate areas only', async () => {
     await renderWithProviders(<DiscoverScreen />);
     await screen.findByTestId('map-ven-larvotto');
-    const points = mockLastMapProps.current?.points ?? [];
-    expect(points.length).toBe(15);
-    const privatePoint = points.find((p) => p.venueId === 'ven-rivage-studio');
+    expect(mapVenueIds()).toEqual(['ven-fontvieille', 'ven-larvotto', 'ven-rivage-studio']);
+    const privatePoint = mockLastMapProps.current?.points.find(
+      (p) => p.venueId === 'ven-rivage-studio',
+    );
     expect(privatePoint?.approximateRadiusMeters).toBeGreaterThan(0);
   });
 
@@ -148,13 +159,8 @@ describe('Discover', () => {
     await fireEvent.press(screen.getByTestId('open-filters'));
     await fireEvent.press(screen.getByTestId('filter-specialty-reformer'));
     await fireEvent.press(screen.getByTestId('apply-filters'));
-    const venueIds = (mockLastMapProps.current?.points ?? []).map((p) => p.venueId).sort();
-    expect(venueIds).toEqual([
-      'ven-hudson-studio',
-      'ven-northbank-studio',
-      'ven-rivage-studio',
-      'ven-velours-studio',
-    ]);
+    // Monaco is selected: only its Reformer venue.
+    expect(mapVenueIds()).toEqual(['ven-rivage-studio']);
   });
 
   it('switches to the list and opens a class', async () => {
@@ -206,5 +212,118 @@ describe('Profiles and class page', () => {
     expect(screen.getByText(/по местному времени: Монако/)).toBeTruthy();
     expect(screen.getByText(/оплата на месте/)).toBeTruthy();
     expect(screen.getByTestId('book-class')).toBeDisabled();
+  });
+});
+
+describe('Discover: city, explore and Near me', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('clears the city with the X: explore mode, no city, no default, no location request', async () => {
+    await renderWithProviders(<DiscoverScreen />);
+    expect(await screen.findByText('Monaco')).toBeTruthy();
+    expect(screen.getByLabelText('Clear Monaco')).toBeTruthy();
+
+    await fireEvent.press(screen.getByTestId('clear-area'));
+
+    expect(screen.queryByText('Monaco')).toBeNull();
+    expect(screen.getByTestId('search-placeholder')).toBeTruthy();
+    expect(screen.getByText('Search a city or explore')).toBeTruthy();
+    expect(screen.queryByTestId('clear-area')).toBeNull();
+    // Every venue in the world, and the camera zooms out instead of picking a city.
+    expect(mapVenueIds()).toHaveLength(15);
+    expect(mockLastMapProps.current?.camera.zoom).toBeLessThan(3);
+    expect(mockLastMapProps.current?.userArea).toBeNull();
+    expect(await screen.findByText('17 classes')).toBeTruthy();
+    // Near me is never started on its own.
+    expect(location.getForegroundPermissionsAsync).not.toHaveBeenCalled();
+    expect(location.requestForegroundPermissionsAsync).not.toHaveBeenCalled();
+    expect(location.getCurrentPositionAsync).not.toHaveBeenCalled();
+
+    // The picker shows no city as selected.
+    await fireEvent.press(screen.getByTestId('open-city-picker'));
+    expect(screen.getByTestId('city-monaco').props.accessibilityState).toEqual({ selected: false });
+  });
+
+  it('lets the member pick another city right after clearing', async () => {
+    await renderWithProviders(<DiscoverScreen />);
+    await fireEvent.press(await screen.findByTestId('clear-area'));
+    await fireEvent.press(screen.getByTestId('open-city-picker'));
+    await fireEvent.press(screen.getByTestId('city-paris'));
+
+    expect(await screen.findByText('Paris')).toBeTruthy();
+    expect(screen.getByLabelText('Clear Paris')).toBeTruthy();
+    expect(mapVenueIds()).toEqual(['ven-luxembourg', 'ven-monceau', 'ven-velours-studio']);
+    expect(screen.getByText('3 classes')).toBeTruthy();
+  });
+
+  it('keeps the filters when the city is cleared or changed', async () => {
+    await renderWithProviders(<DiscoverScreen />);
+    await screen.findByTestId('map-ven-larvotto');
+    await applyReformerFilter();
+    expect(screen.getByText('Filters · 1')).toBeTruthy();
+    expect(screen.getByText('1 class')).toBeTruthy();
+
+    await fireEvent.press(screen.getByTestId('clear-area'));
+    expect(screen.getByText('Filters · 1')).toBeTruthy();
+    expect(mapVenueIds()).toEqual([
+      'ven-hudson-studio',
+      'ven-northbank-studio',
+      'ven-rivage-studio',
+      'ven-velours-studio',
+    ]);
+    expect(screen.getByText('4 classes')).toBeTruthy();
+
+    await fireEvent.press(screen.getByTestId('open-city-picker'));
+    await fireEvent.press(screen.getByTestId('city-paris'));
+    expect(screen.getByText('Filters · 1')).toBeTruthy();
+    expect(mapVenueIds()).toEqual(['ven-velours-studio']);
+    expect(screen.getByText('1 class')).toBeTruthy();
+  });
+
+  it.each([
+    ['a city', false],
+    ['explore', true],
+  ] as const)('shows the same results on the map and in the list (%s)', async (_label, clear) => {
+    await renderWithProviders(<DiscoverScreen />);
+    await screen.findByTestId('map-ven-larvotto');
+    if (clear) {
+      await fireEvent.press(screen.getByTestId('clear-area'));
+    }
+    const mapVenues = new Set(mapVenueIds());
+    const expectedCount = clear ? '17 classes' : '5 classes';
+    expect(screen.getByText(expectedCount)).toBeTruthy();
+
+    await fireEvent.press(screen.getByTestId('toggle-view'));
+    expect(screen.getByText(expectedCount)).toBeTruthy();
+    const cards = await screen.findAllByTestId(/^class-card-/);
+    expect(cards.length).toBeGreaterThan(0);
+    // Every class in the list happens at a venue shown on the map.
+    const classes = await createDemoRepositories(TEST_NOW).discover.classes(
+      DEFAULT_CLASS_FILTERS,
+      TEST_NOW,
+    );
+    for (const card of cards) {
+      const sessionId = String(card.props.testID).replace('class-card-', '');
+      const venueId = classes.find((item) => item.session.id === sessionId)?.venue.id;
+      expect(venueId && mapVenues.has(venueId)).toBe(true);
+    }
+  });
+
+  it('leaves Near me with the X and goes back to explore without a location', async () => {
+    location.getForegroundPermissionsAsync.mockResolvedValue({ granted: true } as never);
+    location.getCurrentPositionAsync.mockResolvedValue({
+      coords: { latitude: 43.738417, longitude: 7.424616 },
+    } as never);
+    await renderWithProviders(<DiscoverScreen />);
+    await fireEvent.press(await screen.findByTestId('near-me'));
+    expect(await screen.findByLabelText('Stop using Near me')).toBeTruthy();
+    expect(mockLastMapProps.current?.userArea).toEqual({ latitude: 43.74, longitude: 7.42 });
+
+    await fireEvent.press(screen.getByTestId('clear-area'));
+    expect(screen.getByTestId('search-placeholder')).toBeTruthy();
+    expect(mockLastMapProps.current?.userArea).toBeNull();
+    expect(mapVenueIds()).toHaveLength(15);
   });
 });
