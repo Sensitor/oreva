@@ -84,7 +84,7 @@
     "title": "Profile",
     "language": "Language",
     "languageHint": "ORÉVA will be shown in this language.",
-    "designPreview": "Design preview",
+    "designPreview": "Design system",
     "version": "Version {{version}}",
     "environment": "Build: {{name}}"
   },
@@ -94,11 +94,77 @@
     "ru": "Русский"
   },
   "designPreview": {
-    "title": "Design preview",
-    "intro": "Compare the two candidate typefaces with real text in every language.",
-    "typeface": "Typeface",
+    "title": "Design system",
+    "intro": "ORÉVA's foundations as they are in the app: color, type, shapes, depth and motion. Every screen draws from these tokens.",
+    "kicker": "ORÉVA · Foundations",
+    "sections": {
+      "color": "Color",
+      "type": "Typography",
+      "shape": "Shapes",
+      "depth": "Depth",
+      "motion": "Motion"
+    },
+    "contrast_one": "The color pairing used in the app passes WCAG AA.",
+    "contrast_other": "All {{count}} color pairings used in the app pass WCAG AA.",
+    "sampleKicker": "Week 2 · Monaco",
     "sampleHeadline": "Your movement. Your moment.",
     "sampleBody": "Breathe in, lengthen through the spine and let your shoulders soften. Your next class starts tomorrow at 8:00 on the beach.",
+    "typeNote": "Titles and numerals in Cormorant Garamond, everything else in Manrope.",
+    "colors": {
+      "cream": {
+        "name": "Cream",
+        "role": "Background"
+      },
+      "paper": {
+        "name": "Paper",
+        "role": "Surfaces"
+      },
+      "sand": {
+        "name": "Sand",
+        "role": "Sunken areas"
+      },
+      "lilac": {
+        "name": "Lilac",
+        "role": "Soft highlights"
+      },
+      "lavender": {
+        "name": "Lavender",
+        "role": "Accent fills, ink text only"
+      },
+      "iris": {
+        "name": "Iris",
+        "role": "Progress and links"
+      },
+      "plum": {
+        "name": "Plum",
+        "role": "Actions and titles"
+      },
+      "ink": {
+        "name": "Ink",
+        "role": "Text"
+      },
+      "stone": {
+        "name": "Stone",
+        "role": "Secondary text"
+      },
+      "sage": {
+        "name": "Sage",
+        "role": "Success"
+      }
+    },
+    "depth": {
+      "soft": "Hairline lift",
+      "raised": "Raised",
+      "floating": "Floating: tab bar, sheets"
+    },
+    "motion": {
+      "press": "Press feedback",
+      "tab": "Tab switch",
+      "entrance": "Screen entrance",
+      "progress": "Progress"
+    },
+    "motionValue": "{{ms}} ms",
+    "reduceMotion": "With Reduce Motion on, every animation becomes instant or a simple fade.",
     "note": "Shown in development and staging builds only."
   },
   "a11y": {
@@ -371,7 +437,7 @@
     "mapbox": "Mapbox",
     "apple": "Apple Maps",
     "stressTest": "Show 2,000 test points on the map",
-    "typeface": "Compare typefaces",
+    "designSystem": "Design system",
     "reset": "Reset prototype data",
     "resetDone": "Prototype data reset.",
     "intro": "Visible in development and staging builds only."

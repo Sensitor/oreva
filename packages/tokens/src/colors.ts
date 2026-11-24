@@ -5,38 +5,49 @@ import { palette } from './palette';
  * listed in `contrastPairs` and checked against WCAG 2.2 AA in the test suite.
  */
 export const colors = {
-  background: palette.neutral[50],
+  background: palette.cream[100],
   backgroundTint: palette.lavender[100],
-  surface: palette.neutral[0],
-  surfaceMuted: palette.neutral[100],
+  surface: palette.cream[50],
+  surfaceMuted: palette.cream[200],
 
-  textPrimary: palette.neutral[900],
-  textSecondary: palette.neutral[600],
-  textOnPastelSecondary: palette.neutral[700],
-  textOnAccent: palette.neutral[900],
-  textOnAccentStrong: palette.neutral[0],
-  textLink: palette.lavender[700],
+  textPrimary: palette.plum[900],
+  textSecondary: palette.stone[500],
+  textOnPastelSecondary: palette.stone[600],
+  textOnAccent: palette.plum[900],
+  textOnAccentStrong: palette.cream[50],
+  textLink: palette.lavender[600],
+  /** Serif titles and brand moments. */
+  textBrand: palette.plum[700],
 
-  accent: palette.lavender[500],
-  accentSoft: palette.lavender[300],
-  accentStrong: palette.lavender[700],
+  /** Lavender is a fill with ink text on it, never white (2.94:1 fails). */
+  accent: palette.lavender[400],
+  accentSoft: palette.lavender[100],
+  accentStrong: palette.plum[700],
 
-  borderSubtle: palette.neutral[200],
-  borderControl: palette.neutral[400],
-  focusRing: palette.lavender[700],
+  /** Primary action (plum, cream label). Used by the Phase B button. */
+  actionPrimary: palette.plum[700],
+  textOnAction: palette.cream[100],
+  /** Progress lines, active marks: the lavender hue, deep enough to see on cream. */
+  progress: palette.lavender[600],
 
-  tileMint: palette.mint[300],
-  tileViolet: palette.lavender[300],
-  tileOrchid: palette.orchid[300],
+  borderSubtle: palette.cream[300],
+  borderControl: palette.cream[500],
+  focusRing: palette.lavender[600],
 
-  success: palette.mint[700],
-  successSurface: palette.mint[200],
-  info: palette.sky[700],
-  infoSurface: palette.sky[200],
+  // Card tints. Legacy names kept for the demo `tone` field until Phase B
+  // replaces tinted cards with covers: mint and orchid are no longer used.
+  tileMint: palette.cream[200],
+  tileViolet: palette.lavender[100],
+  tileOrchid: palette.lavender[200],
+
+  success: palette.sage[600],
+  successSurface: palette.sage[100],
+  info: palette.lavender[600],
+  infoSurface: palette.cream[200],
   danger: palette.red[700],
 
-  overlay: 'rgba(38, 35, 45, 0.4)',
-  shadow: 'rgba(38, 35, 45, 0.08)',
+  overlay: 'rgba(42, 34, 48, 0.4)',
+  shadow: 'rgba(75, 54, 93, 0.08)',
 } as const;
 
 export type ColorToken = keyof typeof colors;
@@ -132,5 +143,40 @@ export const contrastPairs: readonly ContrastPair[] = [
     background: 'accent',
     kind: 'nonText',
     usage: 'icons on lavender (play/pause)',
+  },
+  { foreground: 'textBrand', background: 'background', kind: 'text', usage: 'serif titles' },
+  { foreground: 'textBrand', background: 'surface', kind: 'text', usage: 'serif titles on paper' },
+  {
+    foreground: 'textBrand',
+    background: 'surfaceMuted',
+    kind: 'text',
+    usage: 'serif titles on sand',
+  },
+  {
+    foreground: 'textOnAction',
+    background: 'actionPrimary',
+    kind: 'text',
+    usage: 'primary button labels',
+  },
+  {
+    foreground: 'actionPrimary',
+    background: 'background',
+    kind: 'nonText',
+    usage: 'outline buttons',
+  },
+  { foreground: 'progress', background: 'background', kind: 'nonText', usage: 'progress lines' },
+  { foreground: 'progress', background: 'surface', kind: 'nonText', usage: 'progress on paper' },
+  {
+    foreground: 'progress',
+    background: 'accentSoft',
+    kind: 'nonText',
+    usage: 'progress on lilac',
+  },
+  { foreground: 'textLink', background: 'surfaceMuted', kind: 'text', usage: 'links on sand' },
+  {
+    foreground: 'textOnPastelSecondary',
+    background: 'accentSoft',
+    kind: 'text',
+    usage: 'meta on selected chips (stone alone is 4.4996:1 on lilac, just under AA)',
   },
 ];

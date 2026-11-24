@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { colors, contrastPairs } from './colors';
 import { AA_MINIMUM, contrastRatio } from './contrast';
 import { palette } from './palette';
-import { textStyles } from './typography';
-import { spacing } from './layout';
+import { SERIF_MIN_SIZE, textStyles, typefaces } from './typography';
+import { motion, radii, spacing } from './layout';
 
 describe('contrastRatio', () => {
   it('matches known WCAG reference values', () => {
@@ -31,11 +31,19 @@ describe('semantic color pairs meet WCAG 2.2 AA', () => {
 describe('known failures from the visual reference stay documented', () => {
   // These pairings appear in the reference but fail AA. They must never be added
   // to contrastPairs; this test keeps the reasoning visible.
-  it('white on the reference accent fails', () => {
-    expect(contrastRatio('#FFFFFF', palette.lavender[500])).toBeLessThan(AA_MINIMUM.nonText);
+  it('white on the moodboard lavender fails (text on lavender is ink)', () => {
+    expect(contrastRatio('#FFFFFF', palette.lavender[400])).toBeLessThan(AA_MINIMUM.nonText);
   });
-  it('lavender accent as text fails', () => {
-    expect(contrastRatio(palette.lavender[500], colors.background)).toBeLessThan(AA_MINIMUM.text);
+  it('lavender as text fails on cream', () => {
+    expect(contrastRatio(palette.lavender[400], colors.background)).toBeLessThan(AA_MINIMUM.text);
+  });
+  it('lavender lines fail on cream, which is why progress uses iris', () => {
+    expect(contrastRatio(palette.lavender[400], colors.background)).toBeLessThan(
+      AA_MINIMUM.nonText,
+    );
+    expect(contrastRatio(colors.progress, colors.background)).toBeGreaterThanOrEqual(
+      AA_MINIMUM.nonText,
+    );
   });
 });
 
@@ -55,6 +63,55 @@ describe('scales', () => {
   it('body text is at least 16pt', () => {
     expect(textStyles.body.fontSize).toBeGreaterThanOrEqual(16);
   });
+
+  it('the serif is only used for titles and numerals, from 22pt', () => {
+    for (const [name, style] of Object.entries(textStyles)) {
+      if (style.family === 'serif') {
+        expect({ name, size: style.fontSize >= SERIF_MIN_SIZE }).toEqual({ name, size: true });
+      }
+    }
+    expect(textStyles.body.family).toBe('sans');
+  });
+
+  it('serif styles use lining figures, so "Day 1" never reads "Day I"', () => {
+    for (const style of Object.values(textStyles)) {
+      if (style.family === 'serif') {
+        expect('fontVariant' in style && style.fontVariant).toContain('lining-nums');
+      }
+    }
+  });
+
+  it('every style uses a bundled typeface and weight', () => {
+    for (const style of Object.values(textStyles)) {
+      expect(typefaces[style.family][style.weight]).toMatch(/^(Manrope|CormorantGaramond)_/);
+    }
+  });
+
+  it('radii contrast content and actions', () => {
+    expect(radii.md).toBeLessThan(radii.lg);
+    expect(radii.pill).toBeGreaterThan(100);
+  });
+
+  it('motion stays short and soft', () => {
+    expect(motion.duration.fast).toBeLessThanOrEqual(150);
+    expect(motion.duration.entrance).toBeLessThanOrEqual(300);
+    expect(motion.pressScale).toBeGreaterThan(0.95);
+  });
+});
+
+describe('approved palette (24 Nov 2026)', () => {
+  it('keeps the moodboard colours', () => {
+    expect(palette.plum[700]).toBe('#4B365D');
+    expect(palette.lavender[400]).toBe('#A78BC6');
+    expect(palette.lavender[100]).toBe('#E7DDF4');
+    expect(palette.cream[100]).toBe('#F7F3EE');
+    expect(palette.cream[200]).toBe('#E9E1D7');
+  });
+
+  it('has no mint or orchid any more', () => {
+    expect(Object.keys(palette)).not.toContain('mint');
+    expect(Object.keys(palette)).not.toContain('orchid');
+  });
 });
 
 describe('cssVariables', () => {
@@ -63,7 +120,7 @@ describe('cssVariables', () => {
     const vars = cssVariables();
     expect(vars['--oreva-color-accent']).toBe(colors.accent);
     expect(vars['--oreva-color-text-primary']).toBe(colors.textPrimary);
-    expect(vars['--oreva-radius-lg']).toBe('28px');
+    expect(vars['--oreva-radius-lg']).toBe('22px');
     expect(cssVariablesRule().startsWith(':root{')).toBe(true);
   });
 });

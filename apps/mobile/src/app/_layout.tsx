@@ -37,6 +37,9 @@ function RootNavigator() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.background },
+          // For the few screens that show a header: cream, ink back arrow.
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.textPrimary,
         }}
       >
         <Stack.Screen name="(tabs)" />

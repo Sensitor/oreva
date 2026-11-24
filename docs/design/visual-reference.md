@@ -1,6 +1,63 @@
 # Visual reference analysis
 
-Status: Phase 0 notes. Final tokens are locked in Phase 1, after the founders review them on real screens.
+Status: **design direction approved by the founders on 24 November 2026** (section 0). Sections 1 to 7 are the Phase 0 analysis of the first reference; where they differ from section 0, section 0 wins.
+
+## 0. Design direction (approved 24 Nov 2026)
+
+From bright candy tiles to a warm, editorial calm: cream paper and plum ink carry the brand, lavender is a light rather than a fill, a serif gives ORÉVA its voice for titles and numerals, and one organic line becomes the signature. Source: the founders' moodboard. Implemented in phases A (foundations) to D (motion), each a separate PR.
+
+### Palette
+
+Tokens in `packages/tokens/src/palette.ts` and `colors.ts`. Every pairing used in the UI is in `contrastPairs` and tested for WCAG 2.2 AA.
+
+| Name | Hex | Role | Key ratio |
+| --- | --- | --- | --- |
+| Cream | `#F7F3EE` | App background | ink 13.88 |
+| Paper | `#FFFDFA` | Surfaces, sheets | ink 15.10 |
+| Sand | `#E9E1D7` | Sunken areas, placeholders, notices | stone 4.54 |
+| Lilac | `#E7DDF4` | Selected chips, soft highlights | ink 11.71 |
+| Mist | `#DCCDEB` | Third soft tint for covers | ink 10.20 |
+| Lavender | `#A78BC6` | Accent fills, **ink text only** | ink 5.22 |
+| Iris | `#6E5390` | Progress, links, active marks | 5.76 on cream |
+| Plum | `#4B365D` | Primary actions, serif titles | cream on plum 9.58 |
+| Ink | `#2A2230` | Text, icons | |
+| Stone | `#6B6170` / `#5A5060` | Secondary text / on tinted surfaces | 5.33 / 5.83 on lilac |
+| Sage | `#4E6853` | Success (darkened from `#55705A` to pass on its surface) | 4.99 on `#E3EAE1` |
+| Hairline | `#E2D8CC` | Decorative dividers only | |
+| Control | `#938779` | Input and chip outlines | 3.18 on cream |
+
+Mint and orchid are removed. Known failures, kept out of the UI: white on lavender (2.94), lavender lines or text on cream (2.66). That is why Iris exists.
+
+### Typography
+
+Manrope for the interface, **Cormorant Garamond** for editorial titles and numerals (decision P-14). Both OFL, both cover Latin and Cyrillic (every glyph of the app's FR and RU strings checked in the font files). The serif is never used below 22pt and never lighter than Medium.
+
+| Style | Face | Size / line |
+| --- | --- | --- |
+| display | Cormorant Garamond Medium | 40 / 48 |
+| title1 | Cormorant Garamond SemiBold | 30 / 36 |
+| title2 | Cormorant Garamond SemiBold | 24 / 30 |
+| headline | Manrope SemiBold | 17 / 23 |
+| body / bodyStrong | Manrope Regular / SemiBold | 16 / 24 |
+| callout | Manrope Medium | 15 / 21 |
+| footnote / caption | Manrope Regular / Medium | 13 / 18, 12 / 16 |
+| kicker | Manrope SemiBold, uppercase, +1.8 tracking | 12 / 16 |
+| numeral / numeralSmall | Cormorant Garamond Medium | 48 / 58, 28 / 34 |
+
+### Shape, depth, motion
+
+* **Spacing:** 4-point grid, screen gutter 20, section rhythm 40 / 56.
+* **Radii:** 4 tags, 10 inputs, 14 tickets and rows, 22 images and sheets, 28 hero covers, pill for buttons and chips only.
+* **Elevation:** mostly tone and hairlines; one warm plum-tinted shadow for things that float (tab bar, sheets, map preview).
+* **Motion:** press 120 ms, tab 180 ms, entrance 240 ms with a 40 ms stagger, progress 600 ms; eased, never bouncy. With Reduce Motion, instant or a simple fade.
+
+### Imagery
+
+Real photography only, licensed or shot with documented written permission. Never AI-generated images presented as real people, studios or classes. Until real photos exist, the **Voile** texture (phase B) is the placeholder.
+
+### Living style guide
+
+Profile → Design system (development and staging builds) shows the tokens as the app renders them, with type samples in English, French and Russian.
 
 The founders' reference is a three-screen Pilates app concept: a Home screen, a session overview ("Pilates Primer") and an exercise player. It's the main design inspiration for ORÉVA. We follow its spirit and layout language, and refine it for accessibility, three languages and ORÉVA's own content rules.
 

@@ -20,7 +20,7 @@
   --color-tile-orchid: var(--oreva-color-tile-orchid);
   --color-tile-violet: var(--oreva-color-tile-violet);
   --radius-card: var(--oreva-radius-lg);
-  --font-sans: 'Manrope Variable', 'Onest Variable', system-ui, sans-serif;
+  --font-sans: 'Manrope Variable', system-ui, sans-serif;
 }
 
 body {

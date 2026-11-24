@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
-    paddingHorizontal: spacing.lg - 4,
+    paddingHorizontal: spacing.gutter,
     gap: spacing.lg,
   },
 });
