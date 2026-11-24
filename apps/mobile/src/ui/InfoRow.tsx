@@ -1,10 +1,10 @@
 import { colors, spacing } from '@oreva/tokens';
-import type { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { AppText } from './AppText';
+import type { IconComponent } from './icons';
 
 export interface InfoRowProps {
-  icon: LucideIcon;
+  icon: IconComponent;
   label: string;
   value: string;
   detail?: string;
@@ -18,7 +18,7 @@ export function InfoRow({ icon: Icon, label, value, detail }: InfoRowProps) {
       accessible
       accessibilityLabel={[label, value, detail].filter(Boolean).join(', ')}
     >
-      <Icon size={20} color={colors.textSecondary} strokeWidth={1.75} />
+      <Icon size={20} color={colors.textBrand} strokeWidth={1.5} />
       <View style={styles.text}>
         <AppText variant="footnote" color="textSecondary">
           {label}

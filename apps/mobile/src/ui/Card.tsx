@@ -1,19 +1,31 @@
-import { colors, elevation, radii, spacing, type ColorToken } from '@oreva/tokens';
+import { colors, radii, spacing, tints, type TintName } from '@oreva/tokens';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
+export type CardTone = TintName | 'surface' | 'accentStrong' | 'backgroundTint';
+
 export interface CardProps extends ViewProps {
-  tone?: Extract<
-    ColorToken,
-    'surface' | 'tileMint' | 'tileViolet' | 'tileOrchid' | 'accentStrong' | 'backgroundTint'
-  >;
+  tone?: CardTone;
   padded?: boolean;
 }
 
-/** Rounded card (radius 28) with soft depth. */
+export function toneColor(tone: CardTone): string {
+  return tone in tints ? tints[tone as TintName] : colors[tone as Exclude<CardTone, TintName>];
+}
+
+/**
+ * Card: separated by tone and a hairline, not by shadow (design direction).
+ * Paper cards get a hairline edge; tinted and plum cards stand on their color.
+ */
 export function Card({ tone = 'surface', padded = true, style, ...rest }: CardProps) {
   return (
     <View
-      style={[styles.base, { backgroundColor: colors[tone] }, padded && styles.padded, style]}
+      style={[
+        styles.base,
+        { backgroundColor: toneColor(tone) },
+        tone === 'surface' && styles.hairline,
+        padded && styles.padded,
+        style,
+      ]}
       {...rest}
     />
   );
@@ -22,10 +34,13 @@ export function Card({ tone = 'surface', padded = true, style, ...rest }: CardPr
 const styles = StyleSheet.create({
   base: {
     borderRadius: radii.lg,
-    boxShadow: elevation.soft,
     overflow: 'hidden',
   },
+  hairline: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
+  },
   padded: {
-    padding: spacing.lg - 4,
+    padding: spacing.gutter,
   },
 });

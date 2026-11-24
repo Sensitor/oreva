@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View, type DimensionValue } from 'react-native';
 import { useReduceMotion } from '@/theme/useReduceMotion';
 import { AppText } from './AppText';
-import { PillButton } from './PillButton';
+import { Button } from './Button';
 
 export interface EmptyStateProps {
   title: string;
@@ -15,7 +15,7 @@ export interface EmptyStateProps {
 export function EmptyState({ title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
     <View style={styles.state}>
-      <AppText variant="headline" align="center">
+      <AppText variant="title2" color="textBrand" align="center">
         {title}
       </AppText>
       {description ? (
@@ -24,7 +24,7 @@ export function EmptyState({ title, description, actionLabel, onAction }: EmptyS
         </AppText>
       ) : null}
       {actionLabel && onAction ? (
-        <PillButton label={actionLabel} onPress={onAction} tone="light" />
+        <Button label={actionLabel} onPress={onAction} variant="secondary" />
       ) : null}
     </View>
   );
@@ -42,7 +42,7 @@ export function ErrorState({ message, retryLabel, onRetry }: ErrorStateProps) {
       <AppText variant="body" color="danger" align="center">
         {message}
       </AppText>
-      <PillButton label={retryLabel} onPress={onRetry} tone="light" />
+      <Button label={retryLabel} onPress={onRetry} variant="secondary" />
     </View>
   );
 }

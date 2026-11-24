@@ -29,7 +29,8 @@ export interface City {
 export type OrganizationType = 'studio' | 'independent_instructor' | 'community' | 'brand';
 export type PartnerTier = 'founding_partner' | 'partner' | 'none';
 export type SpecialtyCode = 'mat' | 'reformer' | 'outdoor' | 'barre' | 'stretch';
-export type CardTone = 'tileMint' | 'tileViolet' | 'tileOrchid';
+/** Soft tint for covers and cards when there is no photo (design direction, 24 Nov 2026). */
+export type CoverTint = 'sand' | 'lilac' | 'mist';
 
 export interface Organization {
   id: string;
@@ -42,7 +43,7 @@ export interface Organization {
   specialties: SpecialtyCode[];
   /** Languages classes are taught in. */
   instructionLanguages: string[];
-  tone: CardTone;
+  tone: CoverTint;
   isPlaceholder: boolean;
 }
 
@@ -156,7 +157,7 @@ export interface Workout {
   videoKey: string;
   audioLanguage: string;
   premium: boolean;
-  tone: CardTone;
+  tone: CoverTint;
   isPlaceholder: boolean;
 }
 
@@ -172,7 +173,7 @@ export interface Program {
   level: Level;
   weeks: number;
   days: ProgramDay[];
-  tone: CardTone;
+  tone: CoverTint;
   isPlaceholder: boolean;
 }
 

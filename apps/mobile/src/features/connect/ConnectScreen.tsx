@@ -1,5 +1,5 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, radii, spacing } from '@oreva/tokens';
+import { colors, radii, spacing, tints } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { ChevronRight, KeyRound, ShieldCheck } from 'lucide-react-native';
 import { useState } from 'react';
@@ -14,7 +14,7 @@ import {
   Avatar,
   Card,
   EmptyState,
-  PillButton,
+  Button,
   SampleBadge,
   Screen,
   Section,
@@ -71,14 +71,14 @@ export function ConnectScreen() {
       </AppText>
 
       <View style={styles.actions}>
-        <PillButton
+        <Button
           label={t('connect.create')}
           onPress={() => setCreateOpen(true)}
           testID="create-circle"
         />
-        <PillButton
+        <Button
           label={t('connect.join')}
-          tone="light"
+          variant="secondary"
           onPress={() => setJoinOpen(true)}
           testID="join-circle"
         />
@@ -109,11 +109,7 @@ export function ConnectScreen() {
                       <Avatar
                         name={member.id === 'me' ? t('connect.you') : member.displayName}
                         size={36}
-                        tone={
-                          (['tileViolet', 'tileMint', 'tileOrchid', 'backgroundTint'] as const)[
-                            index % 4
-                          ]
-                        }
+                        tone={(['lilac', 'sand', 'mist', 'backgroundTint'] as const)[index % 4]}
                       />
                     </View>
                   ))}
@@ -176,7 +172,7 @@ export function ConnectScreen() {
                 onPress={() => router.push(`/organizations/${organization.id}`)}
                 style={({ pressed }) => [styles.row, pressed && styles.pressed]}
               >
-                <View style={[styles.swatch, { backgroundColor: colors[organization.tone] }]} />
+                <View style={[styles.swatch, { backgroundColor: tints[organization.tone] }]} />
                 <View style={styles.flex}>
                   <AppText variant="bodyStrong">{organization.name}</AppText>
                   <AppText variant="footnote" color="textSecondary">
@@ -205,7 +201,7 @@ export function ConnectScreen() {
         <AppText variant="footnote" color="textSecondary">
           {t('connect.createdNote')}
         </AppText>
-        <PillButton
+        <Button
           label={t('connect.createCta')}
           onPress={createCircle}
           disabled={!name.trim()}
@@ -231,7 +227,7 @@ export function ConnectScreen() {
             {t('connect.joinNote')}
           </AppText>
         </View>
-        <PillButton label={t('connect.joinCta')} disabled fullWidth />
+        <Button label={t('connect.joinCta')} disabled fullWidth />
       </Sheet>
     </Screen>
   );

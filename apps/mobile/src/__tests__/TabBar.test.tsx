@@ -1,11 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, screen } from '@testing-library/react-native';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { PillTabBar } from '@/ui';
-import { useFontScale } from '@/theme/useFontScale';
+import * as Haptics from 'expo-haptics';
+import { TabBar } from '@/ui';
 import { renderWithProviders } from '@/test-utils';
-
-jest.mock('@/theme/useFontScale', () => ({ useFontScale: jest.fn(() => 1) }));
 
 const ROUTES = ['index', 'discover', 'practice', 'connect', 'profile'];
 const TITLES = ['Home', 'Discover', 'Practice', 'Connect', 'Profile'];
@@ -25,21 +23,14 @@ function makeProps(activeIndex: number) {
   return { props, emit, navigateToTab };
 }
 
-function setFontScale(fontScale: number) {
-  jest.mocked(useFontScale).mockReturnValue(fontScale);
-}
-
-describe('PillTabBar', () => {
-  beforeEach(() => {
-    setFontScale(1);
-  });
+describe('TabBar', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('gives every tab a spoken label and marks the active one', async () => {
     const { props } = makeProps(1);
-    await renderWithProviders(<PillTabBar {...props} />);
+    await renderWithProviders(<TabBar {...props} />);
     for (const title of TITLES) {
       expect(screen.getByRole('tab', { name: title })).toBeTruthy();
     }
@@ -47,35 +38,41 @@ describe('PillTabBar', () => {
     expect(screen.getByRole('tab', { name: 'Home' })).not.toBeSelected();
   });
 
-  it('shows only the active label at normal text size', async () => {
+  it('shows a label on every tab, kept on one line at large text sizes', async () => {
     const { props } = makeProps(0);
-    await renderWithProviders(<PillTabBar {...props} />);
-    expect(screen.getByText('Home')).toBeTruthy();
-    expect(screen.queryByText('Profile')).toBeNull();
+    await renderWithProviders(<TabBar {...props} />);
+    for (const title of TITLES) {
+      const label = screen.getByText(title);
+      expect(label.props.numberOfLines).toBe(1);
+      expect(label.props.maxFontSizeMultiplier).toBe(1.3);
+    }
   });
 
-  it('shows every label when the member uses large text', async () => {
-    setFontScale(1.5);
-    const { props } = makeProps(0);
-    await renderWithProviders(<PillTabBar {...props} />);
-    for (const title of TITLES) {
-      expect(screen.getByText(title)).toBeTruthy();
+  it('uses the ORÉVA icons and marks the active tab with the signature line', async () => {
+    const { props } = makeProps(2);
+    await renderWithProviders(<TabBar {...props} />);
+    for (const name of ['today', 'discover', 'practice', 'connect', 'profile']) {
+      expect(screen.getByTestId(`icon-${name}`, { includeHiddenElements: true })).toBeTruthy();
     }
+    // Icons and the line are decorative: hidden from screen readers.
+    expect(screen.getAllByTestId('tab-line', { includeHiddenElements: true })).toHaveLength(1);
+    expect(screen.queryByTestId('tab-line')).toBeNull();
   });
 
   it('navigates when another tab is pressed', async () => {
     const { props, emit, navigateToTab } = makeProps(0);
-    await renderWithProviders(<PillTabBar {...props} />);
+    await renderWithProviders(<TabBar {...props} />);
     await fireEvent.press(screen.getByRole('tab', { name: 'Profile' }));
     expect(emit).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'tabPress', target: 'profile-key' }),
     );
     expect(navigateToTab).toHaveBeenCalledWith('profile-key');
+    expect(Haptics.selectionAsync).toHaveBeenCalledTimes(1);
   });
 
   it('does not navigate when the active tab is pressed again', async () => {
     const { props, navigateToTab } = makeProps(0);
-    await renderWithProviders(<PillTabBar {...props} />);
+    await renderWithProviders(<TabBar {...props} />);
     await fireEvent.press(screen.getByRole('tab', { name: 'Home' }));
     expect(navigateToTab).not.toHaveBeenCalled();
   });

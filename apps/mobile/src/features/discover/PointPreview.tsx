@@ -7,7 +7,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { ClassListItem } from '@/data/types';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { classWhen } from '@/lib/format';
-import { AppText, PillButton, SampleBadge } from '@/ui';
+import { AppText, Button, SampleBadge } from '@/ui';
 
 export interface PointPreviewProps {
   point: MapPoint;
@@ -73,7 +73,7 @@ export function PointPreview({ point, items, onClose }: PointPreviewProps) {
       </Pressable>
       <View style={styles.footer}>
         {point.isPlaceholder ? <SampleBadge /> : <View />}
-        <PillButton
+        <Button
           label={t('discover.viewProfile')}
           withArrow
           onPress={() => router.push(`/organizations/${organization.id}`)}

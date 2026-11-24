@@ -166,9 +166,7 @@ function Members({ circle, memberName }: { circle: Circle; memberName: (id: stri
             <Avatar
               name={memberName(member.id)}
               size={44}
-              tone={
-                (['tileViolet', 'tileMint', 'tileOrchid', 'backgroundTint'] as const)[index % 4]
-              }
+              tone={(['lilac', 'sand', 'mist', 'backgroundTint'] as const)[index % 4]}
             />
             <AppText variant="caption" numberOfLines={1}>
               {memberName(member.id)}
@@ -187,7 +185,7 @@ function Challenge({ circle, memberName }: { circle: Circle; memberName: (id: st
     return null;
   }
   return (
-    <Card tone="tileMint" style={styles.challenge}>
+    <Card tone="sand" style={styles.challenge}>
       <View style={styles.challengeHeader}>
         <Trophy size={20} color={colors.textPrimary} strokeWidth={1.75} />
         <AppText variant="footnote" color="textOnPastelSecondary">

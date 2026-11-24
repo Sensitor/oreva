@@ -1,8 +1,10 @@
 export { palette } from './palette';
-export { colors, contrastPairs } from './colors';
-export type { ColorToken, ContrastKind, ContrastPair } from './colors';
+export { colors, contrastPairs, tints } from './colors';
+export type { ColorToken, ContrastKind, ContrastPair, TintName } from './colors';
 export { AA_MINIMUM, contrastRatio, relativeLuminance } from './contrast';
 export { SERIF_MIN_SIZE, textStyles, typefaces } from './typography';
 export type { FontWeightName, TextStyleName, TextStyleToken, TypefaceName } from './typography';
 export { elevation, motion, radii, spacing, touchTarget } from './layout';
 export { cssVariables, cssVariablesRule } from './css';
+export { voileTextColor, voiles } from './voile';
+export type { VoileTint, VoileToken } from './voile';

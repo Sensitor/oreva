@@ -1,13 +1,13 @@
 import { colors } from '@oreva/tokens';
 import { Tabs } from 'expo-router/js-tabs';
 import { useTranslation } from 'react-i18next';
-import { PillTabBar } from '@/ui';
+import { TabBar } from '@/ui';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   return (
     <Tabs
-      tabBar={(props) => <PillTabBar {...props} />}
+      tabBar={(props) => <TabBar {...props} />}
       screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.background } }}
     >
       <Tabs.Screen name="index" options={{ title: t('tabs.home') }} />

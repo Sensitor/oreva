@@ -1,5 +1,5 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, spacing } from '@oreva/tokens';
+import { colors, spacing, tints } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -87,7 +87,7 @@ export function InstructorScreen({ id }: { id: string }) {
               style={({ pressed }) => [styles.row, pressed && styles.pressed]}
               testID={`affiliation-${organization.id}`}
             >
-              <View style={[styles.swatch, { backgroundColor: colors[organization.tone] }]} />
+              <View style={[styles.swatch, { backgroundColor: tints[organization.tone] }]} />
               <View style={styles.flex}>
                 <AppText variant="bodyStrong">{organization.name}</AppText>
                 <AppText variant="footnote" color="textSecondary">

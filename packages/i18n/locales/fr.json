@@ -99,14 +99,16 @@
   },
   "designPreview": {
     "title": "Système de design",
-    "intro": "Les fondations d'ORÉVA telles qu'elles sont dans l'app : couleurs, typographie, formes, profondeur et mouvement. Chaque écran s'appuie sur ces valeurs.",
-    "kicker": "ORÉVA · Fondations",
+    "intro": "Les fondations et composants d'ORÉVA tels qu'ils sont dans l'app : couleurs, typographie, formes, profondeur, mouvement, composants partagés et éléments signature. Chaque écran s'appuie sur eux.",
+    "kicker": "ORÉVA · Fondations et composants",
     "sections": {
       "color": "Couleurs",
       "type": "Typographie",
       "shape": "Formes",
       "depth": "Profondeur",
-      "motion": "Mouvement"
+      "motion": "Mouvement",
+      "components": "Composants",
+      "signatures": "Signatures"
     },
     "contrast_one": "La paire de couleurs utilisée dans l'app respecte le niveau AA du WCAG.",
     "contrast_many": "Les {{count}} paires de couleurs utilisées dans l'app respectent le niveau AA du WCAG.",
@@ -170,7 +172,67 @@
     },
     "motionValue": "{{ms}} ms",
     "reduceMotion": "Avec « Réduire les animations », chaque animation devient instantanée ou un simple fondu.",
-    "note": "Visible uniquement dans les versions de développement et de recette."
+    "note": "Visible uniquement dans les versions de développement et de recette.",
+    "components": {
+      "buttons": "Boutons",
+      "primary": "Principal",
+      "secondary": "Secondaire",
+      "paper": "Sur une couverture",
+      "accent": "Accent",
+      "quiet": "Discret",
+      "text": "Lien",
+      "disabled": "Indisponible",
+      "buttonsNote": "Une seule action principale par écran. Sur la lavande, le texte est toujours encre.",
+      "chips": "Filtres",
+      "chipSelected": "Sélectionné",
+      "chipOption": "Option",
+      "chipOther": "Autre option",
+      "tags": "Étiquettes",
+      "iconButtons": "Boutons icône",
+      "iconNote": "Le bouton flottant se place au-dessus d'une carte ou d'une photo.",
+      "rows": "Lignes",
+      "rowLink": "Ligne de lien",
+      "rowHint": "Ouvre un autre écran",
+      "rowToggle": "Ligne avec interrupteur",
+      "progress": "Progression"
+    },
+    "signatures": {
+      "line": "La Ligne",
+      "lineNote": "L'onde signature : sous les titres éditoriaux, sous l'onglet actif et comme progression d'un programme.",
+      "lineProgress": "Progression du programme",
+      "voile": "Voile",
+      "voileNote": "Des dégradés superposés qui remplacent la photographie jusqu'à ce que de vraies photos, utilisées avec autorisation, existent. Ils ne montrent aucun lieu ni aucune personne.",
+      "tints": {
+        "lilac": "Lilas",
+        "sand": "Sable",
+        "mist": "Brume",
+        "plum": "Prune"
+      },
+      "cover": "Couverture éditoriale",
+      "coverKicker": "Semaine 1 · Jour 3",
+      "coverTitle": "Dos long, centre calme",
+      "coverMeta": "Texte d'exemple pour le guide de style",
+      "header": "En-tête éditorial",
+      "headerKicker": "Monaco · Cette semaine",
+      "headerTitle": "Découvrir",
+      "headerIntro": "Le titre d'un écran principal, avec la ligne en dessous.",
+      "icons": "Icônes",
+      "iconsNote": "Dessinées sur une grille de 24, d'un seul trait de 1,5 aux extrémités arrondies.",
+      "iconNames": {
+        "today": "Aujourd'hui",
+        "discover": "Découvrir",
+        "practice": "Pratiquer",
+        "connect": "Communauté",
+        "profile": "Profil",
+        "play": "Lecture",
+        "pause": "Pause",
+        "complete": "Terminé",
+        "lotus": "Lotus",
+        "mat": "Tapis",
+        "breath": "Souffle",
+        "near": "Près de moi"
+      }
+    }
   },
   "a11y": {
     "notifications": "Notifications",

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { mapboxConfigured } from '@/features/discover/map/DiscoverMap';
 import { usePrototypeStore, type MapProvider } from '@/prototype/PrototypeStore';
-import { AppText, Card, Chip, LinkRow, PillButton, Screen, ScreenHeader, ToggleRow } from '@/ui';
+import { AppText, Card, Chip, LinkRow, Button, Screen, ScreenHeader, ToggleRow } from '@/ui';
 
 /**
  * Prototype settings for the founders' iPhone tests (development and staging
@@ -57,9 +57,9 @@ export function PrototypeScreen() {
           onPress={() => router.push('/design-preview')}
         />
       </Card>
-      <PillButton
+      <Button
         label={t('prototypeScreen.reset')}
-        tone="light"
+        variant="secondary"
         onPress={() => {
           reset();
           setResetDone(true);

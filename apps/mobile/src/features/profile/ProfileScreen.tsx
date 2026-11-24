@@ -17,7 +17,7 @@ import { StyleSheet, View } from 'react-native';
 import { appVariant, appVersion, isProduction } from '@/config/env';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
-import { AppText, Badge, Card, LinkRow, PillButton, Screen, Section } from '@/ui';
+import { AppText, Badge, Card, LinkRow, Button, Screen, Section } from '@/ui';
 
 /** Profile: account (next version), practice summary, following, settings. */
 export function ProfileScreen() {
@@ -54,18 +54,18 @@ export function ProfileScreen() {
         <AppText variant="body" color="textOnPastelSecondary">
           {t('profile2.guestBody')}
         </AppText>
-        <PillButton label={t('profile2.createAccount')} disabled />
+        <Button label={t('profile2.createAccount')} disabled />
       </Card>
 
       <Section title={t('profile2.yourPractice')}>
         <View style={styles.stats}>
-          <Card tone="tileMint" style={styles.stat}>
+          <Card tone="sand" style={styles.stat}>
             <AppText variant="display">{String(week)}</AppText>
             <AppText variant="footnote" color="textOnPastelSecondary">
               {t('profile2.sessionsWeek', { count: week })}
             </AppText>
           </Card>
-          <Card tone="tileViolet" style={styles.stat}>
+          <Card tone="lilac" style={styles.stat}>
             <AppText variant="display">{String(total)}</AppText>
             <AppText variant="footnote" color="textOnPastelSecondary">
               {t('profile2.sessionsTotal', { count: total })}

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { DEFAULT_CLASS_FILTERS, type ClassFilters } from '@/data/types';
-import { AppText, Chip, PillButton, Sheet, ToggleRow } from '@/ui';
+import { AppText, Chip, Button, Sheet, ToggleRow } from '@/ui';
 
 const WHEN: ClassFilters['when'][] = ['any', 'today', 'week'];
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
@@ -37,12 +37,12 @@ export function FiltersSheet({ visible, filters, countFor, onApply, onClose }: F
       onClose={onClose}
       footer={
         <View style={styles.footer}>
-          <PillButton
+          <Button
             label={t('common.reset')}
-            tone="light"
+            variant="secondary"
             onPress={() => setDraft(DEFAULT_CLASS_FILTERS)}
           />
-          <PillButton
+          <Button
             label={t('discover.showResults', { count })}
             onPress={() => onApply(draft)}
             testID="apply-filters"

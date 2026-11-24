@@ -34,11 +34,10 @@ export const colors = {
   borderControl: palette.cream[500],
   focusRing: palette.lavender[600],
 
-  // Card tints. Legacy names kept for the demo `tone` field until Phase B
-  // replaces tinted cards with covers: mint and orchid are no longer used.
-  tileMint: palette.cream[200],
-  tileViolet: palette.lavender[100],
-  tileOrchid: palette.lavender[200],
+  /** Soft tints for covers and cards without a photo (see `tints`). */
+  tintSand: palette.cream[200],
+  tintLilac: palette.lavender[100],
+  tintMist: palette.lavender[200],
 
   success: palette.sage[600],
   successSurface: palette.sage[100],
@@ -51,6 +50,15 @@ export const colors = {
 } as const;
 
 export type ColorToken = keyof typeof colors;
+
+/** Cover tints by name, as stored on demo content (`CoverTint` in @oreva/core). */
+export const tints = {
+  sand: colors.tintSand,
+  lilac: colors.tintLilac,
+  mist: colors.tintMist,
+} as const;
+
+export type TintName = keyof typeof tints;
 
 export type ContrastKind = 'text' | 'largeText' | 'nonText';
 
@@ -94,19 +102,19 @@ export const contrastPairs: readonly ContrastPair[] = [
     kind: 'text',
     usage: 'links on tinted panels',
   },
-  { foreground: 'textPrimary', background: 'tileMint', kind: 'text', usage: 'tile titles' },
-  { foreground: 'textPrimary', background: 'tileViolet', kind: 'text', usage: 'tile titles' },
-  { foreground: 'textPrimary', background: 'tileOrchid', kind: 'text', usage: 'tile titles' },
-  { foreground: 'textOnPastelSecondary', background: 'tileMint', kind: 'text', usage: 'tile meta' },
+  { foreground: 'textPrimary', background: 'tintSand', kind: 'text', usage: 'tile titles' },
+  { foreground: 'textPrimary', background: 'tintLilac', kind: 'text', usage: 'tile titles' },
+  { foreground: 'textPrimary', background: 'tintMist', kind: 'text', usage: 'tile titles' },
+  { foreground: 'textOnPastelSecondary', background: 'tintSand', kind: 'text', usage: 'tile meta' },
   {
     foreground: 'textOnPastelSecondary',
-    background: 'tileViolet',
+    background: 'tintLilac',
     kind: 'text',
     usage: 'tile meta',
   },
   {
     foreground: 'textOnPastelSecondary',
-    background: 'tileOrchid',
+    background: 'tintMist',
     kind: 'text',
     usage: 'tile meta',
   },
@@ -178,5 +186,18 @@ export const contrastPairs: readonly ContrastPair[] = [
     background: 'accentSoft',
     kind: 'text',
     usage: 'meta on selected chips (stone alone is 4.4996:1 on lilac, just under AA)',
+  },
+  {
+    foreground: 'textOnPastelSecondary',
+    background: 'surface',
+    kind: 'text',
+    usage: 'sample data tag',
+  },
+  { foreground: 'textBrand', background: 'accentSoft', kind: 'text', usage: 'titles on lilac' },
+  {
+    foreground: 'actionPrimary',
+    background: 'surface',
+    kind: 'nonText',
+    usage: 'secondary button edge, active tab line',
   },
 ];
