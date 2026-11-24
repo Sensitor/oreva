@@ -24,7 +24,7 @@
     "durationMinutes_other": "{{count}} min"
   },
   "tabs": {
-    "home": "Accueil",
+    "today": "Aujourd'hui",
     "discover": "Découvrir",
     "practice": "Pratiquer",
     "connect": "Communauté",
@@ -361,7 +361,8 @@
     "upcoming": "Prochains cours",
     "noUpcoming": "Aucun cours à venir.",
     "specialties": "Spécialités",
-    "teachingLanguages": "Cours donnés en"
+    "teachingLanguages": "Cours donnés en",
+    "specialtiesLabel": "Spécialités"
   },
   "instructor": {
     "about": "À propos",
@@ -413,7 +414,9 @@
     "startProgram": "Commencer le programme",
     "empty": "Aucune séance ne correspond à ces filtres.",
     "sampleVideo": "Vidéo d’exemple",
-    "schedule": "Planning"
+    "schedule": "Planning",
+    "sessions": "Séances",
+    "programProgress": "Progression du programme"
   },
   "player": {
     "exerciseOf": "Exercice {{current}} sur {{total}}",
@@ -426,7 +429,10 @@
     "finishedBody": "Bravo. Cette séance est enregistrée sur ce téléphone.",
     "captions": "Les sous-titres ne sont pas disponibles pour les vidéos d’exemple.",
     "close": "Fermer le lecteur",
-    "up": "Ensuite : {{name}}"
+    "up": "Ensuite : {{name}}",
+    "bravo": "Bravo",
+    "exercisesLabel": "Exercices",
+    "sessionProgress": "Progression de la séance"
   },
   "connect": {
     "circles": "Vos Circles",
@@ -481,7 +487,10 @@
     "accessibility": "Accessibilité",
     "about": "À propos d’ORÉVA",
     "prototype": "Réglages du prototype",
-    "following": "Suivis"
+    "following": "Suivis",
+    "firstSessionTitle": "Votre première séance",
+    "firstSessionBody": "Votre pratique s'affiche ici dès que vous terminez une séance. Elle reste sur ce téléphone.",
+    "firstSessionCta": "Choisir une séance"
   },
   "notificationsScreen": {
     "classReminders": "Rappels de cours",
@@ -522,6 +531,7 @@
   "home2": {
     "following": "De vos instructrices et studios",
     "recommended": "Recommandé pour vous",
-    "nearby": "Cours à découvrir"
+    "nearby": "Cours à découvrir",
+    "continue": "Continuer"
   }
 }

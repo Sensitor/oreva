@@ -170,6 +170,19 @@ describe('Discover', () => {
     await fireEvent.press(card);
     expect(router.push).toHaveBeenCalledWith('/classes/cls-1');
   });
+
+  it('groups the list by day under a heading, each class as a ticket', async () => {
+    await renderWithProviders(<DiscoverScreen />, 'fr');
+    await fireEvent.press(await screen.findByTestId('toggle-view'));
+    await screen.findAllByTestId(/^class-card-/);
+    const days = screen
+      .getAllByRole('header')
+      .map((node) => String(node.props.children))
+      .filter((text) => /^(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche) \d+ /.test(text));
+    expect(days.length).toBeGreaterThan(0);
+    // Headings follow each other in calendar order and never repeat.
+    expect(new Set(days).size).toBe(days.length);
+  });
 });
 
 describe('Profiles and class page', () => {

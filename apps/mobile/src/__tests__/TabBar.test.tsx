@@ -6,7 +6,7 @@ import { TabBar } from '@/ui';
 import { renderWithProviders } from '@/test-utils';
 
 const ROUTES = ['index', 'discover', 'practice', 'connect', 'profile'];
-const TITLES = ['Home', 'Discover', 'Practice', 'Connect', 'Profile'];
+const TITLES = ['Today', 'Discover', 'Practice', 'Connect', 'Profile'];
 
 function makeProps(activeIndex: number) {
   const emit = jest.fn((_event: unknown) => ({ defaultPrevented: false }));
@@ -35,7 +35,7 @@ describe('TabBar', () => {
       expect(screen.getByRole('tab', { name: title })).toBeTruthy();
     }
     expect(screen.getByRole('tab', { name: 'Discover' })).toBeSelected();
-    expect(screen.getByRole('tab', { name: 'Home' })).not.toBeSelected();
+    expect(screen.getByRole('tab', { name: 'Today' })).not.toBeSelected();
   });
 
   it('shows a label on every tab, kept on one line at large text sizes', async () => {
@@ -73,7 +73,7 @@ describe('TabBar', () => {
   it('does not navigate when the active tab is pressed again', async () => {
     const { props, navigateToTab } = makeProps(0);
     await renderWithProviders(<TabBar {...props} />);
-    await fireEvent.press(screen.getByRole('tab', { name: 'Home' }));
+    await fireEvent.press(screen.getByRole('tab', { name: 'Today' }));
     expect(navigateToTab).not.toHaveBeenCalled();
   });
 });

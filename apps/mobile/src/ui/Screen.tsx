@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: spacing.gutter,
-    gap: spacing.lg,
+    gap: spacing.xl,
   },
 });

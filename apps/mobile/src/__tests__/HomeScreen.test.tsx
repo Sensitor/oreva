@@ -64,4 +64,31 @@ describe('Home', () => {
     expect(await screen.findByText('Core foundations')).toBeTruthy();
     expect(screen.queryByText('Travel stretch')).toBeNull();
   });
+
+  it('opens on today: the date as a kicker and a greeting as the title', async () => {
+    await renderWithProviders(<HomeScreen now={TEST_NOW} />, 'fr');
+    // The greeting follows the phone's time of day.
+    expect(
+      await screen.findByRole('header', { name: /^(Bonjour|Bon après-midi|Bonsoir)$/ }),
+    ).toBeTruthy();
+    expect(screen.getByText(/^samedi 14 novembre$/)).toBeTruthy();
+  });
+
+  it('offers to continue a session left halfway, with its real progress', async () => {
+    await renderWithProviders(<HomeScreen now={TEST_NOW} />, 'en', {
+      prototype: { workoutProgress: { 'wk-core-foundations': 30 } },
+    });
+    const row = await screen.findByTestId('home-continue');
+    expect(row).toBeTruthy();
+    const bar = screen.getByRole('progressbar', { name: 'Session progress' });
+    expect(bar.props.accessibilityValue.now).toBeGreaterThan(0);
+    await fireEvent.press(row);
+    expect(router.push).toHaveBeenCalledWith('/workouts/wk-core-foundations');
+  });
+
+  it('shows no Continue section when nothing was left halfway', async () => {
+    await renderWithProviders(<HomeScreen now={TEST_NOW} />);
+    await screen.findByText('Classes to discover');
+    expect(screen.queryByTestId('home-continue')).toBeNull();
+  });
 });

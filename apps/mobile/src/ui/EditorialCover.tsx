@@ -18,6 +18,8 @@ export interface EditorialCoverProps {
   /** Spoken label when the whole cover is a button. Defaults to title and meta. */
   accessibilityLabel?: string;
   minHeight?: number;
+  /** Width to height, e.g. 3 / 2 for a studio cover. */
+  aspectRatio?: number;
   testID?: string;
 }
 
@@ -36,11 +38,12 @@ export function EditorialCover({
   onPress,
   accessibilityLabel,
   minHeight = 220,
+  aspectRatio,
   testID,
 }: EditorialCoverProps) {
   const voile = voiles[tint];
   const content = (
-    <Voile tint={tint} withLine={false} style={[styles.cover, { minHeight }]}>
+    <Voile tint={tint} withLine={false} style={[styles.cover, { minHeight, aspectRatio }]}>
       <View style={styles.top}>
         {kicker ? (
           <AppText variant="kicker" color={voile.meta} style={styles.kicker}>

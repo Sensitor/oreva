@@ -8,7 +8,9 @@ export type { TranslationTree } from './resources';
 export {
   currencyMinorUnits,
   distanceUnitFor,
+  dayKey,
   formatClassDateTime,
+  formatDayHeading,
   formatDistance,
   formatPrice,
 } from './format';

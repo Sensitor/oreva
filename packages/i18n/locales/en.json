@@ -23,7 +23,7 @@
     "durationMinutes_other": "{{count}} min"
   },
   "tabs": {
-    "home": "Home",
+    "today": "Today",
     "discover": "Discover",
     "practice": "Practice",
     "connect": "Connect",
@@ -352,7 +352,8 @@
     "upcoming": "Upcoming classes",
     "noUpcoming": "No upcoming classes.",
     "specialties": "Specialties",
-    "teachingLanguages": "Classes taught in"
+    "teachingLanguages": "Classes taught in",
+    "specialtiesLabel": "Specialties"
   },
   "instructor": {
     "about": "About",
@@ -401,7 +402,9 @@
     "startProgram": "Start the program",
     "empty": "No sessions match these filters.",
     "sampleVideo": "Sample video",
-    "schedule": "Schedule"
+    "schedule": "Schedule",
+    "sessions": "Sessions",
+    "programProgress": "Program progress"
   },
   "player": {
     "exerciseOf": "Exercise {{current}} of {{total}}",
@@ -414,7 +417,10 @@
     "finishedBody": "Well done. This session is saved on this phone.",
     "captions": "Captions are not available for sample videos.",
     "close": "Close the player",
-    "up": "Up next: {{name}}"
+    "up": "Up next: {{name}}",
+    "bravo": "Bravo",
+    "exercisesLabel": "Exercises",
+    "sessionProgress": "Session progress"
   },
   "connect": {
     "circles": "Your Circles",
@@ -466,7 +472,10 @@
     "accessibility": "Accessibility",
     "about": "About ORÉVA",
     "prototype": "Prototype settings",
-    "following": "Following"
+    "following": "Following",
+    "firstSessionTitle": "Your first session",
+    "firstSessionBody": "Your practice appears here once you finish a session. It stays on this phone.",
+    "firstSessionCta": "Choose a session"
   },
   "notificationsScreen": {
     "classReminders": "Class reminders",
@@ -507,6 +516,7 @@
   "home2": {
     "following": "From your instructors and studios",
     "recommended": "Recommended for you",
-    "nearby": "Classes to discover"
+    "nearby": "Classes to discover",
+    "continue": "Continue"
   }
 }

@@ -10,7 +10,7 @@ export default function TabsLayout() {
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.background } }}
     >
-      <Tabs.Screen name="index" options={{ title: t('tabs.home') }} />
+      <Tabs.Screen name="index" options={{ title: t('tabs.today') }} />
       <Tabs.Screen name="discover" options={{ title: t('tabs.discover') }} />
       <Tabs.Screen name="practice" options={{ title: t('tabs.practice') }} />
       <Tabs.Screen name="connect" options={{ title: t('tabs.connect') }} />

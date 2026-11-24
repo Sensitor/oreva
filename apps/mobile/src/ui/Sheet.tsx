@@ -16,7 +16,10 @@ export interface SheetProps {
   footer?: ReactNode;
 }
 
-/** Native page sheet (iOS) / full-screen modal (Android), with a close button. */
+/**
+ * Native page sheet (iOS draws its rounded top) / full-screen modal (Android):
+ * paper, a serif title and a close button.
+ */
 export function Sheet({ visible, title, onClose, children, footer }: SheetProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -30,7 +33,12 @@ export function Sheet({ visible, title, onClose, children, footer }: SheetProps)
     >
       <View style={[styles.container, { paddingBottom: insets.bottom + spacing.md }]}>
         <View style={styles.header}>
-          <AppText variant="title2" accessibilityRole="header" style={styles.title}>
+          <AppText
+            variant="title1"
+            color="textBrand"
+            accessibilityRole="header"
+            style={styles.title}
+          >
             {title}
           </AppText>
           <IconButton icon={X} accessibilityLabel={t('common.close')} onPress={onClose} />
@@ -47,13 +55,13 @@ export function Sheet({ visible, title, onClose, children, footer }: SheetProps)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    paddingHorizontal: spacing.lg - 4,
+    paddingHorizontal: spacing.gutter,
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
   },
@@ -61,12 +69,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingHorizontal: spacing.lg - 4,
+    paddingHorizontal: spacing.gutter,
     paddingBottom: spacing.lg,
     gap: spacing.md,
   },
   footer: {
-    paddingHorizontal: spacing.lg - 4,
+    paddingHorizontal: spacing.gutter,
     paddingTop: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderSubtle,
   },
 });

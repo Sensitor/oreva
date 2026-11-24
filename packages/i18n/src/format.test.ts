@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   currencyMinorUnits,
   distanceUnitFor,
+  dayKey,
   formatClassDateTime,
+  formatDayHeading,
   formatDistance,
   formatPrice,
 } from './format';
@@ -66,5 +68,21 @@ describe('formatDistance', () => {
     expect(n(formatDistance(2500, 'fr'))).toBe('2,5 km');
     expect(n(formatDistance(2500, 'ru'))).toBe('2,5 км');
     expect(n(formatDistance(16093.44, 'en-GB'))).toBe('10 mi');
+  });
+});
+
+describe('day headings', () => {
+  // 23:30 UTC on 15 November is already 16 November in Monaco.
+  const late = new Date('2026-11-15T23:30:00Z');
+
+  it('groups by the day in the class time zone', () => {
+    expect(dayKey(late, 'Europe/Monaco')).toBe('2026-11-16');
+    expect(dayKey(late, 'Europe/London')).toBe('2026-11-15');
+  });
+
+  it('writes the full day in each language', () => {
+    expect(n(formatDayHeading(late, 'en-GB', 'Europe/Monaco'))).toBe('Monday 16 November');
+    expect(n(formatDayHeading(late, 'fr', 'Europe/Monaco'))).toBe('lundi 16 novembre');
+    expect(n(formatDayHeading(late, 'ru', 'Europe/Monaco'))).toBe('понедельник, 16 ноября');
   });
 });

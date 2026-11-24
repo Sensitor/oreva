@@ -2,24 +2,31 @@ import { resolveLocalizedText } from '@oreva/core';
 import { colors, elevation, radii, spacing, touchTarget } from '@oreva/tokens';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { router } from 'expo-router';
-import { Pause, Play, SkipBack, SkipForward, type LucideIcon } from 'lucide-react-native';
+import { SkipBack, SkipForward } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useWorkout } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import {
   AppText,
   Badge,
-  EmptyState,
   Button,
+  EmptyState,
+  FactsRow,
+  Line,
+  PauseIcon,
+  PlayIcon,
+  PressableScale,
   ProgressRing,
   Screen,
   ScreenHeader,
   Skeleton,
+  type IconComponent,
 } from '@/ui';
 import { formatTimer, sessionPosition, startOfExercise } from './session';
+import { workoutMinutes } from './WorkoutCard';
 import { sampleVideos } from './videos';
 
 function ControlButton({
@@ -29,26 +36,27 @@ function ControlButton({
   primary,
   testID,
 }: {
-  icon: LucideIcon;
+  icon: IconComponent;
   label: string;
   onPress: () => void;
   primary?: boolean;
   testID?: string;
 }) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
+      haptic={primary ? 'light' : undefined}
       testID={testID}
-      style={({ pressed }) => [
-        styles.control,
-        primary && styles.controlPrimary,
-        pressed && styles.pressed,
-      ]}
+      style={[styles.control, primary && styles.controlPrimary]}
     >
-      <Icon size={26} color={colors.textPrimary} strokeWidth={2} />
-    </Pressable>
+      <Icon
+        size={primary ? 28 : 24}
+        color={primary ? colors.textOnAction : colors.textPrimary}
+        strokeWidth={1.5}
+      />
+    </PressableScale>
   );
 }
 
@@ -153,15 +161,35 @@ function Player({ workout }: { workout: NonNullable<ReturnType<typeof useWorkout
       <Screen withTabBar={false}>
         <ScreenHeader />
         <View style={styles.finished}>
-          <ProgressRing progress={1} size={120} strokeWidth={8} />
-          <AppText variant="title1" align="center" accessibilityRole="header">
+          <ProgressRing progress={1} size={128} strokeWidth={4} label={t('player.bravo')} />
+          <AppText variant="display" color="textBrand" align="center" accessibilityRole="header">
             {t('player.finished')}
           </AppText>
+          <Line />
           <AppText variant="body" color="textSecondary" align="center">
             {t('player.finishedBody')}
           </AppText>
-          <Button label={t('common.done')} onPress={() => router.back()} testID="player-done" />
         </View>
+        {/* The real numbers of this session. Never calories (P-15). */}
+        <FactsRow
+          facts={[
+            {
+              label: t('player.exercisesLabel'),
+              value: String(workout.exercises.length),
+            },
+            {
+              label: t('classDetail.duration'),
+              value: t('common.durationMinutes', { count: workoutMinutes(workout) }),
+            },
+          ]}
+          testID="player-summary"
+        />
+        <Button
+          label={t('common.done')}
+          fullWidth
+          onPress={() => router.back()}
+          testID="player-done"
+        />
       </Screen>
     );
   }
@@ -181,31 +209,39 @@ function Player({ workout }: { workout: NonNullable<ReturnType<typeof useWorkout
         </View>
       </View>
       <View style={styles.status}>
-        <View style={styles.flex}>
-          <AppText variant="headline">{t('player.completed')}</AppText>
-          <AppText variant="footnote" color="textSecondary">
-            {t('player.exerciseOf', {
-              current: position.index + 1,
-              total: workout.exercises.length,
-            })}
-          </AppText>
-          {next ? (
-            <AppText variant="footnote" color="textSecondary" numberOfLines={1}>
-              {t('player.up', { name: resolveLocalizedText(next.name, locale)?.text ?? '' })}
+        <View style={styles.statusRow}>
+          <View style={styles.flex}>
+            <AppText variant="kicker" color="textLink">
+              {t('player.exerciseOf', {
+                current: position.index + 1,
+                total: workout.exercises.length,
+              })}
             </AppText>
-          ) : null}
+            {next ? (
+              <AppText variant="footnote" color="textSecondary" numberOfLines={1}>
+                {t('player.up', { name: resolveLocalizedText(next.name, locale)?.text ?? '' })}
+              </AppText>
+            ) : null}
+          </View>
+          <AppText
+            variant="numeral"
+            color="textBrand"
+            accessibilityRole="timer"
+            accessibilityLiveRegion="none"
+            testID="player-timer"
+          >
+            {formatTimer(position.exerciseRemaining)}
+          </AppText>
         </View>
-        <ProgressRing progress={position.progress} />
+        {/* La Ligne across the session: a dot for each exercise. */}
+        <Line
+          variant="progress"
+          value={position.progress}
+          steps={workout.exercises.length}
+          accessibilityLabel={t('player.sessionProgress')}
+          testID="player-progress"
+        />
       </View>
-      <AppText
-        variant="display"
-        align="center"
-        accessibilityRole="timer"
-        accessibilityLiveRegion="none"
-        testID="player-timer"
-      >
-        {formatTimer(position.exerciseRemaining)}
-      </AppText>
       <View style={styles.controls}>
         <ControlButton
           icon={SkipBack}
@@ -214,7 +250,7 @@ function Player({ workout }: { workout: NonNullable<ReturnType<typeof useWorkout
           testID="player-previous"
         />
         <ControlButton
-          icon={playing ? Pause : Play}
+          icon={playing ? PauseIcon : PlayIcon}
           label={playing ? t('player.pause') : t('player.play')}
           onPress={() => setPlaying((value) => !value)}
           primary
@@ -238,7 +274,7 @@ const styles = StyleSheet.create({
   video: {
     flex: 1,
     minHeight: 220,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     overflow: 'hidden',
     backgroundColor: colors.backgroundTint,
   },
@@ -248,42 +284,45 @@ const styles = StyleSheet.create({
     start: spacing.sm,
   },
   status: {
+    gap: spacing.sm,
+  },
+  statusRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: spacing.md,
-    padding: spacing.md,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surface,
-    boxShadow: elevation.soft,
   },
   flex: {
     flex: 1,
     gap: 2,
+    paddingBottom: spacing.xs,
   },
+  // The controls sit on one paper bar.
   controls: {
     flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  control: {
-    flex: 1,
-    minHeight: touchTarget.comfortable + 16,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: spacing.xs,
     borderRadius: radii.pill,
     backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: elevation.soft,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle,
+    boxShadow: elevation.raised,
+  },
+  control: {
+    width: touchTarget.comfortable + 16,
+    height: touchTarget.comfortable + 16,
+    borderRadius: radii.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   controlPrimary: {
-    backgroundColor: colors.accent,
-  },
-  pressed: {
-    opacity: 0.85,
+    width: touchTarget.comfortable + 28,
+    height: touchTarget.comfortable + 28,
+    backgroundColor: colors.actionPrimary,
   },
   finished: {
     alignItems: 'center',
-    gap: spacing.md,
-    paddingTop: spacing.xxl,
+    gap: spacing.sm,
+    paddingTop: spacing.xl,
   },
 });

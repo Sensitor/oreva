@@ -1,7 +1,6 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, radii, spacing, tints } from '@oreva/tokens';
+import { colors, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
-import { Clock, Gauge, Package } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { useInstructorProfile, useWorkout } from '@/data/hooks';
@@ -10,9 +9,10 @@ import { languagesLabel } from '@/lib/format';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import {
   AppText,
-  Card,
-  EmptyState,
   Button,
+  EditorialCover,
+  EmptyState,
+  FactsRow,
   SampleBadge,
   Screen,
   ScreenHeader,
@@ -48,60 +48,38 @@ export function WorkoutScreen({ id }: { id: string }) {
   }
 
   const resumeAt = state.workoutProgress[workout.id] ?? 0;
-  const tiles = [
-    {
-      icon: Gauge,
-      value: t(`level.${workout.level}`),
-      label: t('classDetail.level'),
-      tone: 'sand' as const,
-    },
-    {
-      icon: Clock,
-      value: t('common.durationMinutes', { count: workoutMinutes(workout) }),
-      label: t('classDetail.duration'),
-      tone: 'lilac' as const,
-    },
-    {
-      icon: Package,
-      value: workout.equipment.map((e) => t(`equipment.${e}`)).join(', '),
-      label: t('practice.equipment'),
-      tone: 'mist' as const,
-    },
-  ];
+  const title = resolveLocalizedText(workout.title, locale)?.text ?? '';
 
   return (
     <Screen withTabBar={false}>
       <ScreenHeader />
-      <View style={styles.titleBlock}>
-        <View style={styles.badges}>{workout.isPlaceholder ? <SampleBadge /> : null}</View>
-        <AppText variant="title1" accessibilityRole="header">
-          {resolveLocalizedText(workout.title, locale)?.text}
-        </AppText>
-        <AppText variant="body" color="textSecondary">
-          {resolveLocalizedText(workout.description, locale)?.text}
-        </AppText>
-      </View>
-      <View style={styles.tiles}>
-        {tiles.map(({ icon: Icon, value, label, tone }) => (
-          <Card
-            key={label}
-            tone={tone}
-            style={styles.tile}
-            accessible
-            accessibilityLabel={`${label}: ${value}`}
-          >
-            <View style={styles.tileIcon}>
-              <Icon size={18} color={colors.textPrimary} strokeWidth={1.75} />
-            </View>
-            <AppText variant="bodyStrong" numberOfLines={2}>
-              {value}
-            </AppText>
-            <AppText variant="caption" color="textOnPastelSecondary">
-              {label}
-            </AppText>
-          </Card>
-        ))}
-      </View>
+      <EditorialCover
+        tint={workout.tone}
+        kicker={t(`focus.${workout.focus}`)}
+        title={title}
+        badge={workout.isPlaceholder ? <SampleBadge /> : undefined}
+        minHeight={220}
+        testID="workout-cover"
+      />
+      <AppText variant="body" color="textSecondary">
+        {resolveLocalizedText(workout.description, locale)?.text}
+      </AppText>
+
+      {/* Facts on a hairline row instead of coloured tiles. Never calories (P-15). */}
+      <FactsRow
+        facts={[
+          { label: t('classDetail.level'), value: t(`level.${workout.level}`) },
+          {
+            label: t('classDetail.duration'),
+            value: t('common.durationMinutes', { count: workoutMinutes(workout) }),
+          },
+          {
+            label: t('practice.equipment'),
+            value: workout.equipment.map((e) => t(`equipment.${e}`)).join(', '),
+          },
+        ]}
+        testID="workout-facts"
+      />
       <AppText variant="footnote" color="textSecondary">
         {[
           instructor.data
@@ -114,7 +92,7 @@ export function WorkoutScreen({ id }: { id: string }) {
       </AppText>
 
       <Section title={t('practice.exercises', { count: workout.exercises.length })}>
-        <Card padded={false}>
+        <View style={styles.list}>
           {workout.exercises.map((exercise, index) => (
             <View
               key={exercise.id}
@@ -122,25 +100,24 @@ export function WorkoutScreen({ id }: { id: string }) {
               accessible
               accessibilityLabel={`${String(index + 1)}. ${resolveLocalizedText(exercise.name, locale)?.text ?? ''}, ${formatTimer(exercise.durationSec)}`}
             >
-              <View style={[styles.number, { backgroundColor: tints[workout.tone] }]}>
-                <AppText variant="callout" weight="bold">
-                  {String(index + 1)}
-                </AppText>
-              </View>
+              <AppText variant="numeralSmall" color="textLink" style={styles.number}>
+                {String(index + 1).padStart(2, '0')}
+              </AppText>
               <AppText variant="bodyStrong" style={styles.flex}>
                 {resolveLocalizedText(exercise.name, locale)?.text}
               </AppText>
-              <AppText variant="callout" color="textSecondary">
+              <AppText variant="callout" color="textSecondary" style={styles.time}>
                 {formatTimer(exercise.durationSec)}
               </AppText>
             </View>
           ))}
-        </Card>
+        </View>
       </Section>
 
       <Button
         label={resumeAt > 0 ? t('practice.resume') : t('practice.start')}
         fullWidth
+        withArrow
         onPress={() => router.push(`/player/${workout.id}`)}
         testID="start-workout"
       />
@@ -149,48 +126,26 @@ export function WorkoutScreen({ id }: { id: string }) {
 }
 
 const styles = StyleSheet.create({
-  titleBlock: {
-    gap: spacing.xs,
-  },
-  badges: {
-    flexDirection: 'row',
-    gap: spacing.xxs,
-  },
-  tiles: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-  tile: {
-    flex: 1,
-    gap: spacing.xxs,
-    padding: spacing.sm,
-    minHeight: 120,
-  },
-  tileIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: radii.pill,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xxs,
+  list: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderSubtle,
   },
   exercise: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    padding: spacing.md,
+    gap: spacing.md,
+    minHeight: 60,
+    paddingVertical: spacing.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderSubtle,
   },
   number: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
+    minWidth: 40,
   },
   flex: {
     flex: 1,
+  },
+  time: {
+    fontVariant: ['tabular-nums'],
   },
 });

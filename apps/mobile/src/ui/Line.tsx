@@ -67,7 +67,7 @@ export function Line(props: LineProps) {
     const points = wavePoints(width, shape.height, { cycles: shape.cycles }, inset);
     const d = pathFromPoints(points);
     const length = pathLength(points);
-    const steps = props.steps && props.steps > 1 ? props.steps : 0;
+    const steps = props.steps && props.steps > 0 ? props.steps : 0;
     const now = Math.round(value * 100);
     return (
       <View
@@ -100,7 +100,8 @@ export function Line(props: LineProps) {
               />
             ) : null}
             {Array.from({ length: steps }, (_, i) => {
-              const fraction = i / (steps - 1);
+              // Dot n sits where step n is complete, so nothing is filled at 0%.
+              const fraction = (i + 1) / steps;
               const point = pointAt(points, fraction);
               if (!point) {
                 return null;
@@ -115,6 +116,7 @@ export function Line(props: LineProps) {
                   fill={reached ? (props.color ?? colors.progress) : colors.surface}
                   stroke={reached ? (props.color ?? colors.progress) : colors.borderControl}
                   strokeWidth={1}
+                  testID={reached ? 'line-step-done' : 'line-step-todo'}
                 />
               );
             })}

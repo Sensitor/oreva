@@ -240,3 +240,19 @@ describe('ORÉVA icons', () => {
     }
   });
 });
+
+describe('La Ligne steps', () => {
+  it('fills a step only once it is done', async () => {
+    const count = (id: string) =>
+      screen.queryAllByTestId(id, { includeHiddenElements: true }).length;
+    await renderWithProviders(
+      <Line variant="progress" value={0} steps={4} width={300} accessibilityLabel="Steps" />,
+    );
+    expect(count('line-step-done')).toBe(0);
+    expect(count('line-step-todo')).toBe(4);
+    await renderWithProviders(
+      <Line variant="progress" value={2 / 4} steps={4} width={300} accessibilityLabel="Steps" />,
+    );
+    expect(count('line-step-done')).toBe(2);
+  });
+});

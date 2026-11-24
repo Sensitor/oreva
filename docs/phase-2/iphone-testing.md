@@ -83,8 +83,9 @@ After a JavaScript change, the app reloads from the server: no new build is need
 ### Discovery journey (founders' priority 3)
 
 1. **Discover** opens on Monaco. Tap a place:
-   - a filled lavender dot is a public place;
-   - a hollow ring is a private studio, shown only as an approximate area.
+   - a plum dot in a paper ring is a public place;
+   - a hollow iris ring is a private studio, shown only as an approximate area.
+   - groups of places are paper discs with a number.
 2. The preview card shows the studio, the place and the next class. Tap **View profile** to open the studio profile, then **Instructors**, an instructor (for example Léa M., affiliated with three organizations), then a class.
 3. Search **Лондон**, **Londres** or **London**. Also try Paris, Dubai and New York.
 4. **Near me** shows an explanation first, then the iOS prompt. Refusing it offers Settings or city search instead.
@@ -122,9 +123,20 @@ No new build is needed: reload the development build. Report: `docs/design/phase
 3. The **tab bar**: every tab has a label; the active one is plum with a small wave under it. Switching tabs gives a light tap. Try it with a larger text size (Settings, Display & Brightness, Text Size) and with VoiceOver.
 4. Turn on **Reduce Motion** (Settings, Accessibility, Motion): buttons dim slightly instead of scaling.
 
+### Screens (phase C)
+
+No new build is needed: reload the development build. Report: `docs/design/phase-c/report.md`.
+
+1. **Today** (the first tab, renamed from Home): date, greeting, the plum program cover with Start. Leave a session halfway in the player, come back: a **Continue** row shows how far you got.
+2. **Discover**: the new map markers (Mapbox and Apple Maps), the serif count at the bottom, then **List**: classes as tickets under a heading for each day. Open a class, a studio and an instructor.
+3. **Practice**: the **Programs** and **Sessions** tabs, a program (progress fills only after you finish a session), a session, then the player: timer in serif numerals, the line with a dot for each exercise, the plum play button. Finish a session to see the completion screen.
+4. **Connect** and a Circle: medallions, the portrait rail, the challenge lines, chat bubbles.
+5. **Profile**: the guest cover, and the invitation to a first session (it becomes your real counts once you finish one).
+6. Repeat a few screens in Russian and French, and with a larger text size: tickets stack the time above the details.
+
 ## 4. Sending feedback
 
 For each point, note the screen, the language, what you expected and what you saw. Include a screenshot if possible. Then tell us:
 
 - **C-4:** Mapbox or Apple Maps
-- **Phase B:** approved, or what to change
+- **Phase C:** approved, or what to change

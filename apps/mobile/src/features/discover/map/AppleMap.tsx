@@ -1,4 +1,4 @@
-import { colors, radii } from '@oreva/tokens';
+import { colors, elevation, radii } from '@oreva/tokens';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Circle, Marker, type Region } from 'react-native-maps';
@@ -62,8 +62,8 @@ export function AppleMap({
             key={`area-${point.id}`}
             center={point.coordinate}
             radius={point.approximateRadiusMeters ?? 0}
-            fillColor="rgba(193, 178, 255, 0.35)"
-            strokeColor={colors.accentStrong}
+            fillColor="rgba(110, 83, 144, 0.10)"
+            strokeColor={colors.progress}
             strokeWidth={point.id === selectedPointId ? 3 : 1.5}
             lineDashPattern={[6, 6]}
           />
@@ -72,7 +72,7 @@ export function AppleMap({
         <Circle
           center={userArea}
           radius={1000}
-          fillColor="rgba(220, 231, 247, 0.5)"
+          fillColor="rgba(110, 83, 144, 0.08)"
           strokeColor={colors.info}
           strokeWidth={1.5}
         />
@@ -96,7 +96,7 @@ export function AppleMap({
             }
           >
             <View style={styles.cluster}>
-              <AppText variant="callout" weight="bold">
+              <AppText variant="title2" color="textBrand" maxFontSizeMultiplier={1}>
                 {String(item.count)}
               </AppText>
             </View>
@@ -123,35 +123,39 @@ export function AppleMap({
 }
 
 const styles = StyleSheet.create({
+  // Clusters: paper discs with serif numerals.
   cluster: {
-    minWidth: 40,
-    height: 40,
+    minWidth: 44,
+    height: 44,
     paddingHorizontal: 8,
     borderRadius: radii.pill,
-    backgroundColor: colors.accent,
-    borderWidth: 3,
-    borderColor: colors.surface,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderControl,
     alignItems: 'center',
     justifyContent: 'center',
+    boxShadow: elevation.soft,
   },
+  // Public place: a plum dot in a paper ring.
   point: {
     width: 20,
     height: 20,
     borderRadius: radii.pill,
-    backgroundColor: colors.accent,
-    borderWidth: 1.5,
-    borderColor: colors.textPrimary,
+    backgroundColor: colors.actionPrimary,
+    borderWidth: 3,
+    borderColor: colors.surface,
+    boxShadow: elevation.soft,
   },
+  // Private studio: a hollow iris ring, never a pin (the address is not shown, P-12).
   area: {
     width: 22,
     height: 22,
     borderRadius: radii.pill,
     borderWidth: 2,
-    borderColor: colors.accentStrong,
-    backgroundColor: 'transparent',
+    borderColor: colors.progress,
+    backgroundColor: 'rgba(253, 251, 248, 0.6)',
   },
   selected: {
-    transform: [{ scale: 1.35 }],
-    borderWidth: 3,
+    transform: [{ scale: 1.3 }],
   },
 });

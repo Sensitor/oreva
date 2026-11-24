@@ -1,19 +1,20 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, spacing, tints } from '@oreva/tokens';
+import { colors, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useInstructorProfile } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { languagesLabel } from '@/lib/format';
 import {
   AppText,
   Avatar,
-  Badge,
-  Card,
   EmptyState,
+  FactsRow,
   FictionalBanner,
+  Line,
+  PressableScale,
   SampleBadge,
   Screen,
   ScreenHeader,
@@ -55,49 +56,54 @@ export function InstructorScreen({ id }: { id: string }) {
           <FollowButton kind="instructor" id={instructor.id} name={instructor.displayName} />
         }
       />
+      {/* A portrait in initials until a photo used with permission exists (P-15). */}
       <View style={styles.hero}>
-        <Avatar name={instructor.displayName} size={96} />
-        <AppText variant="title1" accessibilityRole="header" align="center">
+        <Avatar name={instructor.displayName} size={112} tone="lilac" />
+        <AppText variant="display" color="textBrand" accessibilityRole="header" align="center">
           {instructor.displayName}
         </AppText>
+        <Line />
         {instructor.isPlaceholder ? <SampleBadge /> : null}
       </View>
       {instructor.isPlaceholder ? <FictionalBanner /> : null}
 
+      <FactsRow
+        facts={[
+          {
+            label: t('organization.specialtiesLabel'),
+            value: instructor.specialties.map((code) => t(`specialty.${code}`)).join(', '),
+          },
+          { label: t('instructor.speaks'), value: languagesLabel(instructor.spokenLanguages, t) },
+        ]}
+        testID="instructor-facts"
+      />
+
       <Section title={t('instructor.about')}>
         <AppText variant="body">{resolveLocalizedText(instructor.bio, locale)?.text}</AppText>
-        <View style={styles.badges}>
-          {instructor.specialties.map((code) => (
-            <Badge key={code} label={t(`specialty.${code}`)} tone="backgroundTint" />
-          ))}
-        </View>
-        <AppText variant="footnote" color="textSecondary">
-          {t('instructor.speaks')}: {languagesLabel(instructor.spokenLanguages, t)}
-        </AppText>
       </Section>
 
       <Section title={t('instructor.teachesAt')}>
-        <Card padded={false}>
+        <View>
           {organizations.map((organization) => (
-            <Pressable
+            <PressableScale
               key={organization.id}
               accessibilityRole="button"
               accessibilityLabel={`${organization.name}, ${t(`orgType.${organization.type}`)}`}
               onPress={() => router.push(`/organizations/${organization.id}`)}
-              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+              style={styles.row}
               testID={`affiliation-${organization.id}`}
             >
-              <View style={[styles.swatch, { backgroundColor: tints[organization.tone] }]} />
+              <Avatar name={organization.name} size={40} tone={organization.tone} />
               <View style={styles.flex}>
                 <AppText variant="bodyStrong">{organization.name}</AppText>
                 <AppText variant="footnote" color="textSecondary">
                   {t(`orgType.${organization.type}`)}
                 </AppText>
               </View>
-              <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.75} />
-            </Pressable>
+              <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.5} />
+            </PressableScale>
           ))}
-        </Card>
+        </View>
       </Section>
 
       <Section title={t('instructor.qualifications')}>
@@ -127,28 +133,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
   },
-  badges: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xxs,
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    padding: spacing.md,
+    minHeight: 64,
+    paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderSubtle,
   },
-  swatch: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-  },
   flex: {
     flex: 1,
-  },
-  pressed: {
-    backgroundColor: colors.surfaceMuted,
   },
 });

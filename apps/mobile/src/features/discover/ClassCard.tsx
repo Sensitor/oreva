@@ -1,13 +1,13 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, spacing } from '@oreva/tokens';
+import { colors, radii, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
-import { Clock, MapPin } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { ClassListItem } from '@/data/types';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { classWhen, priceLabel } from '@/lib/format';
-import { AppText, Badge, Card, SampleBadge } from '@/ui';
+import { useFontScale } from '@/theme/useFontScale';
+import { AppText, Badge, NearIcon, PressableScale, SampleBadge } from '@/ui';
 
 export interface ClassCardProps {
   item: ClassListItem;
@@ -16,21 +16,31 @@ export interface ClassCardProps {
   compact?: boolean;
 }
 
+/** From this text scale the stub sits above the details instead of beside them. */
+const STACK_SCALE = 1.3;
+
+/**
+ * A class as a ticket: the stub holds the day and the time in serif numerals,
+ * a perforated edge, then what, who and where. The whole ticket is one button
+ * with a complete spoken label.
+ */
 export function ClassCard({ item, distance, compact }: ClassCardProps) {
   const { t } = useTranslation();
   const { locale, formatLocale } = useLocaleSettings();
+  const fontScale = useFontScale();
+  const stacked = fontScale >= STACK_SCALE;
   const { session, organization, instructor, venue, city } = item;
   const title = resolveLocalizedText(session.title, locale, session.sourceLanguage)?.text ?? '';
   const place = resolveLocalizedText(venue.name, locale)?.text ?? '';
   const when = classWhen(session, city, formatLocale);
-  const spots =
-    session.spotsLeft > 0
-      ? t('home.upcoming.spotsLeft', { count: session.spotsLeft })
-      : t('classDetail.full');
+  const full = session.spotsLeft <= 0;
+  const spots = full
+    ? t('classDetail.full')
+    : t('home.upcoming.spotsLeft', { count: session.spotsLeft });
   const price = priceLabel(session, t, formatLocale);
 
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={[
         title,
@@ -45,77 +55,117 @@ export function ClassCard({ item, distance, compact }: ClassCardProps) {
         .join(', ')}
       onPress={() => router.push(`/classes/${session.id}`)}
       testID={`class-card-${session.id}`}
-      style={({ pressed }) => [pressed && styles.pressed]}
+      style={[styles.ticket, compact && styles.compact]}
     >
-      <Card tone={organization.tone} style={[styles.card, compact && styles.compact]}>
-        <View style={styles.badges}>
-          <Badge label={t(`specialty.${session.specialty}`)} />
-          <Badge label={t(`level.${session.level}`)} />
-          {session.isPlaceholder ? <SampleBadge /> : null}
+      <View style={[styles.top, stacked && styles.topStacked]} testID={`ticket-top-${session.id}`}>
+        <View style={[styles.stub, stacked && styles.stubStacked]}>
+          <AppText variant="kicker" color="textLink" numberOfLines={1}>
+            {when.date}
+          </AppText>
+          <AppText variant="numeralSmall" color="textBrand">
+            {when.time}
+          </AppText>
         </View>
-        <AppText variant="headline" numberOfLines={2}>
-          {title}
-        </AppText>
-        <AppText variant="footnote" color="textOnPastelSecondary" numberOfLines={1}>
-          {organization.name} · {instructor.displayName}
-        </AppText>
-        <View style={styles.meta}>
-          <View style={styles.metaRow}>
-            <Clock size={16} color={colors.textOnPastelSecondary} strokeWidth={1.75} />
-            <AppText variant="footnote" color="textOnPastelSecondary">
-              {when.date} · {when.time}
-            </AppText>
-          </View>
-          <View style={styles.metaRow}>
-            <MapPin size={16} color={colors.textOnPastelSecondary} strokeWidth={1.75} />
-            <AppText
-              variant="footnote"
-              color="textOnPastelSecondary"
-              numberOfLines={1}
-              style={styles.flex}
-            >
+        <View style={stacked ? styles.ruleHorizontal : styles.ruleVertical} />
+        <View style={styles.details}>
+          <AppText variant="headline" numberOfLines={2}>
+            {title}
+          </AppText>
+          <AppText variant="footnote" color="textSecondary" numberOfLines={1}>
+            {organization.name} · {instructor.displayName}
+          </AppText>
+          <View style={styles.place}>
+            <NearIcon size={15} color={colors.textSecondary} />
+            <AppText variant="footnote" color="textSecondary" numberOfLines={1} style={styles.flex}>
               {distance ? `${place} · ${distance}` : place}
             </AppText>
           </View>
+        </View>
+      </View>
+      <View style={styles.bottom}>
+        <View style={styles.tags}>
+          <Badge label={t(`specialty.${session.specialty}`)} tone="surfaceMuted" />
+          <Badge label={t(`level.${session.level}`)} tone="surfaceMuted" />
+          {session.isPlaceholder ? <SampleBadge /> : null}
         </View>
         <View style={styles.footer}>
           <AppText variant="callout" weight="semibold">
             {price}
           </AppText>
-          <AppText variant="callout" weight="semibold">
+          <AppText variant="callout" weight="semibold" color={full ? 'danger' : 'textBrand'}>
             {spots}
           </AppText>
         </View>
-      </Card>
-    </Pressable>
+      </View>
+    </PressableScale>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    gap: spacing.xs,
+  ticket: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
+    overflow: 'hidden',
   },
   compact: {
-    width: 280,
+    width: 300,
   },
-  pressed: {
-    opacity: 0.9,
-  },
-  badges: {
+  top: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xxs,
+    padding: spacing.md,
+    gap: spacing.md,
   },
-  meta: {
+  topStacked: {
+    flexDirection: 'column',
+    gap: spacing.xs,
+  },
+  stub: {
+    minWidth: 76,
     gap: 2,
   },
-  metaRow: {
+  stubStacked: {
+    minWidth: 0,
+  },
+  // The perforation between the stub and the details.
+  ruleVertical: {
+    width: 0,
+    borderStartWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.borderControl,
+  },
+  ruleHorizontal: {
+    height: 0,
+    borderTopWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.borderControl,
+  },
+  details: {
+    flex: 1,
+    gap: 2,
+  },
+  place: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xxs + 2,
+    gap: spacing.xxs,
+    marginTop: 2,
   },
   flex: {
     flex: 1,
+  },
+  bottom: {
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.background,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderSubtle,
+  },
+  tags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xxs,
   },
   footer: {
     flexDirection: 'row',
