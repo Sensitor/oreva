@@ -6,17 +6,17 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 /**
  * ORÉVA app configuration, one source for every environment (decision P-10).
  *
- * APP_VARIANT selects development, staging or production. APP_ID_BASE is the
+ * APP_VARIANT selects development, preview, staging or production. APP_ID_BASE is the
  * production identifier; the store identifiers can no longer change after the
  * first store submission, so keep it configurable until the legal entity,
  * domain and trademark checks are done (decision record, section 5).
  */
-export type AppVariant = 'development' | 'staging' | 'production';
+export type AppVariant = 'development' | 'preview' | 'staging' | 'production';
 
 export const DEFAULT_APP_ID_BASE = 'com.oreva.app';
 
 export function resolveVariant(value: string | undefined): AppVariant {
-  if (value === 'staging' || value === 'production') {
+  if (value === 'preview' || value === 'staging' || value === 'production') {
     return value;
   }
   return 'development';
@@ -60,6 +60,14 @@ export function identityFor(
         projectName: 'OREVA Staging',
         scheme: 'oreva-staging',
       };
+    // Internal testing build that receives EAS Updates after each merge to main.
+    case 'preview':
+      return {
+        applicationId: `${base}.preview`,
+        displayName: 'ORÉVA Preview',
+        projectName: 'OREVA Preview',
+        scheme: 'oreva-preview',
+      };
     case 'development':
       return {
         applicationId: `${base}.dev`,
@@ -77,6 +85,36 @@ export const nativeLocales = {
   ru: { NSLocationWhenInUseUsageDescription: ru.native.locationWhenInUse },
 };
 
+/** The EAS project ID, written to app.json by `eas init` (not a secret). */
+export function easProjectId(extra: Record<string, unknown> | undefined): string | undefined {
+  const eas = extra?.eas as { projectId?: unknown } | undefined;
+  return typeof eas?.projectId === 'string' ? eas.projectId : undefined;
+}
+
+/**
+ * EAS Update (docs/runbooks/eas-update.md). The runtime version is the
+ * fingerprint of the native project: it changes whenever native code or native
+ * configuration changes, so an update only reaches builds that can run it.
+ * The preview app waits a few seconds at launch for a new update, so merged
+ * changes show on the first launch; other variants keep the default (the
+ * update applies on the next launch).
+ */
+export function updatesConfig(
+  variant: AppVariant,
+  projectId: string | undefined,
+): Pick<ExpoConfig, 'runtimeVersion' | 'updates'> {
+  return {
+    runtimeVersion: { policy: 'fingerprint' },
+    updates: projectId
+      ? {
+          url: `https://u.expo.dev/${projectId}`,
+          checkAutomatically: 'ON_LOAD',
+          fallbackToCacheTimeout: variant === 'preview' ? 5000 : 0,
+        }
+      : { enabled: false },
+  };
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => {
   const variant = resolveVariant(process.env.APP_VARIANT);
   const identity = identityFor(variant, process.env.APP_ID_BASE ?? DEFAULT_APP_ID_BASE);
@@ -88,6 +126,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version: '0.1.0',
     scheme: identity.scheme,
     orientation: 'portrait',
+    ...updatesConfig(variant, easProjectId(config.extra)),
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
     locales: nativeLocales,

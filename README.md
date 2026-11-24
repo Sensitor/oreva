@@ -61,7 +61,7 @@ Then start the dev server:
 pnpm dev:mobile
 ```
 
-Variants: `APP_VARIANT=development|staging|production` sets the bundle ID, app name and URL scheme (see [environments runbook](docs/runbooks/environments.md)). Profile → Design system (non-production builds) shows the design tokens, type samples, shared components and signature elements in all three languages.
+Variants: `APP_VARIANT=development|staging|production` sets the bundle ID, app name and URL scheme (see [environments runbook](docs/runbooks/environments.md)). Every merge into `main` is published to the internal **ORÉVA Preview** app through EAS Update ([runbook](docs/runbooks/eas-update.md)). Profile → Design system (non-production builds) shows the design tokens, type samples, shared components and signature elements in all three languages.
 
 ### Admin and provider portal
 

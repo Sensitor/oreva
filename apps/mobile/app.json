@@ -1,3 +1,10 @@
 {
-  "expo": {}
+  "expo": {
+    "owner": "orevawellness",
+    "extra": {
+      "eas": {
+        "projectId": "6b4ab728-b98e-45d8-9eb4-155c979d4d74"
+      }
+    }
+  }
 }
