@@ -91,7 +91,7 @@ export function CityPickerSheet({
                 </AppText>
               </View>
               {city.isPlaceholder ? <SampleBadge /> : null}
-              {selected ? <Check size={20} color={colors.textPrimary} strokeWidth={2.5} /> : null}
+              {selected ? <Check size={20} color={colors.progress} strokeWidth={2} /> : null}
             </Pressable>
           );
         })}
@@ -119,16 +119,15 @@ const styles = StyleSheet.create({
     minHeight: touchTarget.comfortable,
   },
   list: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    overflow: 'hidden',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderSubtle,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     minHeight: 60,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.xxs,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderSubtle,
   },

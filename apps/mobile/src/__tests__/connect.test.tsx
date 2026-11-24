@@ -56,6 +56,17 @@ describe('Connect', () => {
     expect(screen.getByText('4 of 8 sessions')).toBeTruthy();
   });
 
+  it('draws the challenge as La Ligne for members who share their activity', async () => {
+    await renderWithProviders(<CircleScreen id="circle-morning-crew" />);
+    await screen.findByText('8 sessions in 4 weeks');
+    const lines = screen.getAllByRole('progressbar');
+    expect(lines.length).toBeGreaterThan(0);
+    expect(lines.some((line) => line.props.accessibilityValue.now === 50)).toBe(true);
+    // The medallion is decorative; the header names the Circle.
+    expect(screen.getByRole('header', { name: 'Morning crew' })).toBeTruthy();
+    expect(screen.queryByTestId('medallion')).toBeNull();
+  });
+
   it('keeps messages in their original language and shows shared classes', async () => {
     await renderWithProviders(<CircleScreen id="circle-morning-crew" />, 'ru');
     expect(await screen.findByText('Qui vient au cours du lever du soleil demain ?')).toBeTruthy();

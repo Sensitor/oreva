@@ -1,12 +1,12 @@
 import { colors, radii, spacing } from '@oreva/tokens';
-import { FlaskConical } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { isProduction } from '@/config/env';
 import { AppText } from './AppText';
+import { LotusIcon } from './icons';
 
 /**
- * Shown at the top of every fictional profile (decision C-3). Never rendered in
+ * Shown at the top of every fictional profile (decision C-3), as a quiet sand band. Never rendered in
  * production builds, where demo data cannot exist.
  */
 export function FictionalBanner() {
@@ -16,7 +16,7 @@ export function FictionalBanner() {
   }
   return (
     <View style={styles.banner} accessibilityRole="text" testID="fictional-banner">
-      <FlaskConical size={18} color={colors.info} strokeWidth={2} />
+      <LotusIcon size={18} color={colors.info} />
       <AppText variant="footnote" color="info" style={styles.text}>
         {t('common.fictionalBanner')}
       </AppText>
@@ -29,9 +29,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.xs,
     alignItems: 'flex-start',
-    backgroundColor: colors.infoSurface,
-    borderRadius: radii.md,
-    padding: spacing.sm,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radii.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   text: {
     flex: 1,

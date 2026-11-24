@@ -7,7 +7,7 @@ import { PlayerScreen } from '@/features/practice/PlayerScreen';
 import { PracticeScreen } from '@/features/practice/PracticeScreen';
 import { ProgramScreen } from '@/features/practice/ProgramScreen';
 import { WorkoutScreen } from '@/features/practice/WorkoutScreen';
-import { renderWithProviders } from '@/test-utils';
+import { renderWithProviders, TEST_NOW } from '@/test-utils';
 
 jest.mock('expo-router', () => {
   const actual = jest.requireActual<typeof ExpoRouter>('expo-router');
@@ -63,12 +63,19 @@ describe('Practice screens', () => {
     ['ru', 'Основы для начинающих', 'Мягкое утро'],
   ] as const)('lists programs and sessions in %s', async (locale, program, workout) => {
     await renderWithProviders(<PracticeScreen />, locale);
+    // Programs first, as editorial covers.
     expect(await screen.findByText(program)).toBeTruthy();
-    expect(screen.getByText(workout)).toBeTruthy();
+    expect(screen.getByTestId('practice-view-programs')).toBeSelected();
+    expect(screen.queryByText(workout)).toBeNull();
+    // The Sessions tab shows the library.
+    await fireEvent.press(screen.getByTestId('practice-view-sessions'));
+    expect(await screen.findByText(workout)).toBeTruthy();
+    expect(screen.getByTestId('practice-view-sessions')).toBeSelected();
   });
 
   it('filters the library by focus', async () => {
     await renderWithProviders(<PracticeScreen />);
+    await fireEvent.press(await screen.findByTestId('practice-view-sessions'));
     await screen.findByText('Morning reset');
     await fireEvent.press(screen.getByTestId('focus-core'));
     expect(await screen.findByText('Core foundations')).toBeTruthy();
@@ -79,6 +86,30 @@ describe('Practice screens', () => {
     await renderWithProviders(<ProgramScreen id="pg-foundations" />);
     expect(await screen.findByTestId('program-day-1')).toBeTruthy();
     expect(screen.getAllByText('Rest day').length).toBe(2);
+  });
+
+  it('shows program progress only from sessions finished on this phone', async () => {
+    await renderWithProviders(<ProgramScreen id="pg-foundations" />);
+    const empty = await screen.findByRole('progressbar', { name: 'Program progress' });
+    expect(empty.props.accessibilityValue.now).toBe(0);
+  });
+
+  it('marks a finished program day as complete', async () => {
+    await renderWithProviders(<ProgramScreen id="pg-foundations" />, 'en', {
+      prototype: {
+        completedWorkouts: [{ workoutId: 'wk-morning-reset', completedAt: TEST_NOW.toISOString() }],
+      },
+    });
+    const bar = await screen.findByRole('progressbar', { name: 'Program progress' });
+    expect(bar.props.accessibilityValue.now).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /Day 1, Morning reset, Completed/ })).toBeTruthy();
+  });
+
+  it('session page shows facts on a row, never calories', async () => {
+    await renderWithProviders(<WorkoutScreen id="wk-core-foundations" />);
+    expect(await screen.findByTestId('workout-facts')).toBeTruthy();
+    expect(screen.getByLabelText(/^Level, /)).toBeTruthy();
+    expect(screen.queryByText(/kcal|calorie/i)).toBeNull();
   });
 
   it('session page: tiles without calories, exercise list, start button', async () => {

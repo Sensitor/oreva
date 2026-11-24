@@ -44,6 +44,15 @@ describe('Profile', () => {
     expect(screen.getByText(week)).toBeTruthy();
   });
 
+  it('invites a first session instead of showing zeros', async () => {
+    await renderWithProviders(<ProfileScreen />);
+    expect(await screen.findByTestId('practice-invite')).toBeTruthy();
+    expect(screen.queryByTestId('practice-stats')).toBeNull();
+    expect(screen.queryByText('0')).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Choose a session' }));
+    expect(router.push).toHaveBeenCalledWith('/practice');
+  });
+
   it('opens settings screens', async () => {
     await renderWithProviders(<ProfileScreen />);
     await fireEvent.press(await screen.findByTestId('profile-privacy'));

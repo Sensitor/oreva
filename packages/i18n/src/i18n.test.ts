@@ -76,7 +76,7 @@ describe('createI18n', () => {
   it('switches language at runtime', async () => {
     const i18n = strict('en');
     await i18n.changeLanguage('ru');
-    expect(i18n.t('tabs.home')).toBe('Главная');
+    expect(i18n.t('tabs.today')).toBe('Сегодня');
   });
 
   it('reports missing keys instead of silently showing them', () => {
@@ -92,7 +92,7 @@ describe('pseudo-localisation', () => {
   });
 
   it('covers the whole tree', () => {
-    const tree = pseudoLocalize(resources.en.translation) as { tabs: { home: string } };
-    expect(tree.tabs.home).not.toBe('Home');
+    const tree = pseudoLocalize(resources.en.translation) as { tabs: { today: string } };
+    expect(tree.tabs.today).not.toBe('Today');
   });
 });

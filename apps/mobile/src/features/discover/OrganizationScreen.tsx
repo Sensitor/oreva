@@ -1,19 +1,21 @@
 import { resolveLocalizedText } from '@oreva/core';
 import { colors, radii, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
-import { ChevronRight, Lock, MapPin } from 'lucide-react-native';
+import { Lock } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useOrganizationProfile } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { languagesLabel } from '@/lib/format';
 import {
   AppText,
   Avatar,
-  Badge,
-  Card,
+  EditorialCover,
   EmptyState,
+  FactsRow,
   FictionalBanner,
+  NearIcon,
+  PressableScale,
   SampleBadge,
   Screen,
   ScreenHeader,
@@ -56,32 +58,40 @@ export function OrganizationScreen({ id }: { id: string }) {
           <FollowButton kind="organization" id={organization.id} name={organization.name} />
         }
       />
-      <Card tone={organization.tone} style={styles.hero}>
-        <View style={styles.badges}>
-          <Badge label={t(`orgType.${organization.type}`)} />
-          {organization.isPlaceholder ? <SampleBadge /> : null}
-        </View>
-        <AppText variant="title1" accessibilityRole="header">
-          {organization.name}
-        </AppText>
-        <AppText variant="callout" color="textOnPastelSecondary">
-          {resolveLocalizedText(city.name, locale)?.text}
-        </AppText>
-      </Card>
+      {/* No photography yet: a Voile stands in until photos used with permission exist. */}
+      <EditorialCover
+        tint={organization.tone}
+        kicker={t(`orgType.${organization.type}`)}
+        title={organization.name}
+        meta={resolveLocalizedText(city.name, locale)?.text}
+        badge={organization.isPlaceholder ? <SampleBadge /> : undefined}
+        aspectRatio={3 / 2}
+        minHeight={200}
+        testID="organization-cover"
+      />
       {organization.isPlaceholder ? <FictionalBanner /> : null}
+
+      <FactsRow
+        facts={[
+          {
+            label: t('organization.specialtiesLabel'),
+            value: organization.specialties.map((code) => t(`specialty.${code}`)).join(', '),
+          },
+          {
+            label: t('organization.teachingLanguages'),
+            value: languagesLabel(organization.instructionLanguages, t),
+          },
+          {
+            label: t('organization.places'),
+            value: String(venues.length),
+          },
+        ]}
+        testID="organization-facts"
+      />
 
       <Section title={t('organization.about')}>
         <AppText variant="body">
           {resolveLocalizedText(organization.description, locale)?.text}
-        </AppText>
-        <View style={styles.badges}>
-          {organization.specialties.map((code) => (
-            <Badge key={code} label={t(`specialty.${code}`)} tone="backgroundTint" />
-          ))}
-        </View>
-        <AppText variant="footnote" color="textSecondary">
-          {t('organization.teachingLanguages')}:{' '}
-          {languagesLabel(organization.instructionLanguages, t)}
         </AppText>
       </Section>
 
@@ -89,11 +99,11 @@ export function OrganizationScreen({ id }: { id: string }) {
         {venues.map((venue) => {
           const isPrivate = venue.visibility === 'after_booking';
           return (
-            <Card key={venue.id} style={styles.venue}>
+            <View key={venue.id} style={styles.venue}>
               {isPrivate ? (
-                <Lock size={20} color={colors.info} strokeWidth={1.75} />
+                <Lock size={20} color={colors.info} strokeWidth={1.5} />
               ) : (
-                <MapPin size={20} color={colors.textSecondary} strokeWidth={1.75} />
+                <NearIcon size={20} color={colors.textBrand} />
               )}
               <View style={styles.flex}>
                 <AppText variant="bodyStrong">
@@ -103,33 +113,40 @@ export function OrganizationScreen({ id }: { id: string }) {
                   {isPrivate ? t('discover.privateArea') : venue.addressLine}
                 </AppText>
               </View>
-            </Card>
+            </View>
           );
         })}
       </Section>
 
       <Section title={t('organization.instructors')}>
-        <Card padded={false}>
-          {instructors.map((instructor) => (
-            <Pressable
-              key={instructor.id}
-              accessibilityRole="button"
-              accessibilityLabel={instructor.displayName}
-              onPress={() => router.push(`/instructors/${instructor.id}`)}
-              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-              testID={`instructor-row-${instructor.id}`}
-            >
-              <Avatar name={instructor.displayName} />
-              <View style={styles.flex}>
-                <AppText variant="bodyStrong">{instructor.displayName}</AppText>
-                <AppText variant="footnote" color="textSecondary" numberOfLines={1}>
-                  {instructor.specialties.map((s) => t(`specialty.${s}`)).join(' · ')}
+        {/* Round portraits: initials until photos used with permission exist (P-15). */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.portraits}
+        >
+          {instructors.map((instructor) => {
+            const specialties = instructor.specialties.map((s) => t(`specialty.${s}`)).join(', ');
+            return (
+              <PressableScale
+                key={instructor.id}
+                accessibilityRole="button"
+                accessibilityLabel={[instructor.displayName, specialties].join(', ')}
+                onPress={() => router.push(`/instructors/${instructor.id}`)}
+                style={styles.portrait}
+                testID={`instructor-row-${instructor.id}`}
+              >
+                <Avatar name={instructor.displayName} size={72} tone={organization.tone} />
+                <AppText variant="callout" weight="semibold" align="center" numberOfLines={2}>
+                  {instructor.displayName}
                 </AppText>
-              </View>
-              <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.75} />
-            </Pressable>
-          ))}
-        </Card>
+                <AppText variant="caption" color="textSecondary" align="center" numberOfLines={2}>
+                  {specialties}
+                </AppText>
+              </PressableScale>
+            );
+          })}
+        </ScrollView>
       </Section>
 
       <Section title={t('organization.upcoming')}>
@@ -146,33 +163,26 @@ export function OrganizationScreen({ id }: { id: string }) {
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    gap: spacing.xs,
-    paddingVertical: spacing.xl,
-  },
-  badges: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xxs,
-  },
   venue: {
     flexDirection: 'row',
     gap: spacing.sm,
     alignItems: 'flex-start',
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderSubtle,
   },
   flex: {
     flex: 1,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    padding: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderSubtle,
-    borderRadius: radii.sm,
+  portraits: {
+    gap: spacing.md,
+    paddingEnd: spacing.gutter,
   },
-  pressed: {
-    backgroundColor: colors.surfaceMuted,
+  portrait: {
+    width: 104,
+    alignItems: 'center',
+    gap: spacing.xxs,
+    paddingVertical: spacing.xxs,
+    borderRadius: radii.md,
   },
 });

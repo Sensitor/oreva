@@ -1,10 +1,10 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, radii, spacing, tints } from '@oreva/tokens';
+import { colors, radii, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { ChevronRight, KeyRound, ShieldCheck } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useDirectory } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
@@ -12,14 +12,16 @@ import { useTheme } from '@/theme/ThemeProvider';
 import {
   AppText,
   Avatar,
-  Card,
-  EmptyState,
   Button,
+  EditorialHeader,
+  EmptyState,
+  PressableScale,
   SampleBadge,
   Screen,
   Section,
   Sheet,
 } from '@/ui';
+import { Medallion } from './Medallion';
 import { useCircleList } from './useCircleView';
 
 /** Connect (pillar 3, P-13): private Circles and the instructors and studios you follow. */
@@ -63,12 +65,10 @@ export function ConnectScreen() {
 
   return (
     <Screen>
-      <AppText variant="display" accessibilityRole="header">
-        {t('pillars.connect.title')}
-      </AppText>
-      <AppText variant="body" color="textSecondary">
-        {t('pillars.connect.description')}
-      </AppText>
+      <EditorialHeader
+        title={t('pillars.connect.title')}
+        intro={t('pillars.connect.description')}
+      />
 
       <View style={styles.actions}>
         <Button
@@ -95,43 +95,37 @@ export function ConnectScreen() {
                 ? t('connect.sharedClass')
                 : '';
           return (
-            <Pressable
+            <PressableScale
               key={circle.id}
               accessibilityRole="button"
               accessibilityLabel={`${circle.name}, ${t('connect.members', { count: circle.members.length })}`}
               onPress={() => router.push(`/circles/${circle.id}`)}
               testID={`circle-${circle.id}`}
+              style={styles.circle}
             >
-              <Card style={styles.circle}>
-                <View style={styles.avatars}>
-                  {circle.members.slice(0, 4).map((member, index) => (
-                    <View key={member.id} style={[styles.avatarWrap, index > 0 && styles.overlap]}>
-                      <Avatar
-                        name={member.id === 'me' ? t('connect.you') : member.displayName}
-                        size={36}
-                        tone={(['lilac', 'sand', 'mist', 'backgroundTint'] as const)[index % 4]}
-                      />
-                    </View>
-                  ))}
-                </View>
-                <View style={styles.flex}>
-                  <AppText variant="headline" numberOfLines={2}>
-                    {circle.name}
+              <Medallion
+                name={circle.name}
+                members={circle.members.map((member) =>
+                  member.id === 'me' ? t('connect.you') : member.displayName,
+                )}
+              />
+              <View style={styles.flex}>
+                <AppText variant="headline" numberOfLines={2}>
+                  {circle.name}
+                </AppText>
+                <AppText variant="footnote" color="textSecondary">
+                  {t('connect.members', { count: circle.members.length })}
+                  {circle.challenge ? ` · ${t('connect.challenge')}` : ''}
+                </AppText>
+                {preview ? (
+                  <AppText variant="footnote" color="textSecondary" numberOfLines={1}>
+                    {preview}
                   </AppText>
-                  <AppText variant="footnote" color="textSecondary">
-                    {t('connect.members', { count: circle.members.length })}
-                    {circle.challenge ? ` · ${t('connect.challenge')}` : ''}
-                  </AppText>
-                  {preview ? (
-                    <AppText variant="footnote" color="textSecondary" numberOfLines={1}>
-                      {preview}
-                    </AppText>
-                  ) : null}
-                  {circle.isPlaceholder ? <SampleBadge /> : null}
-                </View>
-                <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.75} />
-              </Card>
-            </Pressable>
+                ) : null}
+                {circle.isPlaceholder ? <SampleBadge /> : null}
+              </View>
+              <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.5} />
+            </PressableScale>
           );
         })}
         <View style={styles.note}>
@@ -148,41 +142,50 @@ export function ConnectScreen() {
             {t('connect.followingEmpty')}
           </AppText>
         ) : (
-          <Card padded={false}>
+          // A rail of round portraits (initials until photos used with permission exist).
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.bleed}
+            contentContainerStyle={styles.portraits}
+          >
             {followedInstructors.map((instructor) => (
-              <Pressable
+              <PressableScale
                 key={instructor.id}
                 accessibilityRole="button"
                 accessibilityLabel={instructor.displayName}
                 onPress={() => router.push(`/instructors/${instructor.id}`)}
-                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+                style={styles.portrait}
               >
-                <Avatar name={instructor.displayName} size={40} />
-                <AppText variant="bodyStrong" style={styles.flex}>
+                <Avatar name={instructor.displayName} size={72} />
+                <AppText variant="callout" weight="semibold" align="center" numberOfLines={2}>
                   {instructor.displayName}
                 </AppText>
-                <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.75} />
-              </Pressable>
+              </PressableScale>
             ))}
-            {followedOrgs.map((organization) => (
-              <Pressable
-                key={organization.id}
-                accessibilityRole="button"
-                accessibilityLabel={organization.name}
-                onPress={() => router.push(`/organizations/${organization.id}`)}
-                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-              >
-                <View style={[styles.swatch, { backgroundColor: tints[organization.tone] }]} />
-                <View style={styles.flex}>
-                  <AppText variant="bodyStrong">{organization.name}</AppText>
-                  <AppText variant="footnote" color="textSecondary">
-                    {resolveLocalizedText(cityName(organization.cityId), locale)?.text}
+            {followedOrgs.map((organization) => {
+              const city = resolveLocalizedText(cityName(organization.cityId), locale)?.text;
+              return (
+                <PressableScale
+                  key={organization.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={[organization.name, city].filter(Boolean).join(', ')}
+                  onPress={() => router.push(`/organizations/${organization.id}`)}
+                  style={styles.portrait}
+                >
+                  <Avatar name={organization.name} size={72} tone={organization.tone} />
+                  <AppText variant="callout" weight="semibold" align="center" numberOfLines={2}>
+                    {organization.name}
                   </AppText>
-                </View>
-                <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.75} />
-              </Pressable>
-            ))}
-          </Card>
+                  {city ? (
+                    <AppText variant="caption" color="textSecondary" align="center">
+                      {city}
+                    </AppText>
+                  ) : null}
+                </PressableScale>
+              );
+            })}
+          </ScrollView>
         )}
       </Section>
 
@@ -242,18 +245,24 @@ const styles = StyleSheet.create({
   circle: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: spacing.md,
+    padding: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
   },
-  avatars: {
-    flexDirection: 'row',
+  bleed: {
+    marginHorizontal: -spacing.gutter,
   },
-  avatarWrap: {
-    borderRadius: radii.pill,
-    borderWidth: 2,
-    borderColor: colors.surface,
+  portraits: {
+    gap: spacing.md,
+    paddingHorizontal: spacing.gutter,
   },
-  overlap: {
-    marginStart: -14,
+  portrait: {
+    width: 96,
+    alignItems: 'center',
+    gap: spacing.xxs,
   },
   flex: {
     flex: 1,
@@ -262,22 +271,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.xs,
     alignItems: 'flex-start',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    padding: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderSubtle,
-  },
-  swatch: {
-    width: 40,
-    height: 40,
-    borderRadius: radii.sm,
-  },
-  pressed: {
-    backgroundColor: colors.surfaceMuted,
   },
   input: {
     minHeight: 48,

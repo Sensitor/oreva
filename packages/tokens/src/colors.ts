@@ -194,6 +194,15 @@ export const contrastPairs: readonly ContrastPair[] = [
     usage: 'sample data tag',
   },
   { foreground: 'textBrand', background: 'accentSoft', kind: 'text', usage: 'titles on lilac' },
+  { foreground: 'textBrand', background: 'tintSand', kind: 'text', usage: 'initials on sand' },
+  { foreground: 'success', background: 'background', kind: 'nonText', usage: 'completed mark' },
+  { foreground: 'textBrand', background: 'tintMist', kind: 'text', usage: 'initials on mist' },
+  {
+    foreground: 'textBrand',
+    background: 'backgroundTint',
+    kind: 'text',
+    usage: 'initials and titles on the page tint',
+  },
   {
     foreground: 'actionPrimary',
     background: 'surface',

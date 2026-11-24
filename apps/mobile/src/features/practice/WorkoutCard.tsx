@@ -1,17 +1,17 @@
 import { resolveLocalizedText, type Workout } from '@oreva/core';
-import { colors, spacing } from '@oreva/tokens';
+import { colors, radii, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
-import { Clock } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
-import { AppText, Badge, Card, SampleBadge } from '@/ui';
+import { AppText, Badge, PracticeIcon, PressableScale, SampleBadge, Voile } from '@/ui';
 
 export function workoutMinutes(workout: Workout): number {
   return Math.round(workout.exercises.reduce((sum, e) => sum + e.durationSec, 0) / 60);
 }
 
+/** A session in the library: a 4:5 Voile thumbnail, then title, duration and level. */
 export function WorkoutCard({ workout }: { workout: Workout }) {
   const { t } = useTranslation();
   const { locale } = useLocaleSettings();
@@ -20,7 +20,7 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
   const minutes = workoutMinutes(workout);
   const inProgress = (state.workoutProgress[workout.id] ?? 0) > 0;
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={[
         title,
@@ -32,43 +32,58 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
         .join(', ')}
       onPress={() => router.push(`/workouts/${workout.id}`)}
       testID={`workout-card-${workout.id}`}
-      style={({ pressed }) => [pressed && styles.pressed]}
+      style={styles.row}
     >
-      <Card tone={workout.tone} style={styles.card}>
-        <View style={styles.badges}>
-          <Badge label={t(`focus.${workout.focus}`)} />
-          {workout.premium ? <Badge label={t('practice.premium')} /> : null}
-          {inProgress ? <Badge label={t('practice.resume')} tone="backgroundTint" /> : null}
-          {workout.isPlaceholder ? <SampleBadge /> : null}
-        </View>
-        <AppText variant="headline">{title}</AppText>
-        <View style={styles.meta}>
-          <Clock size={16} color={colors.textOnPastelSecondary} strokeWidth={1.75} />
-          <AppText variant="footnote" color="textOnPastelSecondary">
-            {t('common.durationMinutes', { count: minutes })} · {t(`level.${workout.level}`)} ·{' '}
-            {t('practice.exercises', { count: workout.exercises.length })}
-          </AppText>
-        </View>
-      </Card>
-    </Pressable>
+      <Voile tint={workout.tone} withLine={false} style={styles.thumb}>
+        <PracticeIcon size={22} color={colors.textBrand} />
+      </Voile>
+      <View style={styles.text}>
+        <AppText variant="kicker" color="textLink" numberOfLines={1}>
+          {t(`focus.${workout.focus}`)}
+        </AppText>
+        <AppText variant="headline" numberOfLines={2}>
+          {title}
+        </AppText>
+        <AppText variant="footnote" color="textSecondary">
+          {t('common.durationMinutes', { count: minutes })} · {t(`level.${workout.level}`)} ·{' '}
+          {t('practice.exercises', { count: workout.exercises.length })}
+        </AppText>
+        {workout.premium || inProgress || workout.isPlaceholder ? (
+          <View style={styles.badges}>
+            {workout.premium ? <Badge label={t('practice.premium')} tone="surfaceMuted" /> : null}
+            {inProgress ? <Badge label={t('practice.resume')} tone="backgroundTint" /> : null}
+            {workout.isPlaceholder ? <SampleBadge /> : null}
+          </View>
+        ) : null}
+      </View>
+    </PressableScale>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    gap: spacing.xs,
+  row: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderSubtle,
+  },
+  thumb: {
+    width: 72,
+    aspectRatio: 4 / 5,
+    borderRadius: radii.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    flex: 1,
+    gap: 2,
+    justifyContent: 'center',
   },
   badges: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.xxs,
-  },
-  meta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xxs + 2,
-  },
-  pressed: {
-    opacity: 0.9,
+    marginTop: spacing.xxs,
   },
 });

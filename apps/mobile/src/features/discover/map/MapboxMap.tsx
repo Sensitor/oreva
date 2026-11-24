@@ -148,14 +148,14 @@ export function MapboxMap({
         <FillLayer
           id="oreva-area-fill"
           style={{
-            fillColor: ['match', ['get', 'kind'], 'user', colors.info, colors.accentSoft],
-            fillOpacity: ['match', ['get', 'kind'], 'user', 0.12, 0.35],
+            fillColor: colors.progress,
+            fillOpacity: ['match', ['get', 'kind'], 'user', 0.08, 0.1],
           }}
         />
         <LineLayer
           id="oreva-area-outline"
           style={{
-            lineColor: ['match', ['get', 'kind'], 'user', colors.info, colors.accentStrong],
+            lineColor: colors.progress,
             lineWidth: ['case', ['==', ['get', 'id'], selectedPointId ?? ''], 3, 1.5],
             lineDasharray: [2, 2],
           }}
@@ -197,10 +197,11 @@ export function MapboxMap({
           id="oreva-clusters"
           filter={['has', 'point_count']}
           style={{
-            circleColor: colors.accent,
-            circleRadius: ['step', ['get', 'point_count'], 18, 10, 22, 100, 28],
-            circleStrokeColor: colors.surface,
-            circleStrokeWidth: 3,
+            // Paper discs with a 3:1 edge.
+            circleColor: colors.surface,
+            circleRadius: ['step', ['get', 'point_count'], 20, 10, 23, 100, 28],
+            circleStrokeColor: colors.borderControl,
+            circleStrokeWidth: 1,
           }}
         />
         <SymbolLayer
@@ -208,8 +209,8 @@ export function MapboxMap({
           filter={['has', 'point_count']}
           style={{
             textField: ['get', 'point_count_abbreviated'],
-            textSize: 14,
-            textColor: colors.textPrimary,
+            textSize: 15,
+            textColor: colors.textBrand,
             textAllowOverlap: true,
           }}
         />
@@ -217,10 +218,11 @@ export function MapboxMap({
           id="oreva-public-points"
           filter={['all', ['!', ['has', 'point_count']], ['==', ['get', 'approximate'], false]]}
           style={{
-            circleColor: colors.accent,
-            circleRadius: ['case', ['==', ['get', 'id'], selectedPointId ?? ''], 13, 9],
-            circleStrokeColor: colors.textPrimary,
-            circleStrokeWidth: ['case', ['==', ['get', 'id'], selectedPointId ?? ''], 3, 1.5],
+            // A plum dot in a paper ring.
+            circleColor: colors.actionPrimary,
+            circleRadius: ['case', ['==', ['get', 'id'], selectedPointId ?? ''], 10, 7],
+            circleStrokeColor: colors.surface,
+            circleStrokeWidth: 3,
           }}
         />
         <CircleLayer
@@ -228,9 +230,9 @@ export function MapboxMap({
           filter={['all', ['!', ['has', 'point_count']], ['==', ['get', 'approximate'], true]]}
           style={{
             // A hollow ring: never a pin, the exact point is not known (P-12).
-            circleColor: 'rgba(0,0,0,0)',
-            circleRadius: 10,
-            circleStrokeColor: colors.accentStrong,
+            circleColor: 'rgba(253, 251, 248, 0.6)',
+            circleRadius: ['case', ['==', ['get', 'id'], selectedPointId ?? ''], 13, 10],
+            circleStrokeColor: colors.progress,
             circleStrokeWidth: ['case', ['==', ['get', 'id'], selectedPointId ?? ''], 3.5, 2],
           }}
         />

@@ -1,5 +1,5 @@
 import { LOCALE_INFO } from '@oreva/i18n';
-import { colors, spacing } from '@oreva/tokens';
+import { colors, radii, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
 import {
   Accessibility,
@@ -9,7 +9,6 @@ import {
   Info,
   ShieldCheck,
   Sparkles,
-  UsersRound,
 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +16,17 @@ import { StyleSheet, View } from 'react-native';
 import { appVariant, appVersion, isProduction } from '@/config/env';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
-import { AppText, Badge, Card, LinkRow, Button, Screen, Section } from '@/ui';
+import {
+  AppText,
+  Button,
+  Card,
+  ConnectIcon,
+  EditorialCover,
+  EditorialHeader,
+  LinkRow,
+  Screen,
+  Section,
+} from '@/ui';
 
 /** Profile: account (next version), practice summary, following, settings. */
 export function ProfileScreen() {
@@ -40,43 +49,71 @@ export function ProfileScreen() {
 
   return (
     <Screen>
-      <AppText variant="display" accessibilityRole="header">
-        {t('profile.title')}
-      </AppText>
+      <EditorialHeader title={t('profile.title')} />
 
-      <Card tone="backgroundTint" style={styles.guest}>
-        <View style={styles.guestHeader}>
-          <AppText variant="title2" style={styles.flex}>
-            {t('profile2.guestTitle')}
-          </AppText>
-          <Badge label={t('profile2.soon')} />
-        </View>
-        <AppText variant="body" color="textOnPastelSecondary">
-          {t('profile2.guestBody')}
-        </AppText>
-        <Button label={t('profile2.createAccount')} disabled />
-      </Card>
+      {/* Guest state: an invitation, honest about accounts arriving in the next version. */}
+      <EditorialCover
+        tint="lilac"
+        kicker={t('profile2.soon')}
+        title={t('profile2.guestTitle')}
+        meta={t('profile2.guestBody')}
+        minHeight={240}
+        testID="guest-card"
+      >
+        <Button label={t('profile2.createAccount')} variant="secondary" disabled />
+      </EditorialCover>
 
       <Section title={t('profile2.yourPractice')}>
-        <View style={styles.stats}>
-          <Card tone="sand" style={styles.stat}>
-            <AppText variant="display">{String(week)}</AppText>
-            <AppText variant="footnote" color="textOnPastelSecondary">
-              {t('profile2.sessionsWeek', { count: week })}
+        {total === 0 ? (
+          // No "0 / 0": before the first session, an invitation to start one.
+          <View style={styles.invite} testID="practice-invite">
+            <AppText variant="title2" color="textBrand">
+              {t('profile2.firstSessionTitle')}
             </AppText>
-          </Card>
-          <Card tone="lilac" style={styles.stat}>
-            <AppText variant="display">{String(total)}</AppText>
-            <AppText variant="footnote" color="textOnPastelSecondary">
-              {t('profile2.sessionsTotal', { count: total })}
+            <AppText variant="body" color="textSecondary">
+              {t('profile2.firstSessionBody')}
             </AppText>
-          </Card>
-        </View>
+            <Button
+              label={t('profile2.firstSessionCta')}
+              variant="secondary"
+              withArrow
+              onPress={() => router.push('/practice')}
+            />
+          </View>
+        ) : (
+          // Real numbers from this phone only.
+          <View style={styles.stats} testID="practice-stats">
+            <View
+              style={styles.stat}
+              accessible
+              accessibilityLabel={t('profile2.sessionsWeek', { count: week })}
+            >
+              <AppText variant="numeral" color="textBrand">
+                {String(week)}
+              </AppText>
+              <AppText variant="footnote" color="textSecondary">
+                {t('profile2.sessionsWeek', { count: week })}
+              </AppText>
+            </View>
+            <View
+              style={[styles.stat, styles.statDivided]}
+              accessible
+              accessibilityLabel={t('profile2.sessionsTotal', { count: total })}
+            >
+              <AppText variant="numeral" color="textBrand">
+                {String(total)}
+              </AppText>
+              <AppText variant="footnote" color="textSecondary">
+                {t('profile2.sessionsTotal', { count: total })}
+              </AppText>
+            </View>
+          </View>
+        )}
       </Section>
 
       <Card padded={false}>
         <LinkRow
-          icon={UsersRound}
+          icon={ConnectIcon}
           label={t('profile2.following')}
           value={String(followingCount)}
           onPress={() => router.push('/connect')}
@@ -151,24 +188,28 @@ export function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  guest: {
+  invite: {
     gap: spacing.sm,
-  },
-  guestHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  flex: {
-    flex: 1,
+    padding: spacing.gutter,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
   },
   stats: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
   },
   stat: {
     flex: 1,
-    gap: 2,
+    paddingHorizontal: spacing.sm,
+  },
+  statDivided: {
+    borderStartWidth: StyleSheet.hairlineWidth,
+    borderStartColor: colors.borderSubtle,
   },
   footer: {
     gap: spacing.xxs,

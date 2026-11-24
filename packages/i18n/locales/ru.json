@@ -25,7 +25,7 @@
     "durationMinutes_other": "{{count}} мин"
   },
   "tabs": {
-    "home": "Главная",
+    "today": "Сегодня",
     "discover": "Обзор",
     "practice": "Практика",
     "connect": "Сообщество",
@@ -370,7 +370,8 @@
     "upcoming": "Ближайшие занятия",
     "noUpcoming": "Ближайших занятий нет.",
     "specialties": "Направления",
-    "teachingLanguages": "Языки занятий"
+    "teachingLanguages": "Языки занятий",
+    "specialtiesLabel": "Направления"
   },
   "instructor": {
     "about": "Об инструкторе",
@@ -425,7 +426,9 @@
     "startProgram": "Начать программу",
     "empty": "Нет занятий по этим фильтрам.",
     "sampleVideo": "Демонстрационное видео",
-    "schedule": "Расписание"
+    "schedule": "Расписание",
+    "sessions": "Занятия",
+    "programProgress": "Прогресс программы"
   },
   "player": {
     "exerciseOf": "Упражнение {{current}} из {{total}}",
@@ -438,7 +441,10 @@
     "finishedBody": "Отлично. Занятие сохранено на этом телефоне.",
     "captions": "Для демонстрационных видео субтитры недоступны.",
     "close": "Закрыть плеер",
-    "up": "Далее: {{name}}"
+    "up": "Далее: {{name}}",
+    "bravo": "Браво",
+    "exercisesLabel": "Упражнения",
+    "sessionProgress": "Прогресс занятия"
   },
   "connect": {
     "circles": "Ваши Circles",
@@ -496,7 +502,10 @@
     "accessibility": "Доступность",
     "about": "Об ORÉVA",
     "prototype": "Настройки прототипа",
-    "following": "Подписки"
+    "following": "Подписки",
+    "firstSessionTitle": "Ваше первое занятие",
+    "firstSessionBody": "Ваша практика появится здесь, когда вы завершите занятие. Данные остаются на этом телефоне.",
+    "firstSessionCta": "Выбрать занятие"
   },
   "notificationsScreen": {
     "classReminders": "Напоминания о занятиях",
@@ -537,6 +546,7 @@
   "home2": {
     "following": "От ваших инструкторов и студий",
     "recommended": "Рекомендуем вам",
-    "nearby": "Занятия для открытия"
+    "nearby": "Занятия для открытия",
+    "continue": "Продолжить"
   }
 }

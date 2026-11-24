@@ -1,18 +1,31 @@
 import { dayPeriod, resolveLocalizedText, type Focus } from '@oreva/core';
-import { spacing } from '@oreva/tokens';
+import { formatDayHeading } from '@oreva/i18n';
+import { colors, radii, spacing } from '@oreva/tokens';
 import { getCalendars } from 'expo-localization';
 import { router } from 'expo-router';
 import { Bell } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useClasses, usePrograms, useWorkouts } from '@/data/hooks';
 import { DEFAULT_CLASS_FILTERS, DEFAULT_WORKOUT_FILTERS } from '@/data/types';
 import { ClassCard } from '@/features/discover/ClassCard';
 import { WorkoutCard, workoutMinutes } from '@/features/practice/WorkoutCard';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
-import { AppText, Card, Chip, IconButton, SampleBadge, Screen, Section, Skeleton } from '@/ui';
+import {
+  AppText,
+  Chip,
+  EditorialCover,
+  EditorialHeader,
+  IconButton,
+  Line,
+  PressableScale,
+  SampleBadge,
+  Screen,
+  Section,
+  Skeleton,
+} from '@/ui';
 import { TodayCard } from './TodayCard';
 
 const CATEGORY_TO_FOCUS = {
@@ -43,10 +56,10 @@ export interface HomeScreenProps {
   now?: Date;
 }
 
-/** Home: one clear next action, then classes, people you follow and sessions. */
+/** Today (the Home tab): one clear next action, then classes, people you follow and sessions. */
 export function HomeScreen({ now }: HomeScreenProps) {
   const { t } = useTranslation();
-  const { locale } = useLocaleSettings();
+  const { locale, formatLocale } = useLocaleSettings();
   const { state } = usePrototypeStore();
   const [category, setCategory] = useState<CategoryKey>('all');
   const current = useMemo(() => now ?? new Date(), [now]);
@@ -56,11 +69,15 @@ export function HomeScreen({ now }: HomeScreenProps) {
   const programs = usePrograms();
   const workouts = useWorkouts({ ...DEFAULT_WORKOUT_FILTERS, focus: CATEGORY_TO_FOCUS[category] });
 
+  const allWorkouts = useWorkouts(DEFAULT_WORKOUT_FILTERS).data;
   const program = programs.data?.[0];
   const todayWorkoutId = program?.days.find((d) => d.workoutId)?.workoutId;
-  const todayWorkout = useWorkouts(DEFAULT_WORKOUT_FILTERS).data?.find(
-    (w) => w.id === todayWorkoutId,
-  );
+  const todayWorkout = allWorkouts?.find((w) => w.id === todayWorkoutId);
+
+  // "Continue": a session the member left on this phone, with its real progress.
+  const resumable = allWorkouts
+    ?.map((workout) => ({ workout, elapsed: state.workoutProgress[workout.id] ?? 0 }))
+    .find(({ elapsed }) => elapsed > 0);
 
   const nearby = (classes.data ?? [])
     .filter((item) => HOME_CITIES.includes(item.city.id))
@@ -75,25 +92,18 @@ export function HomeScreen({ now }: HomeScreenProps) {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <View style={styles.headerText}>
-          <AppText variant="callout" color="textSecondary">
-            {t(`home.greeting.${period}`)}
-          </AppText>
-          <AppText variant="headline" style={styles.wordmark}>
-            {t('app.name')}
-          </AppText>
-        </View>
-        <IconButton
-          icon={Bell}
-          accessibilityLabel={t('a11y.notifications')}
-          onPress={() => router.push('/settings/notifications')}
-        />
-      </View>
-
-      <AppText variant="display" accessibilityRole="header">
-        {t('home.headline')}
-      </AppText>
+      <EditorialHeader
+        kicker={formatDayHeading(current, formatLocale, deviceTimeZone())}
+        title={t(`home.greeting.${period}`)}
+        intro={t('home.headline')}
+        action={
+          <IconButton
+            icon={Bell}
+            accessibilityLabel={t('a11y.notifications')}
+            onPress={() => router.push('/settings/notifications')}
+          />
+        }
+      />
 
       {program && todayWorkout ? (
         <TodayCard
@@ -107,8 +117,25 @@ export function HomeScreen({ now }: HomeScreenProps) {
           onStart={() => router.push(`/workouts/${todayWorkout.id}`)}
         />
       ) : (
-        <Skeleton height={236} radius={28} />
+        <Skeleton height={260} radius={radii.lg} />
       )}
+
+      {resumable ? (
+        <Section title={t('home2.continue')}>
+          <ContinueRow
+            title={resolveLocalizedText(resumable.workout.title, locale)?.text ?? ''}
+            minutes={workoutMinutes(resumable.workout)}
+            progress={
+              resumable.elapsed /
+              Math.max(
+                resumable.workout.exercises.reduce((sum, e) => sum + e.durationSec, 0),
+                1,
+              )
+            }
+            onPress={() => router.push(`/workouts/${resumable.workout.id}`)}
+          />
+        </Section>
+      ) : null}
 
       <Section
         title={t('home2.nearby')}
@@ -168,70 +195,106 @@ export function HomeScreen({ now }: HomeScreenProps) {
         actionLabel={t('common.seeAll')}
         onAction={() => router.push('/practice')}
       >
-        <View style={styles.programs}>
-          {(programs.data ?? []).slice(0, 2).map((item) => (
-            <Pressable
-              key={item.id}
-              accessibilityRole="button"
-              accessibilityLabel={`${resolveLocalizedText(item.title, locale)?.text ?? ''}, ${t('home.programs.weeks', { count: item.weeks })}`}
-              onPress={() => router.push(`/programs/${item.id}`)}
-              style={styles.programItem}
-            >
-              <Card tone={item.tone} style={styles.program}>
-                {item.isPlaceholder ? <SampleBadge /> : null}
-                <AppText variant="headline" numberOfLines={3}>
-                  {resolveLocalizedText(item.title, locale)?.text}
-                </AppText>
-                <AppText variant="footnote" color="textOnPastelSecondary">
-                  {t('home.programs.weeks', { count: item.weeks })}
-                </AppText>
-              </Card>
-            </Pressable>
-          ))}
-        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.bleed}
+          contentContainerStyle={styles.carousel}
+        >
+          {(programs.data ?? []).map((item) => {
+            const title = resolveLocalizedText(item.title, locale)?.text ?? '';
+            const weeks = t('home.programs.weeks', { count: item.weeks });
+            return (
+              <View key={item.id} style={styles.program}>
+                <EditorialCover
+                  tint={item.tone}
+                  kicker={weeks}
+                  title={title}
+                  badge={item.isPlaceholder ? <SampleBadge /> : undefined}
+                  accessibilityLabel={`${title}, ${weeks}`}
+                  onPress={() => router.push(`/programs/${item.id}`)}
+                  minHeight={200}
+                />
+              </View>
+            );
+          })}
+        </ScrollView>
       </Section>
     </Screen>
   );
 }
 
+/** A session left halfway, with La Ligne showing how far the member got. */
+function ContinueRow({
+  title,
+  minutes,
+  progress,
+  onPress,
+}: {
+  title: string;
+  minutes: number;
+  progress: number;
+  onPress: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <PressableScale
+      accessibilityRole="button"
+      accessibilityLabel={[
+        title,
+        t('common.durationMinutes', { count: minutes }),
+        t('practice.resume'),
+      ].join(', ')}
+      onPress={onPress}
+      style={styles.continue}
+      testID="home-continue"
+    >
+      <View style={styles.continueText}>
+        <AppText variant="headline" numberOfLines={1} style={styles.flex}>
+          {title}
+        </AppText>
+        <AppText variant="callout" weight="semibold" color="textLink">
+          {t('practice.resume')}
+        </AppText>
+      </View>
+      <Line variant="progress" value={progress} accessibilityLabel={t('player.sessionProgress')} />
+    </PressableScale>
+  );
+}
+
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerText: {
-    gap: 2,
-  },
-  wordmark: {
-    letterSpacing: 2,
-  },
   bleed: {
-    marginHorizontal: -(spacing.lg - 4),
+    marginHorizontal: -spacing.gutter,
   },
   chips: {
-    paddingHorizontal: spacing.lg - 4,
+    paddingHorizontal: spacing.gutter,
     gap: spacing.xs,
   },
   carousel: {
-    paddingHorizontal: spacing.lg - 4,
+    paddingHorizontal: spacing.gutter,
     gap: spacing.sm,
     paddingBottom: spacing.xs,
   },
   list: {
-    gap: spacing.sm,
     marginTop: spacing.xs,
   },
-  programs: {
+  program: {
+    width: 260,
+  },
+  continue: {
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
+  },
+  continueText: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
   },
-  programItem: {
+  flex: {
     flex: 1,
-  },
-  program: {
-    flex: 1,
-    gap: spacing.xs,
-    minHeight: 150,
   },
 });

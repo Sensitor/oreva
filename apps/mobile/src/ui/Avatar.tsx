@@ -26,7 +26,11 @@ export function Avatar({ name, size = 44, tone = 'lilac' }: AvatarProps) {
       importantForAccessibility="no-hide-descendants"
       style={[styles.avatar, { width: size, height: size, backgroundColor: toneColor(tone) }]}
     >
-      <AppText variant={size >= 64 ? 'title2' : 'callout'} weight="bold">
+      <AppText
+        variant={size >= 64 ? 'title2' : 'callout'}
+        weight={size >= 64 ? undefined : 'semibold'}
+        color="textBrand"
+      >
         {initialsOf(name)}
       </AppText>
     </View>

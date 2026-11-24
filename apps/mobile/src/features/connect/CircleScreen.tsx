@@ -1,7 +1,7 @@
 import { DEMO_SELF_ID, resolveLocalizedText, type Circle, type CircleMessage } from '@oreva/core';
 import { colors, radii, spacing, touchTarget } from '@oreva/tokens';
 import { router } from 'expo-router';
-import { Send, Trophy } from 'lucide-react-native';
+import { Send } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -19,7 +19,8 @@ import { useClassDetail } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import { AppText, Avatar, Card, EmptyState, SampleBadge, ScreenHeader, Skeleton } from '@/ui';
+import { AppText, EmptyState, Line, LotusIcon, SampleBadge, ScreenHeader, Skeleton } from '@/ui';
+import { Medallion } from './Medallion';
 import { useCircleView } from './useCircleView';
 
 const MAX_MESSAGE_LENGTH = 1000;
@@ -96,10 +97,7 @@ export function CircleScreen({ id }: { id: string }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}>
-        <ScreenHeader
-          title={circle.name}
-          trailing={circle.isPlaceholder ? <SampleBadge /> : undefined}
-        />
+        <ScreenHeader trailing={circle.isPlaceholder ? <SampleBadge /> : undefined} />
         <Members circle={circle} memberName={memberName} />
         {circle.challenge ? <Challenge circle={circle} memberName={memberName} /> : null}
         <View style={styles.messages} accessibilityRole="list">
@@ -141,43 +139,42 @@ export function CircleScreen({ id }: { id: string }) {
           ]}
           testID="send-message"
         >
-          <Send size={20} color={colors.textPrimary} strokeWidth={2} />
+          <Send size={20} color={colors.textOnAction} strokeWidth={1.75} />
         </Pressable>
       </View>
     </KeyboardAvoidingView>
   );
 }
 
+/** The Circle's medallion, its name in the serif, and who is in it. */
 function Members({ circle, memberName }: { circle: Circle; memberName: (id: string) => string }) {
   const { t } = useTranslation();
+  const names = circle.members.map((member) => memberName(member.id));
   return (
-    <Card>
-      <AppText variant="footnote" color="textSecondary">
-        {t('connect.members', { count: circle.members.length })}
+    <View style={styles.header}>
+      <Medallion name={circle.name} members={names} size={96} />
+      <AppText variant="display" color="textBrand" align="center" accessibilityRole="header">
+        {circle.name}
       </AppText>
-      <View style={styles.memberRow}>
-        {circle.members.map((member, index) => (
-          <View
-            key={member.id}
-            style={styles.member}
-            accessible
-            accessibilityLabel={memberName(member.id)}
-          >
-            <Avatar
-              name={memberName(member.id)}
-              size={44}
-              tone={(['lilac', 'sand', 'mist', 'backgroundTint'] as const)[index % 4]}
-            />
-            <AppText variant="caption" numberOfLines={1}>
-              {memberName(member.id)}
-            </AppText>
-          </View>
-        ))}
-      </View>
-    </Card>
+      <Line />
+      <AppText
+        variant="callout"
+        color="textSecondary"
+        align="center"
+        accessibilityLabel={[t('connect.members', { count: circle.members.length }), ...names].join(
+          ', ',
+        )}
+      >
+        {t('connect.members', { count: circle.members.length })} · {names.join(', ')}
+      </AppText>
+    </View>
   );
 }
 
+/**
+ * The Circle's challenge on paper: La Ligne per member, a dot per session.
+ * Members who do not share their activity show a plain line of text instead.
+ */
 function Challenge({ circle, memberName }: { circle: Circle; memberName: (id: string) => string }) {
   const { t } = useTranslation();
   const challenge = circle.challenge;
@@ -185,48 +182,43 @@ function Challenge({ circle, memberName }: { circle: Circle; memberName: (id: st
     return null;
   }
   return (
-    <Card tone="sand" style={styles.challenge}>
+    <View style={styles.challenge}>
       <View style={styles.challengeHeader}>
-        <Trophy size={20} color={colors.textPrimary} strokeWidth={1.75} />
-        <AppText variant="footnote" color="textOnPastelSecondary">
+        <LotusIcon size={18} color={colors.textLink} />
+        <AppText variant="kicker" color="textLink">
           {t('connect.challenge')}
         </AppText>
       </View>
-      <AppText variant="headline">{challenge.title}</AppText>
+      <AppText variant="title2" color="textBrand">
+        {challenge.title}
+      </AppText>
       {circle.members.map((member) => {
         const done = challenge.progress[member.id];
+        const shared = member.sharesActivity && done !== undefined;
         return (
-          <View key={member.id} style={styles.progressRow}>
-            <AppText variant="callout" style={styles.progressName} numberOfLines={1}>
-              {memberName(member.id)}
-            </AppText>
-            {member.sharesActivity && done !== undefined ? (
-              <View
-                style={styles.progressTrack}
-                accessible
+          <View key={member.id} style={styles.progressBlock}>
+            <View style={styles.progressRow}>
+              <AppText variant="callout" weight="semibold" style={styles.flex} numberOfLines={1}>
+                {memberName(member.id)}
+              </AppText>
+              <AppText variant="footnote" color="textSecondary">
+                {shared
+                  ? t('connect.challengeProgress', { done, target: challenge.targetSessions })
+                  : t('connect.activityHidden')}
+              </AppText>
+            </View>
+            {shared ? (
+              <Line
+                variant="progress"
+                value={done / challenge.targetSessions}
+                steps={challenge.targetSessions}
                 accessibilityLabel={`${memberName(member.id)}, ${t('connect.challengeProgress', { done, target: challenge.targetSessions })}`}
-              >
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${Math.min(100, (done / challenge.targetSessions) * 100)}%` },
-                  ]}
-                />
-              </View>
-            ) : (
-              <AppText variant="footnote" color="textOnPastelSecondary" style={styles.flex}>
-                {t('connect.activityHidden')}
-              </AppText>
-            )}
-            {member.sharesActivity && done !== undefined ? (
-              <AppText variant="footnote" color="textOnPastelSecondary">
-                {t('connect.challengeProgress', { done, target: challenge.targetSessions })}
-              </AppText>
+              />
             ) : null}
           </View>
         );
       })}
-    </Card>
+    </View>
   );
 }
 
@@ -311,19 +303,20 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
     gap: spacing.md,
   },
-  memberRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  member: {
+  header: {
     alignItems: 'center',
-    gap: 2,
-    width: 56,
+    gap: spacing.xs,
   },
   challenge: {
-    gap: spacing.xs,
+    gap: spacing.sm,
+    padding: spacing.gutter,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
+  },
+  progressBlock: {
+    gap: spacing.xxs,
   },
   challengeHeader: {
     flexDirection: 'row',
@@ -334,21 +327,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-  },
-  progressName: {
-    width: 72,
-  },
-  progressTrack: {
-    flex: 1,
-    height: 8,
-    borderRadius: radii.pill,
-    backgroundColor: colors.surface,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.success,
-    borderRadius: radii.pill,
   },
   flex: {
     flex: 1,
@@ -364,7 +342,7 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: '82%',
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     gap: 2,
@@ -374,12 +352,16 @@ const styles = StyleSheet.create({
   },
   bubbleOther: {
     backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
   },
   shared: {
     gap: 2,
-    padding: spacing.xs,
-    borderRadius: radii.sm,
-    backgroundColor: colors.backgroundTint,
+    padding: spacing.sm,
+    borderRadius: radii.md,
+    backgroundColor: colors.background,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
   },
   composer: {
     flexDirection: 'row',
@@ -406,7 +388,7 @@ const styles = StyleSheet.create({
     width: touchTarget.comfortable,
     height: touchTarget.comfortable,
     borderRadius: radii.pill,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.actionPrimary,
     alignItems: 'center',
     justifyContent: 'center',
   },

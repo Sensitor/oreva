@@ -5,20 +5,13 @@ import {
   type GeoPoint,
   type MapPoint,
 } from '@oreva/core';
-import { formatDistance } from '@oreva/i18n';
+import { dayKey, formatDayHeading, formatDistance } from '@oreva/i18n';
 import { colors, elevation, radii, spacing, touchTarget } from '@oreva/tokens';
 import { router } from 'expo-router';
-import {
-  List,
-  LocateFixed,
-  Map as MapIcon,
-  Search,
-  SlidersHorizontal,
-  X,
-} from 'lucide-react-native';
+import { List, Map as MapIcon, Search, SlidersHorizontal, X } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useClock } from '@/data/DataProvider';
 import { applyClassFilters, countActiveFilters } from '@/data/filters';
@@ -27,7 +20,16 @@ import { DEFAULT_CLASS_FILTERS, type ClassFilters, type ClassListItem } from '@/
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import { useReduceMotion } from '@/theme/useReduceMotion';
-import { AppText, EmptyState, IconButton, Button, TAB_BAR_CLEARANCE } from '@/ui';
+import {
+  AppText,
+  Button,
+  EmptyState,
+  IconButton,
+  Line,
+  NearIcon,
+  PressableScale,
+  TAB_BAR_CLEARANCE,
+} from '@/ui';
 import {
   EXPLORE,
   EXPLORE_CAMERA,
@@ -127,6 +129,24 @@ export function DiscoverScreen() {
     }
   };
 
+  // The list reads like a programme: tickets under a heading for each day.
+  const sections = useMemo(() => {
+    const byDay = new Map<string, { title: string; data: ClassListItem[] }>();
+    for (const item of areaItems) {
+      const instant = new Date(item.session.startsAt);
+      const key = dayKey(instant, item.city.timeZone);
+      const section = byDay.get(key) ?? {
+        title: formatDayHeading(instant, formatLocale, item.city.timeZone),
+        data: [],
+      };
+      section.data.push(item);
+      byDay.set(key, section);
+    }
+    return [...byDay.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, section]) => ({ key, ...section }));
+  }, [areaItems, formatLocale]);
+
   const distanceFor = (item: ClassListItem) =>
     area.kind === 'near'
       ? formatDistance(distanceMeters(area.point, venuePoint(item)), formatLocale)
@@ -147,7 +167,7 @@ export function DiscoverScreen() {
             style={({ pressed }) => [styles.searchOpen, pressed && styles.pressed]}
             testID="open-city-picker"
           >
-            <Search size={20} color={colors.textSecondary} strokeWidth={1.75} />
+            <Search size={20} color={colors.textSecondary} strokeWidth={1.5} />
             {areaLabel ? (
               <AppText variant="bodyStrong" numberOfLines={1} style={styles.searchText}>
                 {areaLabel}
@@ -178,13 +198,13 @@ export function DiscoverScreen() {
               testID="clear-area"
             >
               <View style={styles.clearDot}>
-                <X size={14} color={colors.textPrimary} strokeWidth={2.25} />
+                <X size={14} color={colors.textPrimary} strokeWidth={2} />
               </View>
             </Pressable>
           ) : null}
         </View>
         <IconButton
-          icon={LocateFixed}
+          icon={NearIcon}
           accessibilityLabel={t('discover.nearMe')}
           onPress={() => void nearMe.start().then(goNearMe)}
           testID="near-me"
@@ -192,45 +212,42 @@ export function DiscoverScreen() {
         />
       </View>
       <View style={styles.actionRow}>
-        <Pressable
+        <PressableScale
           accessibilityRole="button"
           accessibilityLabel={
             activeFilterCount > 0
               ? `${t('discover.filters')}, ${String(activeFilterCount)}`
               : t('discover.filters')
           }
+          accessibilityState={{ selected: activeFilterCount > 0 }}
           onPress={() => setFiltersOpen(true)}
-          style={({ pressed }) => [
-            styles.pill,
-            activeFilterCount > 0 && styles.pillActive,
-            pressed && styles.pressed,
-          ]}
+          style={[styles.pill, activeFilterCount > 0 && styles.pillActive]}
           testID="open-filters"
         >
-          <SlidersHorizontal size={18} color={colors.textPrimary} strokeWidth={2} />
-          <AppText variant="callout" weight="semibold">
+          <SlidersHorizontal size={18} color={colors.textPrimary} strokeWidth={1.5} />
+          <AppText variant="callout" weight={activeFilterCount > 0 ? 'bold' : 'semibold'}>
             {activeFilterCount > 0
               ? `${t('discover.filters')} · ${String(activeFilterCount)}`
               : t('discover.filters')}
           </AppText>
-        </Pressable>
+        </PressableScale>
         {!isWeb ? (
-          <Pressable
+          <PressableScale
             accessibilityRole="button"
             accessibilityLabel={mode === 'map' ? t('discover.showList') : t('discover.showMap')}
             onPress={() => setMode(mode === 'map' ? 'list' : 'map')}
-            style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
+            style={styles.pill}
             testID="toggle-view"
           >
             {mode === 'map' ? (
-              <List size={18} color={colors.textPrimary} strokeWidth={2} />
+              <List size={18} color={colors.textPrimary} strokeWidth={1.5} />
             ) : (
-              <MapIcon size={18} color={colors.textPrimary} strokeWidth={2} />
+              <MapIcon size={18} color={colors.textPrimary} strokeWidth={1.5} />
             )}
             <AppText variant="callout" weight="semibold">
               {mode === 'map' ? t('discover.showList') : t('discover.showMap')}
             </AppText>
-          </Pressable>
+          </PressableScale>
         ) : null}
       </View>
       {state.mapProvider === 'mapbox' && !mapboxConfigured && !isWeb && mode === 'map' ? (
@@ -277,9 +294,11 @@ export function DiscoverScreen() {
               <PointPreview point={selected} items={filtered} onClose={() => setSelected(null)} />
             ) : (
               <View style={styles.summary}>
-                <AppText variant="bodyStrong" accessibilityLiveRegion="polite">
-                  {t('discover.classesFound', { count: areaItems.length })}
-                </AppText>
+                <View style={styles.summaryText}>
+                  <AppText variant="title2" color="textBrand" accessibilityLiveRegion="polite">
+                    {t('discover.classesFound', { count: areaItems.length })}
+                  </AppText>
+                </View>
                 <Button
                   label={t('discover.showList')}
                   variant="secondary"
@@ -292,24 +311,42 @@ export function DiscoverScreen() {
       ) : (
         <>
           {controls}
-          <FlatList
-            data={areaItems}
+          <SectionList
+            sections={sections}
             keyExtractor={(item) => item.session.id}
             renderItem={({ item }) => <ClassCard item={item} distance={distanceFor(item)} />}
+            renderSectionHeader={({ section }) => (
+              <AppText
+                variant="kicker"
+                color="textSecondary"
+                accessibilityRole="header"
+                style={styles.day}
+              >
+                {section.title}
+              </AppText>
+            )}
+            stickySectionHeadersEnabled={false}
             contentContainerStyle={[
               styles.list,
               { paddingBottom: TAB_BAR_CLEARANCE + insets.bottom },
             ]}
             ListHeaderComponent={
-              isWeb ? (
-                <AppText variant="callout" color="textSecondary">
-                  {t('discover.mapUnavailable')}
-                </AppText>
-              ) : (
-                <AppText variant="bodyStrong" accessibilityLiveRegion="polite">
+              <View style={styles.listHeader}>
+                <AppText
+                  variant="title1"
+                  color="textBrand"
+                  accessibilityRole="header"
+                  accessibilityLiveRegion="polite"
+                >
                   {t('discover.classesFound', { count: areaItems.length })}
                 </AppText>
-              )
+                <Line />
+                {isWeb ? (
+                  <AppText variant="callout" color="textSecondary">
+                    {t('discover.mapUnavailable')}
+                  </AppText>
+                ) : null}
+              </View>
             }
             ListEmptyComponent={
               <EmptyState
@@ -438,9 +475,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderControl,
   },
+  // Active filters read like a selected chip: lilac with an iris edge.
   pillActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accentStrong,
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.progress,
   },
   pressed: {
     opacity: 0.85,
@@ -464,15 +502,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.sm,
-    padding: spacing.sm,
-    paddingStart: spacing.md,
-    borderRadius: radii.lg,
+    padding: spacing.md,
+    paddingStart: spacing.gutter,
+    borderRadius: radii.xl,
     backgroundColor: colors.surface,
-    boxShadow: elevation.raised,
+    boxShadow: elevation.floating,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
+  },
+  summaryText: {
+    flex: 1,
+    gap: 2,
   },
   list: {
-    paddingTop: 180,
-    paddingHorizontal: spacing.lg - 4,
+    paddingTop: 150,
+    paddingHorizontal: spacing.gutter,
     gap: spacing.sm,
+  },
+  listHeader: {
+    gap: spacing.xs,
+    paddingBottom: spacing.xs,
+  },
+  day: {
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxs,
   },
 });

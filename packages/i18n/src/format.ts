@@ -29,6 +29,26 @@ export function formatClassDateTime(
   return { date, time };
 }
 
+/** A day heading for grouped lists: "Monday 30 November", "lundi 30 novembre", "понедельник, 30 ноября". */
+export function formatDayHeading(instant: Date, locale: string, timeZone: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone,
+  }).format(instant);
+}
+
+/** The calendar day of an instant in a time zone, as YYYY-MM-DD (for grouping). */
+export function dayKey(instant: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone,
+  }).format(instant);
+}
+
 /** Number of minor units for a currency (EUR 2, JPY 0, KWD 3), from Intl. */
 export function currencyMinorUnits(currency: string): number {
   return (
