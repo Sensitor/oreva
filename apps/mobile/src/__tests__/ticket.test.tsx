@@ -5,7 +5,7 @@ import { createDemoRepositories } from '@/data/demoRepositories';
 import { DEFAULT_CLASS_FILTERS } from '@/data/types';
 import { ClassCard } from '@/features/discover/ClassCard';
 import { useFontScale } from '@/theme/useFontScale';
-import { FactsRow } from '@/ui';
+import { FactList } from '@/ui';
 import { renderWithProviders, TEST_NOW } from '@/test-utils';
 
 jest.mock('@/theme/useFontScale', () => ({ useFontScale: jest.fn(() => 1) }));
@@ -50,10 +50,10 @@ describe('Class ticket', () => {
   });
 });
 
-describe('FactsRow', () => {
+describe('FactList', () => {
   it('reads each fact as label and value', async () => {
     await renderWithProviders(
-      <FactsRow
+      <FactList
         facts={[
           { label: 'Level', value: 'Beginner' },
           { label: 'Duration', value: '10 min' },

@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   base: {
     minHeight: touchTarget.min,
     paddingHorizontal: spacing.md,
-    borderRadius: radii.pill,
+    borderRadius: radii.xs,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

@@ -21,7 +21,8 @@
     "retry": "Réessayer",
     "durationMinutes_one": "{{count}} min",
     "durationMinutes_many": "{{count}} min",
-    "durationMinutes_other": "{{count}} min"
+    "durationMinutes_other": "{{count}} min",
+    "minutesShort": "min"
   },
   "tabs": {
     "today": "Aujourd'hui",
@@ -197,25 +198,17 @@
       "progress": "Progression"
     },
     "signatures": {
-      "line": "La Ligne",
-      "lineNote": "L'onde signature : sous les titres éditoriaux, sous l'onglet actif et comme progression d'un programme.",
+      "line": "Filets et tampons",
+      "lineNote": "Des filets droits, comme sur un programme imprimé : sous un titre, au-dessus de l'onglet actif, et pour la progression, avec un carré tamponné à chaque étape faite.",
       "lineProgress": "Progression du programme",
-      "voile": "Voile",
-      "voileNote": "Des dégradés superposés qui remplacent la photographie jusqu'à ce que de vraies photos, utilisées avec autorisation, existent. Ils ne montrent aucun lieu ni aucune personne.",
-      "tints": {
-        "lilac": "Lilas",
-        "sand": "Sable",
-        "mist": "Brume",
-        "plum": "Prune"
-      },
-      "cover": "Couverture éditoriale",
+      "cover": "Blocs imprimés",
       "coverKicker": "Semaine 1 · Jour 3",
       "coverTitle": "Dos long, centre calme",
       "coverMeta": "Texte d'exemple pour le guide de style",
       "header": "En-tête éditorial",
       "headerKicker": "Monaco · Cette semaine",
       "headerTitle": "Découvrir",
-      "headerIntro": "Le titre d'un écran principal, avec la ligne en dessous.",
+      "headerIntro": "Le haut d'un écran principal : le bandeau entre deux filets, puis le titre en serif.",
       "icons": "Icônes",
       "iconsNote": "Dessinées sur une grille de 24, d'un seul trait de 1,5 aux extrémités arrondies.",
       "iconNames": {
@@ -231,7 +224,16 @@
         "mat": "Tapis",
         "breath": "Souffle",
         "near": "Près de moi"
-      }
+      },
+      "cutPaper": "Papier découpé",
+      "cutPaperNote": "Des formes plates découpées à la main, un peu irrégulières, posées seulement aux moments forts : le bloc du jour, une séance terminée, votre semaine. Aucun dégradé, aucune photo qui se ferait passer pour vraie.",
+      "shapeNames": {
+        "sun": "Soleil",
+        "leaf": "Feuille",
+        "seed": "Graine",
+        "pebble": "Galet"
+      },
+      "weekExample": "Semaine d'exemple : 2 séances"
     }
   },
   "a11y": {

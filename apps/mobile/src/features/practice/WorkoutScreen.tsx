@@ -12,7 +12,7 @@ import {
   Button,
   EditorialCover,
   EmptyState,
-  FactsRow,
+  FactList,
   SampleBadge,
   Screen,
   ScreenHeader,
@@ -54,11 +54,10 @@ export function WorkoutScreen({ id }: { id: string }) {
     <Screen withTabBar={false}>
       <ScreenHeader />
       <EditorialCover
-        tint={workout.tone}
+        tone="paper"
         kicker={t(`focus.${workout.focus}`)}
         title={title}
         badge={workout.isPlaceholder ? <SampleBadge /> : undefined}
-        minHeight={220}
         testID="workout-cover"
       />
       <AppText variant="body" color="textSecondary">
@@ -66,7 +65,7 @@ export function WorkoutScreen({ id }: { id: string }) {
       </AppText>
 
       {/* Facts on a hairline row instead of coloured tiles. Never calories (P-15). */}
-      <FactsRow
+      <FactList
         facts={[
           { label: t('classDetail.level'), value: t(`level.${workout.level}`) },
           {

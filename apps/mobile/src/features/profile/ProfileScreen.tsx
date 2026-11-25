@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { appVariant, appVersion, isProduction } from '@/config/env';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
+import { weekOf, weekdayLabels } from '@/lib/week';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import {
   AppText,
@@ -24,6 +25,7 @@ import {
   EditorialCover,
   EditorialHeader,
   LinkRow,
+  WeekStones,
   Screen,
   Section,
 } from '@/ui';
@@ -31,19 +33,16 @@ import {
 /** Profile: account (next version), practice summary, following, settings. */
 export function ProfileScreen() {
   const { t } = useTranslation();
-  const { locale } = useLocaleSettings();
+  const { locale, formatLocale } = useLocaleSettings();
   const { state } = usePrototypeStore();
 
   // Read once when the screen opens, not on every render.
   const [openedAt] = useState(() => Date.now());
-  const { week, total } = useMemo(() => {
-    const weekAgo = openedAt - 7 * 86_400_000;
-    return {
-      total: state.completedWorkouts.length,
-      week: state.completedWorkouts.filter((c) => new Date(c.completedAt).getTime() >= weekAgo)
-        .length,
-    };
-  }, [state.completedWorkouts, openedAt]);
+  const { week, total, days } = useMemo(
+    () => weekOf(state.completedWorkouts, openedAt),
+    [state.completedWorkouts, openedAt],
+  );
+  const dayLabels = useMemo(() => weekdayLabels(formatLocale), [formatLocale]);
 
   const followingCount = state.followedInstructors.length + state.followedOrganizations.length;
 
@@ -53,17 +52,25 @@ export function ProfileScreen() {
 
       {/* Guest state: an invitation, honest about accounts arriving in the next version. */}
       <EditorialCover
-        tint="lilac"
+        revealIndex={1}
+        tone="sand"
+        shapes
         kicker={t('profile2.soon')}
         title={t('profile2.guestTitle')}
         meta={t('profile2.guestBody')}
-        minHeight={240}
         testID="guest-card"
       >
         <Button label={t('profile2.createAccount')} variant="secondary" disabled />
       </EditorialCover>
 
-      <Section title={t('profile2.yourPractice')}>
+      <Section title={t('profile2.yourPractice')} revealIndex={2}>
+        {/* The week as seven cut-paper stones, filled only by sessions finished on this phone. */}
+        <WeekStones
+          days={days}
+          labels={dayLabels}
+          accessibilityLabel={t('profile2.sessionsWeek', { count: week })}
+          testID="week-stones"
+        />
         {total === 0 ? (
           // No "0 / 0": before the first session, an invitation to start one.
           <View style={styles.invite} testID="practice-invite">

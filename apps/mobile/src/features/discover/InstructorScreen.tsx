@@ -11,7 +11,7 @@ import {
   AppText,
   Avatar,
   EmptyState,
-  FactsRow,
+  FactList,
   FictionalBanner,
   Line,
   PressableScale,
@@ -67,7 +67,7 @@ export function InstructorScreen({ id }: { id: string }) {
       </View>
       {instructor.isPlaceholder ? <FictionalBanner /> : null}
 
-      <FactsRow
+      <FactList
         facts={[
           {
             label: t('organization.specialtiesLabel'),

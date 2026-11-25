@@ -10,18 +10,18 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useClasses, usePrograms, useWorkouts } from '@/data/hooks';
 import { DEFAULT_CLASS_FILTERS, DEFAULT_WORKOUT_FILTERS } from '@/data/types';
 import { ClassCard } from '@/features/discover/ClassCard';
+import { ProgramChapter } from '@/features/practice/ProgramChapter';
 import { WorkoutCard, workoutMinutes } from '@/features/practice/WorkoutCard';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import {
   AppText,
   Chip,
-  EditorialCover,
   EditorialHeader,
   IconButton,
   Line,
   PressableScale,
-  SampleBadge,
+  Reveal,
   Screen,
   Section,
   Skeleton,
@@ -105,55 +105,54 @@ export function HomeScreen({ now }: HomeScreenProps) {
         }
       />
 
-      {program && todayWorkout ? (
-        <TodayCard
-          session={{
-            isPlaceholder: program.isPlaceholder,
-            programTitle: program.title,
-            day: 1,
-            exercises: todayWorkout.exercises.length,
-            minutes: workoutMinutes(todayWorkout),
-          }}
-          onStart={() => router.push(`/workouts/${todayWorkout.id}`)}
-        />
-      ) : (
-        <Skeleton height={260} radius={radii.lg} />
-      )}
+      <Reveal index={1}>
+        {program && todayWorkout ? (
+          <TodayCard
+            session={{
+              isPlaceholder: program.isPlaceholder,
+              programTitle: program.title,
+              day: 1,
+              exercises: todayWorkout.exercises.length,
+              minutes: workoutMinutes(todayWorkout),
+            }}
+            onStart={() => router.push(`/workouts/${todayWorkout.id}`)}
+          />
+        ) : (
+          <Skeleton height={300} radius={radii.xs} />
+        )}
+      </Reveal>
 
       {resumable ? (
-        <Section title={t('home2.continue')}>
-          <ContinueRow
-            title={resolveLocalizedText(resumable.workout.title, locale)?.text ?? ''}
-            minutes={workoutMinutes(resumable.workout)}
-            progress={
-              resumable.elapsed /
-              Math.max(
-                resumable.workout.exercises.reduce((sum, e) => sum + e.durationSec, 0),
-                1,
-              )
-            }
-            onPress={() => router.push(`/workouts/${resumable.workout.id}`)}
-          />
-        </Section>
+        <Reveal index={2}>
+          <Section title={t('home2.continue')}>
+            <ContinueRow
+              title={resolveLocalizedText(resumable.workout.title, locale)?.text ?? ''}
+              minutes={workoutMinutes(resumable.workout)}
+              progress={
+                resumable.elapsed /
+                Math.max(
+                  resumable.workout.exercises.reduce((sum, e) => sum + e.durationSec, 0),
+                  1,
+                )
+              }
+              onPress={() => router.push(`/workouts/${resumable.workout.id}`)}
+            />
+          </Section>
+        </Reveal>
       ) : null}
 
-      <Section
-        title={t('home2.nearby')}
-        actionLabel={t('common.seeAll')}
-        onAction={() => router.push('/discover')}
-      >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.bleed}
-          contentContainerStyle={styles.carousel}
+      <Reveal index={3}>
+        <Section
+          title={t('home2.nearby')}
+          actionLabel={t('common.seeAll')}
+          onAction={() => router.push('/discover')}
         >
-          {classes.isLoading ? <Skeleton width={280} height={200} /> : null}
+          {classes.isLoading ? <Skeleton height={120} /> : null}
           {nearby.map((item) => (
-            <ClassCard key={item.session.id} item={item} compact />
+            <ClassCard key={item.session.id} item={item} />
           ))}
-        </ScrollView>
-      </Section>
+        </Section>
+      </Reveal>
 
       {fromFollowed.length > 0 ? (
         <Section title={t('home2.following')}>
@@ -195,30 +194,16 @@ export function HomeScreen({ now }: HomeScreenProps) {
         actionLabel={t('common.seeAll')}
         onAction={() => router.push('/practice')}
       >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.bleed}
-          contentContainerStyle={styles.carousel}
-        >
-          {(programs.data ?? []).map((item) => {
-            const title = resolveLocalizedText(item.title, locale)?.text ?? '';
-            const weeks = t('home.programs.weeks', { count: item.weeks });
-            return (
-              <View key={item.id} style={styles.program}>
-                <EditorialCover
-                  tint={item.tone}
-                  kicker={weeks}
-                  title={title}
-                  badge={item.isPlaceholder ? <SampleBadge /> : undefined}
-                  accessibilityLabel={`${title}, ${weeks}`}
-                  onPress={() => router.push(`/programs/${item.id}`)}
-                  minHeight={200}
-                />
-              </View>
-            );
-          })}
-        </ScrollView>
+        <View>
+          {(programs.data ?? []).map((item, index) => (
+            <ProgramChapter
+              key={item.id}
+              index={index}
+              program={item}
+              onPress={() => router.push(`/programs/${item.id}`)}
+            />
+          ))}
+        </View>
       </Section>
     </Screen>
   );
@@ -270,24 +255,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.gutter,
     gap: spacing.xs,
   },
-  carousel: {
-    paddingHorizontal: spacing.gutter,
-    gap: spacing.sm,
-    paddingBottom: spacing.xs,
-  },
   list: {
     marginTop: spacing.xs,
-  },
-  program: {
-    width: 260,
   },
   continue: {
     gap: spacing.sm,
     padding: spacing.md,
-    borderRadius: radii.md,
+    borderRadius: radii.xs,
     backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderSubtle,
+    borderWidth: 1,
+    borderColor: colors.actionPrimary,
   },
   continueText: {
     flexDirection: 'row',

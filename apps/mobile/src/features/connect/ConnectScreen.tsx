@@ -84,7 +84,7 @@ export function ConnectScreen() {
         />
       </View>
 
-      <Section title={t('connect.circles')}>
+      <Section title={t('connect.circles')} revealIndex={2}>
         {circles.length === 0 ? <EmptyState title={t('connect.emptyCircles')} /> : null}
         {circles.map((circle) => {
           const last = circle.messages[circle.messages.length - 1];
@@ -136,7 +136,7 @@ export function ConnectScreen() {
         </View>
       </Section>
 
-      <Section title={t('connect.following')}>
+      <Section title={t('connect.following')} revealIndex={3}>
         {followedOrgs.length + followedInstructors.length === 0 ? (
           <AppText variant="body" color="textSecondary">
             {t('connect.followingEmpty')}

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, screen } from '@testing-library/react-native';
+import * as Haptics from 'expo-haptics';
 import type * as ExpoRouter from 'expo-router';
 import { router } from 'expo-router';
 import { formatTimer, sessionPosition, startOfExercise } from '@/features/practice/session';
@@ -148,6 +149,13 @@ describe('Practice screens', () => {
     });
     expect(await screen.findByText('Séance terminée')).toBeTruthy();
     expect(screen.getByTestId('player-done')).toBeTruthy();
+    // Bravo, the real numbers (never calories), and the one success haptic of the app.
+    expect(screen.getByRole('header', { name: 'Bravo' })).toBeTruthy();
+    expect(screen.getByTestId('player-summary')).toBeTruthy();
+    expect(screen.queryByText(/kcal|calorie/i)).toBeNull();
+    expect(Haptics.notificationAsync).toHaveBeenCalledWith(
+      Haptics.NotificationFeedbackType.Success,
+    );
   });
 
   it('resumes where the member stopped', async () => {

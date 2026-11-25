@@ -17,7 +17,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'paper' | 'accent' | 'quie
 export interface ButtonProps extends Omit<PressableScaleProps, 'children' | 'style'> {
   label: string;
   variant?: ButtonVariant;
-  /** The circular arrow that invites to start (Today card). */
+  /** An arrow after the label: this starts something. */
   withArrow?: boolean;
   fullWidth?: boolean;
 }
@@ -79,12 +79,8 @@ export function Button({
         {label}
       </AppText>
       {withArrow ? (
-        <View
-          style={styles.arrow}
-          importantForAccessibility="no-hide-descendants"
-          accessibilityElementsHidden
-        >
-          <ArrowRight size={20} color={colors.textOnAccent} strokeWidth={1.75} />
+        <View importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
+          <ArrowRight size={20} color={colors[look.label]} strokeWidth={1.5} />
         </View>
       ) : null}
     </PressableScale>
@@ -94,8 +90,8 @@ export function Button({
 const styles = StyleSheet.create({
   base: {
     minHeight: touchTarget.comfortable + 4,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.lg,
+    borderRadius: radii.xs,
+    paddingHorizontal: spacing.gutter,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -112,18 +108,12 @@ const styles = StyleSheet.create({
     textDecorationColor: colors.textLink,
   },
   withArrow: {
-    paddingEnd: spacing.xxs + 2,
+    gap: spacing.md,
   },
+  // A full-width bar: label at the start, arrow at the end, like a printed ticket stub.
   fullWidth: {
     alignSelf: 'stretch',
-  },
-  arrow: {
-    width: 40,
-    height: 40,
-    borderRadius: radii.pill,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
   },
   disabled: {
     opacity: 0.45,

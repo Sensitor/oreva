@@ -11,9 +11,7 @@ import {
   spacing,
   textStyles,
   typefaces,
-  voiles,
   type TextStyleName,
-  type VoileTint,
 } from '@oreva/tokens';
 import { Bell, ChevronLeft } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
@@ -24,9 +22,11 @@ import {
   Badge,
   Button,
   Chip,
+  CutShape,
   EditorialCover,
   EditorialHeader,
   IconButton,
+  FactList,
   Line,
   LinkRow,
   NearIcon,
@@ -35,10 +35,12 @@ import {
   SampleBadge,
   Screen,
   ToggleRow,
-  Voile,
+  WeekStones,
   type ButtonVariant,
+  type CutShapeName,
   type OrevaIconName,
 } from '@/ui';
+import { weekdayLabels } from '@/lib/week';
 
 type SwatchKey =
   'cream' | 'paper' | 'sand' | 'lilac' | 'lavender' | 'iris' | 'plum' | 'ink' | 'stone' | 'sage';
@@ -79,7 +81,13 @@ const MOTIONS = [
 
 const BUTTONS: readonly ButtonVariant[] = ['primary', 'secondary', 'accent', 'quiet', 'text'];
 const CHIPS = ['chipSelected', 'chipOption', 'chipOther'] as const;
-const VOILE_TINTS = Object.keys(voiles) as VoileTint[];
+const CUT_SHAPES: readonly { name: CutShapeName; color: string }[] = [
+  { name: 'sun', color: palette.lavender[100] },
+  { name: 'leaf', color: palette.plum[700] },
+  { name: 'seed', color: palette.lavender[400] },
+  { name: 'pebble', color: palette.cream[500] },
+];
+const SAMPLE_NUMERAL = '01';
 const ICON_NAMES = Object.keys(orevaIcons) as OrevaIconName[];
 
 /** Sample numerals for the serif: a class time and a timer, as the app shows them. */
@@ -377,39 +385,65 @@ export function DesignPreviewScreen() {
             testID="line-progress"
           />
         </Sub>
-        <Sub title={t('designPreview.signatures.voile')}>
+        <Sub title={t('designPreview.signatures.cutPaper')}>
           <AppText variant="footnote" color="textSecondary">
-            {t('designPreview.signatures.voileNote')}
+            {t('designPreview.signatures.cutPaperNote')}
           </AppText>
-          <View style={styles.voiles}>
-            {VOILE_TINTS.map((tint) => (
-              <Voile key={tint} tint={tint} style={styles.voile} testID={`voile-${tint}`}>
-                <AppText variant="callout" weight="semibold" color={voiles[tint].text}>
-                  {t(`designPreview.signatures.tints.${tint}`)}
+          <View style={styles.shapes}>
+            {CUT_SHAPES.map(({ name, color }) => (
+              <View key={name} style={styles.shapeCell} testID={`cut-${name}`}>
+                <View style={styles.shapeBox}>
+                  <CutShape shape={name} size={name === 'seed' ? 26 : 56} color={color} />
+                </View>
+                <AppText variant="caption" color="textSecondary">
+                  {t(`designPreview.signatures.shapeNames.${name}`)}
                 </AppText>
-              </Voile>
+              </View>
             ))}
           </View>
+          <WeekStones
+            days={[true, false, true, false, false, false, false]}
+            labels={weekdayLabels(i18n.language)}
+            accessibilityLabel={t('designPreview.signatures.weekExample')}
+          />
         </Sub>
         <Sub title={t('designPreview.signatures.cover')}>
           <EditorialCover
-            tint="lilac"
+            tone="paper"
             kicker={t('designPreview.signatures.coverKicker')}
             title={t('designPreview.signatures.coverTitle')}
             meta={t('designPreview.signatures.coverMeta')}
             badge={<SampleBadge />}
-          />
+          >
+            <FactList
+              facts={[
+                { label: t('classDetail.level'), value: t('level.beginner') },
+                {
+                  label: t('classDetail.duration'),
+                  value: t('common.durationMinutes', { count: 20 }),
+                },
+              ]}
+            />
+          </EditorialCover>
           <EditorialCover
-            tint="plum"
+            tone="sand"
             kicker={t('designPreview.signatures.coverKicker')}
             title={t('designPreview.signatures.coverTitle')}
             meta={t('designPreview.signatures.coverMeta')}
-            minHeight={200}
+          />
+          <EditorialCover
+            tone="plum"
+            shapes
+            numeral={SAMPLE_NUMERAL}
+            kicker={t('designPreview.signatures.coverKicker')}
+            title={t('designPreview.signatures.coverTitle')}
+            meta={t('designPreview.signatures.coverMeta')}
           >
             <Button
               variant="paper"
               label={t('designPreview.components.paper')}
               withArrow
+              fullWidth
               onPress={() => undefined}
             />
           </EditorialCover>
@@ -489,17 +523,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.lg,
   },
-  voiles: {
+  shapes: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
+    justifyContent: 'space-between',
   },
-  voile: {
-    width: '47%',
-    height: 96,
-    borderRadius: radii.lg,
-    padding: spacing.sm,
-    justifyContent: 'flex-end',
+  shapeCell: {
+    alignItems: 'center',
+    gap: spacing.xxs,
+  },
+  shapeBox: {
+    width: 64,
+    height: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   icons: {
     flexDirection: 'row',

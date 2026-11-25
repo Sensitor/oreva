@@ -61,11 +61,10 @@ export function ProgramScreen({ id }: { id: string }) {
     <Screen withTabBar={false}>
       <ScreenHeader />
       <EditorialCover
-        tint={data.tone}
+        tone="paper"
         kicker={`${t('home.programs.weeks', { count: data.weeks })} · ${t(`level.${data.level}`)}`}
         title={title}
         badge={data.isPlaceholder ? <SampleBadge /> : undefined}
-        minHeight={240}
         testID="program-cover"
       />
       <AppText variant="body">{resolveLocalizedText(data.description, locale)?.text}</AppText>

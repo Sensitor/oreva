@@ -45,7 +45,7 @@ describe('Design system (phases A and B)', () => {
       expect(await screen.findByText(components)).toBeTruthy();
       expect(screen.getByText(signatures)).toBeTruthy();
       expect(screen.getByRole('progressbar', { name: progress })).toBeTruthy();
-      expect(screen.getAllByTestId(/^voile-/)).toHaveLength(4);
+      expect(screen.getAllByTestId(/^cut-(sun|leaf|seed|pebble)$/)).toHaveLength(4);
       expect(
         screen.getAllByTestId(/^icon-/, { includeHiddenElements: true }).length,
       ).toBeGreaterThanOrEqual(12);

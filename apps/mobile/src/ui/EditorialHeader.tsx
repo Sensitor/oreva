@@ -2,10 +2,11 @@ import { spacing } from '@oreva/tokens';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AppText } from './AppText';
-import { Line } from './Line';
+import { Masthead } from './Masthead';
+import { Reveal } from './Reveal';
 
 export interface EditorialHeaderProps {
-  /** Context above the title: a date, a city, a week. */
+  /** Context in the masthead: a date, a city, a section. */
   kicker?: string;
   title: string;
   intro?: string;
@@ -13,15 +14,11 @@ export interface EditorialHeaderProps {
   action?: ReactNode;
 }
 
-/** The top of a main screen: kicker, serif title, the signature line. */
+/** The top of a main screen: the masthead between two rules, then the serif title. */
 export function EditorialHeader({ kicker, title, intro, action }: EditorialHeaderProps) {
   return (
-    <View style={styles.header}>
-      {kicker ? (
-        <AppText variant="kicker" color="textLink">
-          {kicker}
-        </AppText>
-      ) : null}
+    <Reveal style={styles.header}>
+      <Masthead label={kicker} />
       <View style={styles.titleRow}>
         <AppText
           variant="display"
@@ -33,30 +30,26 @@ export function EditorialHeader({ kicker, title, intro, action }: EditorialHeade
         </AppText>
         {action}
       </View>
-      <Line />
       {intro ? (
-        <AppText variant="body" color="textSecondary" style={styles.intro}>
+        <AppText variant="body" color="textSecondary">
           {intro}
         </AppText>
       ) : null}
-    </View>
+    </Reveal>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
   titleRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
   title: {
     flexShrink: 1,
-  },
-  intro: {
-    marginTop: spacing.xxs,
   },
 });

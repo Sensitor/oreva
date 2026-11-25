@@ -1,4 +1,4 @@
-import { colors, elevation, radii, spacing, touchTarget } from '@oreva/tokens';
+import { colors, spacing, touchTarget } from '@oreva/tokens';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { StyleSheet, View } from 'react-native';
 import { haptics } from '@/theme/haptics';
@@ -26,16 +26,16 @@ const ICONS: Record<string, IconComponent> = {
 const LABEL_MAX_SCALE = 1.3;
 
 /**
- * The ORÉVA tab bar: a paper capsule floating above the content, an ORÉVA
- * icon and a label on every tab. The active tab is plum, heavier, and marked
- * with the signature line; selection is never shown by color alone and is
- * announced to screen readers.
+ * The ORÉVA tab bar (identity C-9): docked like the foot of a printed page,
+ * a plum rule above, an ORÉVA icon and a label on every tab. The active tab
+ * is plum, heavier, and marked with a short rule; selection is never shown
+ * by colour alone and is announced to screen readers.
  */
 export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: BottomTabBarProps) {
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}
+      style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, spacing.xs) }]}
     >
       <View style={styles.bar} accessibilityRole="tablist">
         {state.routes.map((route, index) => {
@@ -68,6 +68,9 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
               onLongPress={() => emitter.emit({ type: 'tabLongPress', target: route.key })}
               style={styles.item}
             >
+              <View style={styles.indicator}>
+                {focused ? <Line variant="tab" testID="tab-line" /> : null}
+              </View>
               <Icon size={24} color={tint} strokeWidth={focused ? 1.75 : 1.5} />
               <AppText
                 variant="caption"
@@ -82,9 +85,6 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
               >
                 {label}
               </AppText>
-              <View style={styles.indicator}>
-                {focused ? <Line variant="tab" testID="tab-line" /> : null}
-              </View>
             </PressableScale>
           );
         })}
@@ -99,31 +99,26 @@ const styles = StyleSheet.create({
     start: 0,
     end: 0,
     bottom: 0,
-    paddingHorizontal: spacing.sm,
-    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderTopWidth: 1,
+    borderTopColor: colors.actionPrimary,
   },
   bar: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    paddingHorizontal: 0,
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.xxs,
-    borderRadius: radii.xl,
-    backgroundColor: colors.surface,
-    boxShadow: elevation.floating,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderSubtle,
-    maxWidth: 480,
-    alignSelf: 'stretch',
+    paddingHorizontal: spacing.xxs,
+    maxWidth: 560,
+    alignSelf: 'center',
+    width: '100%',
   },
   item: {
     flex: 1,
     minWidth: touchTarget.min,
-    minHeight: touchTarget.comfortable + 4,
+    minHeight: touchTarget.comfortable + 8,
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
-    borderRadius: radii.lg,
+    justifyContent: 'flex-start',
+    gap: 3,
+    paddingBottom: spacing.xxs,
   },
   // 11pt like the system tab bar, so the longest labels fit at 320pt wide
   // ("Сообщество", "Communauté").
@@ -134,8 +129,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'stretch',
   },
+  // The active tab's rule sits just under the plum line of the bar.
   indicator: {
     height: 6,
-    justifyContent: 'center',
+    alignSelf: 'stretch',
+    alignItems: 'center',
   },
 });

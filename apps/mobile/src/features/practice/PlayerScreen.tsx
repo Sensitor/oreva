@@ -1,5 +1,5 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, elevation, radii, spacing, touchTarget } from '@oreva/tokens';
+import { colors, radii, spacing, touchTarget } from '@oreva/tokens';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { router } from 'expo-router';
 import { SkipBack, SkipForward } from 'lucide-react-native';
@@ -9,17 +9,18 @@ import { StyleSheet, View } from 'react-native';
 import { useWorkout } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
+import { haptics } from '@/theme/haptics';
 import {
   AppText,
   Badge,
   Button,
   EmptyState,
-  FactsRow,
+  CutShape,
+  FactList,
   Line,
   PauseIcon,
   PlayIcon,
   PressableScale,
-  ProgressRing,
   Screen,
   ScreenHeader,
   Skeleton,
@@ -129,6 +130,8 @@ function Player({ workout }: { workout: NonNullable<ReturnType<typeof useWorkout
       return;
     }
     recordedRef.current = true;
+    // The one success haptic of the app: a session completed.
+    haptics.success();
     update((s) => ({
       ...s,
       workoutProgress: { ...s.workoutProgress, [workout.id]: 0 },
@@ -161,17 +164,38 @@ function Player({ workout }: { workout: NonNullable<ReturnType<typeof useWorkout
       <Screen withTabBar={false}>
         <ScreenHeader />
         <View style={styles.finished}>
-          <ProgressRing progress={1} size={128} strokeWidth={4} label={t('player.bravo')} />
-          <AppText variant="display" color="textBrand" align="center" accessibilityRole="header">
+          {/* Cut paper laid down one piece after the other (static with Reduce Motion). */}
+          <View style={styles.composition} testID="player-completion-mark">
+            <CutShape shape="sun" size={130} color={colors.accentSoft} style={styles.sun} />
+            <CutShape
+              shape="leaf"
+              size={120}
+              color={colors.actionPrimary}
+              rotate={-18}
+              delay={160}
+              style={styles.leaf}
+            />
+            <CutShape
+              shape="seed"
+              size={30}
+              color={colors.accent}
+              rotate={24}
+              delay={320}
+              style={styles.seed}
+            />
+          </View>
+          <AppText variant="kicker" color="textLink" align="center">
             {t('player.finished')}
           </AppText>
-          <Line />
+          <AppText variant="display" color="textBrand" align="center" accessibilityRole="header">
+            {t('player.bravo')}
+          </AppText>
           <AppText variant="body" color="textSecondary" align="center">
             {t('player.finishedBody')}
           </AppText>
         </View>
         {/* The real numbers of this session. Never calories (P-15). */}
-        <FactsRow
+        <FactList
           facts={[
             {
               label: t('player.exercisesLabel'),
@@ -302,11 +326,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: spacing.xs,
-    borderRadius: radii.pill,
+    borderRadius: radii.xs,
     backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderSubtle,
-    boxShadow: elevation.raised,
+    borderWidth: 1,
+    borderColor: colors.actionPrimary,
   },
   control: {
     width: touchTarget.comfortable + 16,
@@ -322,7 +345,27 @@ const styles = StyleSheet.create({
   },
   finished: {
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingTop: spacing.xl,
+    gap: spacing.xs,
+    paddingTop: spacing.lg,
+  },
+  composition: {
+    width: 200,
+    height: 150,
+    marginBottom: spacing.md,
+  },
+  sun: {
+    position: 'absolute',
+    top: 0,
+    start: 30,
+  },
+  leaf: {
+    position: 'absolute',
+    top: 54,
+    start: 50,
+  },
+  seed: {
+    position: 'absolute',
+    top: 18,
+    start: 150,
   },
 });

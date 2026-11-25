@@ -1,4 +1,4 @@
-import { spacing, touchTarget } from '@oreva/tokens';
+import { colors, spacing, touchTarget } from '@oreva/tokens';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from './AppText';
 
@@ -36,7 +36,11 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     justifyContent: 'space-between',
     gap: spacing.md,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
+    paddingBottom: spacing.xxs,
+    // The printed programme's section rule.
+    borderBottomWidth: 1,
+    borderBottomColor: colors.actionPrimary,
   },
   title: {
     flexShrink: 1,

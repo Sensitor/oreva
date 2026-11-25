@@ -119,7 +119,7 @@ Profile → **Design system** shows the approved palette, the type scale and sam
 No new build is needed: reload the development build. Report: `docs/design/phase-b/report.md`.
 
 1. Profile → **Design system**, then scroll to **Components** and **Signatures**. Tap the buttons and chips: they press in softly, and chips and primary buttons give a light tap you can feel.
-2. Check the covers (Voile) in Russian and French: titles and meta text readable, the line never under text.
+2. (Replaced in phase D: the Voile covers no longer exist.)
 3. The **tab bar**: every tab has a label; the active one is plum with a small wave under it. Switching tabs gives a light tap. Try it with a larger text size (Settings, Display & Brightness, Text Size) and with VoiceOver.
 4. Turn on **Reduce Motion** (Settings, Accessibility, Motion): buttons dim slightly instead of scaling.
 
@@ -134,9 +134,19 @@ No new build is needed: reload the development build. Report: `docs/design/phase
 5. **Profile**: the guest cover, and the invitation to a first session (it becomes your real counts once you finish one).
 6. Repeat a few screens in Russian and French, and with a larger text size: tickets stack the time above the details.
 
+### New identity and motion (phase D)
+
+ORÉVA Preview updates itself after the merge: close it and open it again. Report: `docs/design/phase-d/report.md`.
+
+1. **Today**: the masthead (ORÉVA and the date), the plum block with the large "01" and the cut-paper shapes settling in one after the other, the white Start bar.
+2. **Practice**: programs as chapters 01, 02, 03; sessions with the minutes in serif. Finish a session: the shapes are laid down, "Bravo", the real numbers, and a short vibration.
+3. **Profile**: the week as seven stones; finish a session and one fills.
+4. **Discover** list: classes as lines of a timetable, under a heading per day.
+5. Turn on **Reduce Motion** (Settings, Accessibility, Motion): screens appear without moving, shapes are already in place, progress is drawn at its value.
+
 ## 4. Sending feedback
 
 For each point, note the screen, the language, what you expected and what you saw. Include a screenshot if possible. Then tell us:
 
 - **C-4:** Mapbox or Apple Maps
-- **Phase C:** approved, or what to change
+- **Phase D and the new identity (C-9):** approved, or what to change

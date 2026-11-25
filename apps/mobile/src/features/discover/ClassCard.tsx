@@ -1,5 +1,5 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, radii, spacing } from '@oreva/tokens';
+import { colors, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
@@ -20,9 +20,9 @@ export interface ClassCardProps {
 const STACK_SCALE = 1.3;
 
 /**
- * A class as a ticket: the stub holds the day and the time in serif numerals,
- * a perforated edge, then what, who and where. The whole ticket is one button
- * with a complete spoken label.
+ * A class as a line of the printed timetable (identity C-9): the day and the
+ * time in serif numerals, a dotted rule, then what, who and where; price and
+ * places below. The whole line is one button with a complete spoken label.
  */
 export function ClassCard({ item, distance, compact }: ClassCardProps) {
   const { t } = useTranslation();
@@ -103,18 +103,14 @@ export function ClassCard({ item, distance, compact }: ClassCardProps) {
 
 const styles = StyleSheet.create({
   ticket: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderSubtle,
-    overflow: 'hidden',
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderControl,
+    gap: spacing.xs,
   },
-  compact: {
-    width: 300,
-  },
+  compact: {},
   top: {
     flexDirection: 'row',
-    padding: spacing.md,
     gap: spacing.md,
   },
   topStacked: {
@@ -122,13 +118,12 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   stub: {
-    minWidth: 76,
-    gap: 2,
+    minWidth: 72,
+    gap: 0,
   },
   stubStacked: {
     minWidth: 0,
   },
-  // The perforation between the stub and the details.
   ruleVertical: {
     width: 0,
     borderStartWidth: 1,
@@ -156,11 +151,6 @@ const styles = StyleSheet.create({
   },
   bottom: {
     gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.background,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.borderSubtle,
   },
   tags: {
     flexDirection: 'row',

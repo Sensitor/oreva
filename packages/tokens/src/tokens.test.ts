@@ -4,7 +4,6 @@ import { AA_MINIMUM, contrastRatio } from './contrast';
 import { palette } from './palette';
 import { SERIF_MIN_SIZE, textStyles, typefaces } from './typography';
 import { motion, radii, spacing } from './layout';
-import { voileTextColor, voiles } from './voile';
 
 describe('contrastRatio', () => {
   it('matches known WCAG reference values', () => {
@@ -88,8 +87,9 @@ describe('scales', () => {
     }
   });
 
-  it('radii contrast content and actions', () => {
+  it('keeps corners almost square, like printed paper', () => {
     expect(radii.md).toBeLessThan(radii.lg);
+    expect(radii.xl).toBeLessThanOrEqual(8);
     expect(radii.pill).toBeGreaterThan(100);
   });
 
@@ -121,36 +121,7 @@ describe('cssVariables', () => {
     const vars = cssVariables();
     expect(vars['--oreva-color-accent']).toBe(colors.accent);
     expect(vars['--oreva-color-text-primary']).toBe(colors.textPrimary);
-    expect(vars['--oreva-radius-lg']).toBe('22px');
+    expect(vars['--oreva-radius-lg']).toBe('6px');
     expect(cssVariablesRule().startsWith(':root{')).toBe(true);
-  });
-});
-
-describe('voile', () => {
-  it.each(Object.entries(voiles))(
-    'keeps text readable at every stop of the %s voile',
-    (_name, voile) => {
-      for (const stop of voile.stops) {
-        expect(contrastRatio(colors[voile.text], stop)).toBeGreaterThanOrEqual(AA_MINIMUM.text);
-        expect(contrastRatio(colors[voile.meta], stop)).toBeGreaterThanOrEqual(AA_MINIMUM.text);
-      }
-    },
-  );
-
-  it('uses only palette colors, all opaque', () => {
-    const paletteHex = new Set(
-      Object.values(palette).flatMap((shades) => Object.values(shades as Record<string, string>)),
-    );
-    for (const voile of Object.values(voiles)) {
-      for (const stop of voile.stops) {
-        expect(paletteHex.has(stop)).toBe(true);
-        expect(stop).toMatch(/^#[0-9A-F]{6}$/i);
-      }
-    }
-  });
-
-  it('resolves text colors', () => {
-    expect(voileTextColor('plum')).toBe(colors.textOnAccentStrong);
-    expect(voileTextColor('lilac', 'meta')).toBe(colors.textOnPastelSecondary);
   });
 });

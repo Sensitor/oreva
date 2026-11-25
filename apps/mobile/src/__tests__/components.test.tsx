@@ -2,9 +2,11 @@ import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { colors, motion } from '@oreva/tokens';
 import { fireEvent, screen } from '@testing-library/react-native';
 import * as Haptics from 'expo-haptics';
+import * as fs from 'fs';
+import * as path from 'path';
 import { Animated, StyleSheet } from 'react-native';
 import { useReduceMotion } from '@/theme/useReduceMotion';
-import { pathFromPoints, pathLength, pointAt, wavePoints } from '@/ui/lineGeometry';
+import { weekOf } from '@/lib/week';
 import {
   Button,
   Chip,
@@ -15,7 +17,11 @@ import {
   orevaIcons,
   PressableScale,
   SampleBadge,
-  Voile,
+  CutShape,
+  FactList,
+  Masthead,
+  Reveal,
+  WeekStones,
 } from '@/ui';
 import { AppText } from '@/ui';
 import { renderWithProviders } from '@/test-utils';
@@ -151,31 +157,10 @@ describe('SampleBadge', () => {
   });
 });
 
-describe('La Ligne', () => {
-  it('stays inside its box and is longer than straight', () => {
-    const points = wavePoints(200, 18, { cycles: 2.5 }, 5);
-    expect(points.length).toBeGreaterThan(10);
-    for (const point of points) {
-      expect(point.x).toBeGreaterThanOrEqual(5);
-      expect(point.x).toBeLessThanOrEqual(195);
-      expect(point.y).toBeGreaterThanOrEqual(0);
-      expect(point.y).toBeLessThanOrEqual(18);
-    }
-    expect(pathLength(points)).toBeGreaterThan(190);
-    expect(pathFromPoints(points)).toMatch(/^M5\.00 /);
-    expect(pointAt(points, 1)?.x).toBeCloseTo(195);
-    expect(wavePoints(0, 18)).toEqual([]);
-  });
-
+describe('Rules (La Ligne, printed)', () => {
   it('is a labelled progress bar in its progress form', async () => {
     await renderWithProviders(
-      <Line
-        variant="progress"
-        value={3 / 7}
-        steps={7}
-        width={300}
-        accessibilityLabel="Program progress"
-      />,
+      <Line variant="progress" value={3 / 7} steps={7} accessibilityLabel="Program progress" />,
     );
     const bar = screen.getByRole('progressbar', { name: 'Program progress' });
     expect(bar.props.accessibilityValue).toEqual({ min: 0, max: 100, now: 43 });
@@ -186,23 +171,28 @@ describe('La Ligne', () => {
     expect(screen.queryByTestId('underline')).toBeNull();
     expect(screen.getByTestId('underline', { includeHiddenElements: true })).toBeTruthy();
   });
+
+  it('grows to its value in 600 ms, or is drawn at once with Reduce Motion', async () => {
+    const timing = jest.spyOn(Animated, 'timing');
+    await renderWithProviders(<Line variant="progress" value={0.5} accessibilityLabel="P" />);
+    expect(timing).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ toValue: 0.5, duration: motion.duration.progress }),
+    );
+    timing.mockClear();
+    jest.mocked(useReduceMotion).mockReturnValue(true);
+    await renderWithProviders(<Line variant="progress" value={0.5} accessibilityLabel="P" />);
+    expect(timing).not.toHaveBeenCalled();
+    timing.mockRestore();
+  });
 });
 
-describe('Voile and EditorialCover', () => {
-  it('renders content on a voile', async () => {
-    await renderWithProviders(
-      <Voile tint="sand" testID="voile">
-        <AppText>{'Inside'}</AppText>
-      </Voile>,
-    );
-    expect(screen.getByText('Inside')).toBeTruthy();
-  });
-
-  it('sets paper text on the plum voile and becomes one button when pressable', async () => {
+describe('Printed blocks', () => {
+  it('sets paper text on the plum block and becomes one button when pressable', async () => {
     const onPress = jest.fn();
     await renderWithProviders(
       <EditorialCover
-        tint="plum"
+        tone="plum"
         kicker="Week 1"
         title="Long spine"
         meta="20 min"
@@ -218,8 +208,134 @@ describe('Voile and EditorialCover', () => {
   });
 
   it('uses the title as a header when not pressable', async () => {
-    await renderWithProviders(<EditorialCover title="Long spine" />);
+    await renderWithProviders(<EditorialCover title="Long spine" tone="paper" />);
     expect(screen.getByRole('header', { name: 'Long spine' })).toBeTruthy();
+  });
+
+  it('keeps gradients out of the app (identity C-9: flat colour only)', () => {
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name !== '__tests__') walk(full);
+        } else if (/\.tsx?$/.test(entry.name)) {
+          files.push(full);
+        }
+      }
+    };
+    walk(path.join(__dirname, '..'));
+    const offenders = files.filter((file) =>
+      /expo-linear-gradient|LinearGradient|RadialGradient/.test(fs.readFileSync(file, 'utf8')),
+    );
+    expect(offenders).toEqual([]);
+  });
+
+  it('lays the cut-paper shapes only when asked, hidden from screen readers', async () => {
+    await renderWithProviders(
+      <>
+        <EditorialCover title="Plain" />
+        <EditorialCover title="Strong moment" tone="plum" shapes numeral="01" />
+      </>,
+    );
+    expect(screen.queryAllByTestId(/^cut-/)).toHaveLength(0);
+    // The numeral is decorative: the title carries the meaning.
+    expect(screen.queryByText('01')).toBeNull();
+    expect(screen.getByText('01', { includeHiddenElements: true })).toBeTruthy();
+  });
+
+  it('opens a page with the masthead and lists facts with dotted leaders', async () => {
+    await renderWithProviders(
+      <>
+        <Masthead label="Tuesday 24 November" />
+        <FactList facts={[{ label: 'Duration', value: '20 min' }]} onPlum />
+      </>,
+    );
+    expect(screen.getByText('Tuesday 24 November')).toBeTruthy();
+    expect(screen.getByLabelText('Duration, 20 min')).toBeTruthy();
+  });
+});
+
+describe('Cut paper and motion', () => {
+  it('settles a shape like paper laid down, unless Reduce Motion is on', async () => {
+    const timing = jest.spyOn(Animated, 'timing');
+    await renderWithProviders(
+      <CutShape shape="sun" size={80} color={colors.accentSoft} delay={120} />,
+    );
+    expect(timing).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ duration: motion.duration.slow, delay: 120 }),
+    );
+    timing.mockClear();
+    jest.mocked(useReduceMotion).mockReturnValue(true);
+    await renderWithProviders(<CutShape shape="sun" size={80} color={colors.accentSoft} />);
+    expect(timing).not.toHaveBeenCalled();
+    timing.mockRestore();
+  });
+
+  it('staggers screen entrances, first five only, and skips them with Reduce Motion', async () => {
+    const timing = jest.spyOn(Animated, 'timing');
+    await renderWithProviders(
+      <>
+        <Reveal index={2}>
+          <AppText>{'Third'}</AppText>
+        </Reveal>
+        <Reveal index={7}>
+          <AppText>{'Eighth'}</AppText>
+        </Reveal>
+      </>,
+    );
+    expect(timing).toHaveBeenCalledTimes(1);
+    expect(timing).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        duration: motion.duration.entrance,
+        delay: 2 * motion.stagger,
+      }),
+    );
+    timing.mockClear();
+    jest.mocked(useReduceMotion).mockReturnValue(true);
+    await renderWithProviders(
+      <Reveal index={0}>
+        <AppText>{'First'}</AppText>
+      </Reveal>,
+    );
+    expect(timing).not.toHaveBeenCalled();
+    expect(screen.getByText('First')).toBeTruthy();
+    timing.mockRestore();
+  });
+
+  it('fills one stone per day with a finished session', async () => {
+    await renderWithProviders(
+      <WeekStones
+        days={[true, false, true, false, false, false, false]}
+        labels={['M', 'T', 'W', 'T', 'F', 'S', 'S']}
+        accessibilityLabel="2 sessions this week"
+      />,
+    );
+    expect(screen.getByLabelText('2 sessions this week')).toBeTruthy();
+    const count = (id: string) =>
+      screen.queryAllByTestId(id, { includeHiddenElements: true }).length;
+    expect(count('stone-done')).toBe(2);
+    expect(count('stone-empty')).toBe(5);
+  });
+
+  it('counts the week from Monday, in the phone time zone, from finished sessions only', () => {
+    // Wednesday 25 November 2026, 10:00 local time.
+    const now = new Date(2026, 10, 25, 10, 0).getTime();
+    const at = (d: number, h: number) => new Date(2026, 10, d, h, 0).toISOString();
+    const result = weekOf(
+      [
+        { completedAt: at(22, 9) }, // Sunday: last week
+        { completedAt: at(23, 8) }, // Monday
+        { completedAt: at(25, 7) }, // Wednesday
+        { completedAt: at(25, 9) }, // Wednesday again
+      ],
+      now,
+    );
+    expect(result.week).toBe(3);
+    expect(result.total).toBe(4);
+    expect(result.days).toEqual([true, false, true, false, false, false, false]);
   });
 });
 
@@ -246,12 +362,12 @@ describe('La Ligne steps', () => {
     const count = (id: string) =>
       screen.queryAllByTestId(id, { includeHiddenElements: true }).length;
     await renderWithProviders(
-      <Line variant="progress" value={0} steps={4} width={300} accessibilityLabel="Steps" />,
+      <Line variant="progress" value={0} steps={4} accessibilityLabel="Steps" />,
     );
     expect(count('line-step-done')).toBe(0);
     expect(count('line-step-todo')).toBe(4);
     await renderWithProviders(
-      <Line variant="progress" value={2 / 4} steps={4} width={300} accessibilityLabel="Steps" />,
+      <Line variant="progress" value={2 / 4} steps={4} accessibilityLabel="Steps" />,
     );
     expect(count('line-step-done')).toBe(2);
   });
