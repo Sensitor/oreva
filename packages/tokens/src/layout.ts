@@ -16,15 +16,16 @@ export const spacing = {
 } as const;
 
 /**
- * A contrast of shapes: content is softly rectangular, actions stay round.
- * xs tags · sm inputs · md tickets and rows · lg images and sheets · xl hero covers.
+ * Printed-programme identity (decision C-9, 25 Nov 2026): corners are almost
+ * square, like paper. Only portraits and chips' dots stay round.
+ * xs buttons, tags and blocks · sm inputs and rows · md cards · lg sheets · xl covers.
  */
 export const radii = {
-  xs: 4,
-  sm: 10,
-  md: 14,
-  lg: 22,
-  xl: 28,
+  xs: 2,
+  sm: 3,
+  md: 4,
+  lg: 6,
+  xl: 8,
   pill: 999,
 } as const;
 

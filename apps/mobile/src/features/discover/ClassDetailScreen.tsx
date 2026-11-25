@@ -1,5 +1,5 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, elevation, radii, spacing } from '@oreva/tokens';
+import { colors, radii, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { ChevronRight, Gauge, Languages, Lock, Tag, Users } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -188,10 +188,9 @@ export function ClassDetailScreen({ id }: { id: string }) {
 const styles = StyleSheet.create({
   ticket: {
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderSubtle,
-    boxShadow: elevation.soft,
+    borderRadius: radii.xs,
+    borderWidth: 1,
+    borderColor: colors.actionPrimary,
   },
   ticketTop: {
     gap: spacing.xs,

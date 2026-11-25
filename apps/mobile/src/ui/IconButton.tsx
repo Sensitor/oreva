@@ -11,7 +11,7 @@ export interface IconButtonProps extends Omit<PressableScaleProps, 'children' | 
   floating?: boolean;
 }
 
-/** Round paper button with a hairline edge (back, notifications, near me). */
+/** Square paper button with a hairline edge (back, notifications, near me). */
 export function IconButton({ icon: Icon, floating, ...rest }: IconButtonProps) {
   return (
     <PressableScale
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   base: {
     width: touchTarget.comfortable + 4,
     height: touchTarget.comfortable + 4,
-    borderRadius: radii.pill,
+    borderRadius: radii.xs,
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',

@@ -17,9 +17,9 @@ export interface TodayCardProps {
 }
 
 /**
- * The "one clear next action" (cahier des charges 1.4): the program chapter
- * as an editorial cover on the plum Voile, with one Start button. Paper text
- * on plum is contrast-tested at every stop of the gradient.
+ * The "one clear next action" (cahier des charges 1.4): the one plum block of
+ * the screen, the day as a large serif numeral, the cut-paper shapes settling
+ * in the corner, and one Start bar. Paper on plum passes AA (8.6:1).
  */
 export function TodayCard({ session, onStart }: TodayCardProps) {
   const { t } = useTranslation();
@@ -28,16 +28,16 @@ export function TodayCard({ session, onStart }: TodayCardProps) {
 
   return (
     <EditorialCover
-      tint="plum"
-      kicker={t('home.today.label')}
-      title={t('home.today.programDay', { day: session.day })}
+      tone="plum"
+      shapes
+      kicker={`${t('home.today.label')} · ${t('home.today.programDay', { day: session.day })}`}
+      numeral={String(session.day).padStart(2, '0')}
+      title={title}
       meta={[
-        title,
         t('home.today.exercises', { count: session.exercises }),
         t('common.durationMinutes', { count: session.minutes }),
       ].join(' · ')}
       badge={session.isPlaceholder ? <SampleBadge /> : undefined}
-      minHeight={260}
       testID="today-card"
     >
       <Button
@@ -45,6 +45,7 @@ export function TodayCard({ session, onStart }: TodayCardProps) {
         accessibilityLabel={t('a11y.startSession')}
         variant="paper"
         withArrow
+        fullWidth
         onPress={onStart}
       />
     </EditorialCover>

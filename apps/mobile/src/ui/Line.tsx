@@ -1,18 +1,10 @@
-import { colors } from '@oreva/tokens';
-import { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  type LayoutChangeEvent,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
-import { pathFromPoints, pathLength, pointAt, wavePoints } from './lineGeometry';
+import { colors, motion } from '@oreva/tokens';
+import { useEffect, useState } from 'react';
+import { Animated, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { easing } from '@/theme/motion';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 interface CommonProps {
-  /** Fixed width. Without it the line fills its container (measured on layout). */
-  width?: number;
   color?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -20,6 +12,8 @@ interface CommonProps {
 
 export interface UnderlineProps extends CommonProps {
   variant?: 'underline';
+  /** Width of the rule, in points. */
+  width?: number;
 }
 
 export interface TabLineProps extends CommonProps {
@@ -30,7 +24,7 @@ export interface ProgressLineProps extends CommonProps {
   variant: 'progress';
   /** 0 to 1. */
   value: number;
-  /** Optional steps (exercises, days): a dot for each, filled once reached. */
+  /** Optional steps (exercises, days): a square for each, stamped once done. */
   steps?: number;
   /** Spoken label, e.g. "Program progress". */
   accessibilityLabel: string;
@@ -38,120 +32,133 @@ export interface ProgressLineProps extends CommonProps {
 
 export type LineProps = UnderlineProps | TabLineProps | ProgressLineProps;
 
-const SHAPES = {
-  underline: { width: 72, height: 10, stroke: 1.5, cycles: 1.25 },
-  tab: { width: 22, height: 6, stroke: 2, cycles: 1 },
-  progress: { width: 0, height: 18, stroke: 2, cycles: 2.5 },
-} as const;
-
-const DOT = 4;
+const STAMP = 10;
 
 /**
- * La Ligne: the signature wave under editorial titles, under the active tab,
- * and as program progress. Decorative in the first two uses (hidden from
- * screen readers); a labelled progress bar in the third.
+ * The rule, as on a printed programme (identity C-9): a short straight rule
+ * under a title or the active tab, and progress as a rule that fills, with a
+ * square stamped for each step done. The fill grows to its value in 600 ms;
+ * with Reduce Motion it is drawn at its value.
  */
 export function Line(props: LineProps) {
-  const variant = props.variant ?? 'underline';
-  const shape = SHAPES[variant];
-  const [measured, setMeasured] = useState(0);
-  const width = props.width ?? (variant === 'progress' ? measured : shape.width);
-  const onLayout =
-    props.width === undefined && variant === 'progress'
-      ? (event: LayoutChangeEvent) => setMeasured(event.nativeEvent.layout.width)
-      : undefined;
-
   if (props.variant === 'progress') {
-    const value = Math.min(Math.max(props.value, 0), 1);
-    const inset = DOT + 1;
-    const points = wavePoints(width, shape.height, { cycles: shape.cycles }, inset);
-    const d = pathFromPoints(points);
-    const length = pathLength(points);
-    const steps = props.steps && props.steps > 0 ? props.steps : 0;
-    const now = Math.round(value * 100);
-    return (
-      <View
-        onLayout={onLayout}
-        style={[styles.progress, props.width !== undefined && { width }, props.style]}
-        accessible
-        accessibilityRole="progressbar"
-        accessibilityLabel={props.accessibilityLabel}
-        accessibilityValue={{ min: 0, max: 100, now }}
-        testID={props.testID}
-      >
-        {width > 0 ? (
-          <Svg width={width} height={shape.height}>
-            <Path
-              d={d}
-              stroke={colors.borderSubtle}
-              strokeWidth={shape.stroke}
-              fill="none"
-              strokeLinecap="round"
-            />
-            {value > 0 ? (
-              <Path
-                d={d}
-                stroke={props.color ?? colors.progress}
-                strokeWidth={shape.stroke}
-                fill="none"
-                strokeLinecap="round"
-                strokeDasharray={`${String(length)} ${String(length)}`}
-                strokeDashoffset={length * (1 - value)}
-              />
-            ) : null}
-            {Array.from({ length: steps }, (_, i) => {
-              // Dot n sits where step n is complete, so nothing is filled at 0%.
-              const fraction = (i + 1) / steps;
-              const point = pointAt(points, fraction);
-              if (!point) {
-                return null;
-              }
-              const reached = fraction <= value + 1e-6;
-              return (
-                <Circle
-                  key={i}
-                  cx={point.x}
-                  cy={point.y}
-                  r={DOT}
-                  fill={reached ? (props.color ?? colors.progress) : colors.surface}
-                  stroke={reached ? (props.color ?? colors.progress) : colors.borderControl}
-                  strokeWidth={1}
-                  testID={reached ? 'line-step-done' : 'line-step-todo'}
-                />
-              );
-            })}
-          </Svg>
-        ) : null}
-      </View>
-    );
+    return <ProgressRule {...props} />;
   }
-
-  const inset = shape.stroke;
-  const points = wavePoints(width, shape.height, { cycles: shape.cycles, phase: 0.4 }, inset);
+  const tab = props.variant === 'tab';
   return (
     <View
-      style={[{ width, height: shape.height }, props.style]}
+      style={[
+        tab ? styles.tab : { width: props.width ?? 32, height: 2 },
+        { backgroundColor: props.color ?? colors.actionPrimary },
+        props.style,
+      ]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
       testID={props.testID}
+    />
+  );
+}
+
+function ProgressRule({
+  value,
+  steps,
+  accessibilityLabel,
+  color,
+  style,
+  testID,
+}: ProgressLineProps) {
+  const reduceMotion = useReduceMotion();
+  const clamped = Math.min(Math.max(value, 0), 1);
+  const [fill] = useState(() => new Animated.Value(reduceMotion ? clamped : 0));
+
+  useEffect(() => {
+    if (reduceMotion) {
+      fill.setValue(clamped);
+      return undefined;
+    }
+    // Width cannot run on the native driver; one short animation is fine on JS.
+    const animation = Animated.timing(fill, {
+      toValue: clamped,
+      duration: motion.duration.progress,
+      easing: easing.out,
+      useNativeDriver: false,
+    });
+    animation.start();
+    return () => animation.stop();
+  }, [clamped, reduceMotion, fill]);
+
+  const count = steps && steps > 0 ? steps : 0;
+  const ink = color ?? colors.actionPrimary;
+  return (
+    <View
+      style={[styles.progress, style]}
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
+      testID={testID}
     >
-      <Svg width={width} height={shape.height}>
-        <Path
-          d={pathFromPoints(points)}
-          stroke={props.color ?? (variant === 'tab' ? colors.actionPrimary : colors.accent)}
-          strokeWidth={shape.stroke}
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      <View style={styles.track}>
+        <Animated.View
+          style={[
+            styles.fill,
+            {
+              backgroundColor: ink,
+              width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
+            },
+          ]}
         />
-      </Svg>
+        {Array.from({ length: count }, (_, i) => {
+          // Square n sits where step n is complete, so nothing is stamped at 0%.
+          const fraction = (i + 1) / count;
+          const done = fraction <= clamped + 1e-6;
+          return (
+            <View
+              key={i}
+              testID={done ? 'line-step-done' : 'line-step-todo'}
+              style={[
+                styles.stamp,
+                { start: `${String(fraction * 100)}%` },
+                done ? { backgroundColor: ink, borderColor: ink } : styles.stampTodo,
+              ]}
+            />
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  tab: {
+    width: 20,
+    height: 2,
+  },
   progress: {
-    height: SHAPES.progress.height,
+    height: STAMP + 4,
+    justifyContent: 'center',
+    paddingHorizontal: STAMP / 2,
     alignSelf: 'stretch',
+  },
+  track: {
+    height: 1,
+    backgroundColor: colors.borderControl,
+    justifyContent: 'center',
+  },
+  fill: {
+    position: 'absolute',
+    start: 0,
+    height: 3,
+  },
+  stamp: {
+    position: 'absolute',
+    width: STAMP,
+    height: STAMP,
+    marginStart: -STAMP / 2,
+    borderWidth: 1,
+  },
+  stampTodo: {
+    backgroundColor: colors.surface,
+    borderColor: colors.borderControl,
   },
 });

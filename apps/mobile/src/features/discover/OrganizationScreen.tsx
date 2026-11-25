@@ -12,7 +12,7 @@ import {
   Avatar,
   EditorialCover,
   EmptyState,
-  FactsRow,
+  FactList,
   FictionalBanner,
   NearIcon,
   PressableScale,
@@ -58,20 +58,18 @@ export function OrganizationScreen({ id }: { id: string }) {
           <FollowButton kind="organization" id={organization.id} name={organization.name} />
         }
       />
-      {/* No photography yet: a Voile stands in until photos used with permission exist. */}
+      {/* No photography yet: a printed block until photos used with permission exist. */}
       <EditorialCover
-        tint={organization.tone}
+        tone="paper"
         kicker={t(`orgType.${organization.type}`)}
         title={organization.name}
         meta={resolveLocalizedText(city.name, locale)?.text}
         badge={organization.isPlaceholder ? <SampleBadge /> : undefined}
-        aspectRatio={3 / 2}
-        minHeight={200}
         testID="organization-cover"
       />
       {organization.isPlaceholder ? <FictionalBanner /> : null}
 
-      <FactsRow
+      <FactList
         facts={[
           {
             label: t('organization.specialtiesLabel'),

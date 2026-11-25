@@ -53,7 +53,7 @@ Manrope for the interface, **Cormorant Garamond** for editorial titles and numer
 
 ### Imagery
 
-Real photography only, licensed or shot with documented written permission. Never AI-generated images presented as real people, studios or classes. Until real photos exist, the **Voile** is the placeholder: layered gradients in lilac, sand, mist or plum that show no place and no person (`apps/mobile/src/ui/Voile.tsx`, stops in `packages/tokens/src/voile.ts`).
+Real photography only, licensed or shot with documented written permission. Never AI-generated images presented as real people, studios or classes. Until real photos exist, there is no placeholder imagery: screens are typographic (printed programme), with flat **cut-paper shapes** (sun, leaf, seed, stone) at strong moments only (`apps/mobile/src/ui/CutShape.tsx`). No gradients (decision C-9).
 
 ### Living style guide
 
@@ -63,7 +63,9 @@ Profile → Design system (development and staging builds) shows the tokens as t
 
 * **Buttons:** primary (plum, cream label), secondary (plum outline), paper (on plum or tinted backgrounds), accent (lavender, ink label, at most once per screen), quiet (sand), text (iris link). One primary action per screen.
 * **Chips and tabs:** selection shown by weight and edge as well as color, and announced.
-* **La Ligne:** the signature wave under editorial titles, under the active tab, and as program progress.
+* **Printed programme (C-9):** a masthead between two rules (ORÉVA and the context), serif titles, section titles on a plum rule, facts with dotted leaders, large serif numerals (time, day, chapter), flat blocks with almost square corners, a docked tab bar under a plum rule.
+* **Rules and stamps:** straight rules under titles and above the active tab; progress as a rule that fills, with a square stamped for each step.
+* **Cut paper:** hand-cut flat shapes laid at strong moments only (Today, a finished session, the week as seven stones). Never a gradient, never a copy of an artwork.
 * **Icons:** ORÉVA icons on a 24 grid, single 1.5 stroke, round ends, for navigation and practice; Lucide only for utilities.
 * **Press:** 0.98 scale in 120 ms; a dim instead with Reduce Motion. Haptics stay rare: selection on chips and tabs, a light tap on primary buttons.
 

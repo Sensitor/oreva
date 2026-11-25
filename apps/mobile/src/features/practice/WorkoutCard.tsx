@@ -1,17 +1,17 @@
 import { resolveLocalizedText, type Workout } from '@oreva/core';
-import { colors, radii, spacing } from '@oreva/tokens';
+import { colors, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
-import { AppText, Badge, PracticeIcon, PressableScale, SampleBadge, Voile } from '@/ui';
+import { AppText, Badge, PressableScale, SampleBadge } from '@/ui';
 
 export function workoutMinutes(workout: Workout): number {
   return Math.round(workout.exercises.reduce((sum, e) => sum + e.durationSec, 0) / 60);
 }
 
-/** A session in the library: a 4:5 Voile thumbnail, then title, duration and level. */
+/** A session in the library, as a line of the programme: the minutes in serif, then title and level. */
 export function WorkoutCard({ workout }: { workout: Workout }) {
   const { t } = useTranslation();
   const { locale } = useLocaleSettings();
@@ -34,9 +34,18 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
       testID={`workout-card-${workout.id}`}
       style={styles.row}
     >
-      <Voile tint={workout.tone} withLine={false} style={styles.thumb}>
-        <PracticeIcon size={22} color={colors.textBrand} />
-      </Voile>
+      <View
+        style={styles.stub}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <AppText variant="numeralSmall" color="textBrand">
+          {String(minutes)}
+        </AppText>
+        <AppText variant="caption" weight="semibold" color="textSecondary">
+          {t('common.minutesShort')}
+        </AppText>
+      </View>
       <View style={styles.text}>
         <AppText variant="kicker" color="textLink" numberOfLines={1}>
           {t(`focus.${workout.focus}`)}
@@ -68,12 +77,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderSubtle,
   },
-  thumb: {
-    width: 72,
-    aspectRatio: 4 / 5,
-    borderRadius: radii.sm,
+  stub: {
+    width: 56,
     alignItems: 'center',
     justifyContent: 'center',
+    borderEndWidth: 1,
+    borderEndColor: colors.borderControl,
+    paddingEnd: spacing.sm,
   },
   text: {
     flex: 1,

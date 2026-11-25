@@ -18,7 +18,7 @@ export interface UnderlineTabsProps<K extends string> {
 
 /**
  * Two or three views of one screen (Programs, Sessions): text tabs, the
- * active one in plum, heavier, with La Ligne beneath it. Announced as tabs.
+ * active one in plum, heavier, with a short rule beneath it. Announced as tabs.
  */
 export function UnderlineTabs<K extends string>({
   tabs,
@@ -48,7 +48,7 @@ export function UnderlineTabs<K extends string>({
             >
               {tab.label}
             </AppText>
-            <View style={styles.indicator}>{active ? <Line width={56} /> : null}</View>
+            <View style={styles.indicator}>{active ? <Line width={28} /> : null}</View>
           </PressableScale>
         );
       })}
@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   indicator: {
-    height: 10,
+    height: 4,
+    justifyContent: 'flex-end',
   },
 });

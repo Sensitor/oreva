@@ -1,22 +1,13 @@
-import { resolveLocalizedText, type Equipment, type Focus, type Level } from '@oreva/core';
-import { spacing } from '@oreva/tokens';
+import type { Equipment, Focus, Level } from '@oreva/core';
+import { colors, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { usePrograms, useWorkouts } from '@/data/hooks';
 import { DEFAULT_WORKOUT_FILTERS, type WorkoutFilters } from '@/data/types';
-import { useLocaleSettings } from '@/i18n/I18nProvider';
-import {
-  Chip,
-  EditorialCover,
-  EditorialHeader,
-  EmptyState,
-  SampleBadge,
-  Screen,
-  Skeleton,
-  UnderlineTabs,
-} from '@/ui';
+import { Chip, EditorialHeader, EmptyState, Screen, Skeleton, UnderlineTabs } from '@/ui';
+import { ProgramChapter } from './ProgramChapter';
 import { WorkoutCard } from './WorkoutCard';
 
 const FOCUSES: Focus[] = ['core', 'full_body', 'lower_body', 'upper_body', 'mobility', 'breath'];
@@ -29,7 +20,6 @@ type PracticeView = 'programs' | 'sessions';
 /** Practice (pillar 2): programs and a library of guided sample sessions. */
 export function PracticeScreen() {
   const { t } = useTranslation();
-  const { locale } = useLocaleSettings();
   const [view, setView] = useState<PracticeView>('programs');
   const [filters, setFilters] = useState<WorkoutFilters>(DEFAULT_WORKOUT_FILTERS);
   const programs = usePrograms();
@@ -54,23 +44,15 @@ export function PracticeScreen() {
       {view === 'programs' ? (
         <View style={styles.programs}>
           {programs.isLoading ? <Skeleton height={220} /> : null}
-          {(programs.data ?? []).map((program) => {
-            const title = resolveLocalizedText(program.title, locale)?.text ?? '';
-            const weeks = t('home.programs.weeks', { count: program.weeks });
-            return (
-              <EditorialCover
-                key={program.id}
-                tint={program.tone}
-                kicker={`${weeks} · ${t(`level.${program.level}`)}`}
-                title={title}
-                badge={program.isPlaceholder ? <SampleBadge /> : undefined}
-                accessibilityLabel={`${title}, ${weeks}`}
-                onPress={() => router.push(`/programs/${program.id}`)}
-                minHeight={200}
-                testID={`program-card-${program.id}`}
-              />
-            );
-          })}
+          {(programs.data ?? []).map((program, index) => (
+            <ProgramChapter
+              key={program.id}
+              index={index}
+              program={program}
+              onPress={() => router.push(`/programs/${program.id}`)}
+              testID={`program-card-${program.id}`}
+            />
+          ))}
         </View>
       ) : (
         <View style={styles.library}>
@@ -161,7 +143,8 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   programs: {
-    gap: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.actionPrimary,
   },
   library: {
     gap: spacing.sm,

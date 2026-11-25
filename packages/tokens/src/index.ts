@@ -6,5 +6,3 @@ export { SERIF_MIN_SIZE, textStyles, typefaces } from './typography';
 export type { FontWeightName, TextStyleName, TextStyleToken, TypefaceName } from './typography';
 export { elevation, motion, radii, spacing, touchTarget } from './layout';
 export { cssVariables, cssVariablesRule } from './css';
-export { voileTextColor, voiles } from './voile';
-export type { VoileTint, VoileToken } from './voile';
