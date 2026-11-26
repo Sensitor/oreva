@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { screen } from '@testing-library/react-native';
+import * as fs from 'fs';
+import * as path from 'path';
 import type * as ExpoRouter from 'expo-router';
 import { HomeScreen } from '@/features/home/HomeScreen';
 import { useReduceMotion } from '@/theme/useReduceMotion';
@@ -89,5 +91,27 @@ describe('Editorial photographs', () => {
     for (const slot of Object.keys(editorialPhotos)) {
       expect(slot).toMatch(/^(today|pg-|wk-)/);
     }
+  });
+});
+
+describe('Editorial photographs: selection and weight', () => {
+  it('fills every slot Today uses: the hero, the programs and the sessions', () => {
+    for (const [slot, photo] of Object.entries(editorialPhotos)) {
+      expect({ slot, filled: photo.source !== null }).toEqual({ slot, filled: true });
+      expect(photo.credit?.licence).toBe('Unsplash License');
+    }
+  });
+
+  it('stays light: under 400 KB a photograph, under 2 MB for the set', () => {
+    const dir = path.join(__dirname, '../../assets/editorial');
+    const sizes = fs
+      .readdirSync(dir)
+      .filter((file) => file.endsWith('.jpg'))
+      .map((file) => fs.statSync(path.join(dir, file)).size);
+    expect(sizes.length).toBe(Object.keys(editorialPhotos).length);
+    for (const size of sizes) {
+      expect(size).toBeLessThan(400 * 1024);
+    }
+    expect(sizes.reduce((sum, size) => sum + size, 0)).toBeLessThan(2 * 1024 * 1024);
   });
 });

@@ -39,30 +39,40 @@ Art direction for every photograph in ORÉVA: the interim Unsplash selection (26
 
 Photographs illustrate ORÉVA's own content only. They never stand for a real partner studio, instructor or class: partners appear with their own photographs, with documented permission, or with none.
 
-## How the founders send the selection
+## The selection of 26 November 2026
 
-For each slot, on unsplash.com:
+Made by Claude on the founders' behalf, on the brief above, through the official Unsplash API (the founders' own developer key).
 
-1. Check the photo page says **"Free to use under the Unsplash License"** (not Unsplash+).
-2. Send the **photo page link** (for the credit).
-3. Right-click the large image, **"Copy image address"**, and send that link too (it starts with `https://images.unsplash.com/photo-`).
-
-Downloading is done from those links; the photo pages themselves cannot be read from the development environment.
+* **One series at the core:** five photographs by **Roxana Popovici**, one shoot in one studio: warm cream walls, mirrors set in arches, pale reformers, a beige outfit, soft light. They carry the Today hero, two programs and two sessions.
+* **Five photographs chosen for the same light:** an arch opening onto the sea, morning light on a cream wall, a hand on a mat, a Pilates ring in lilac, a stone arcade. No people where the brief allows a place.
+* **Left out on purpose:** gyms, black or green studios, saturated mats (pink, blue, purple), photographs where the person poses for the camera, and every Unsplash+ photograph.
+* **Verification, for each photograph:** its record from the Unsplash API (`GET /photos/:id`) shows a free photograph served from `images.unsplash.com` (Unsplash+ photographs are served from `plus.unsplash.com`), with its photographer and page; several records carry the camera model (Sony A7R IV, Canon EOS R5, Sony A6000, iPhone 12). Unsplash does not accept AI-generated images in its free library; the Popovici photographs are several frames of one session. Each download was recorded with Unsplash through the API's download link, as its guidelines require.
+* **One retouch:** on the Today photograph, an air-conditioning unit was removed from a plain wall (`tools/photography/retouch.py`). Nothing else is altered beyond the shared grade and the crops.
 
 ## Processing (done once per photograph, then bundled in the app)
 
 * **One grade for the whole set**, so photographs from different sources look like one series: white balance nudged warm, contrast slightly lowered, blacks lifted towards ink (#2A2230), saturation lowered about 10%. No filter look, no fake grain.
 * **Crops** around the subject (the `focus` point is stored with each photograph), at 3x the size shown: hero 1290 x 1720, covers 1080 x 1350.
-* **JPEG, quality about 78**, around 150 to 300 KB each, about 2.5 MB for the whole set.
+* **JPEG, quality 78**, 72 to 325 KB each, **1.4 MB for the whole set**.
+* Tools: `tools/photography/grade.py` (crop and grade, parameters per slot) and `tools/photography/retouch.py`, run with Python 3 and Pillow on the downloaded originals.
 * Bundled with the app (no network needed), loaded by `expo-image` with disk caching and a 250 ms fade.
 
 ## Credits
 
 Unsplash does not require credit, but ORÉVA credits every photographer. The list lives in `apps/mobile/src/ui/editorial/photos.ts` and is filled with the selection.
 
-| Slot | Photographer | Photo page |
-| --- | --- | --- |
-| (to be filled with the founders' selection) | | |
+| Slot | Photographer | Photo page | Licence |
+| --- | --- | --- | --- |
+| `today` (retouched) | Roxana Popovici | [Unsplash](https://unsplash.com/photos/woman-performs-pilates-on-a-reformer-machine-lKe5jm-Sypw) | Unsplash License |
+| `pg-foundations` | Roxana Popovici | [Unsplash](https://unsplash.com/photos/woman-doing-pilates-workout-on-a-reformer-machine-hiHBILFNah4) | Unsplash License |
+| `pg-strong-centre` | Roxana Popovici | [Unsplash](https://unsplash.com/photos/woman-doing-pilates-on-a-reformer-machine-Zp4APUiwEsM) | Unsplash License |
+| `pg-on-the-go` | Ositadinma Onyeobi | [Unsplash](https://unsplash.com/photos/archway-framing-bridge-over-water-JHGPC0NLv8s) | Unsplash License |
+| `wk-morning-reset` | Huma Kabakci | [Unsplash](https://unsplash.com/photos/black-metal-window-frame-during-daytime-mnnAa1CBrM8) | Unsplash License |
+| `wk-core-foundations` | David (dcube91) | [Unsplash](https://unsplash.com/photos/a-person-with-their-hands-on-a-yoga-mat-u87cFacgTNg) | Unsplash License |
+| `wk-full-body-flow` | Roxana Popovici | [Unsplash](https://unsplash.com/photos/JvYE9bdyDG4) | Unsplash License |
+| `wk-hips-legs` | Roxana Popovici | [Unsplash](https://unsplash.com/photos/woman-does-pilates-exercise-on-a-reformer-machine-aY5uOJ2o96g) | Unsplash License |
+| `wk-upper-posture` | Amine Ben Mohamed | [Unsplash](https://unsplash.com/photos/a-woman-sitting-on-the-floor-holding-a-steering-wheel-Opuuyk1cn-o) | Unsplash License |
+| `wk-travel-stretch` | Grigorii Shcheglov | [Unsplash](https://unsplash.com/photos/a-row-of-stone-pillars-in-a-building-LippfI8zkZM) | Unsplash License |
 
 ## Replacing with ORÉVA's own photographs
 

@@ -43,10 +43,12 @@ const CATEGORY_KEYS = Object.keys(CATEGORY_TO_FOCUS) as CategoryKey[];
 /** Riviera cities shown first on Today during the pilot (founders' decision 6). */
 const HOME_CITIES = ['monaco', 'nice', 'cannes'];
 
-/** The hero takes a little over half the screen, within limits for small and tall phones. */
-const HERO_SHARE = 0.56;
-const HERO_MIN = 400;
-const HERO_MAX = 560;
+/** The hero takes about half the screen, so today's Start action stays above the fold, even on an iPhone SE. */
+const HERO_SHARE = 0.48;
+const HERO_MIN = 300;
+const HERO_MAX = 480;
+/** Below this height (iPhone SE, zoomed display), the intro line gives way to the Start action. */
+const COMPACT_HEIGHT = 700;
 /** Content starts entering while the photograph settles. */
 const ENTER_AFTER = 140;
 
@@ -105,6 +107,7 @@ export function HomeScreen({ now }: HomeScreenProps) {
     .slice(0, 4);
 
   const heroHeight = Math.round(Math.min(Math.max(windowHeight * HERO_SHARE, HERO_MIN), HERO_MAX));
+  const compact = windowHeight < COMPACT_HEIGHT;
   const scrollY = useSharedValue(0);
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
@@ -142,14 +145,16 @@ export function HomeScreen({ now }: HomeScreenProps) {
               variant="display"
               color="textBrand"
               accessibilityRole="header"
-              style={styles.greetingTitle}
+              style={compact ? styles.greetingCompact : styles.greetingTitle}
             >
               {t(`home.greeting.${period}`)}
             </AppText>
             <LaLigne width={128} delay={ENTER_AFTER + 260} testID="today-signature" />
-            <AppText variant="body" color="textSecondary" style={styles.intro}>
-              {t('home.headline')}
-            </AppText>
+            {compact ? null : (
+              <AppText variant="body" color="textSecondary" style={styles.intro}>
+                {t('home.headline')}
+              </AppText>
+            )}
           </Enter>
 
           <Enter index={1} after={ENTER_AFTER}>
@@ -334,6 +339,10 @@ const styles = StyleSheet.create({
   greetingTitle: {
     fontSize: 46,
     lineHeight: 52,
+  },
+  greetingCompact: {
+    fontSize: 40,
+    lineHeight: 46,
   },
   intro: {
     marginTop: spacing.xxs,

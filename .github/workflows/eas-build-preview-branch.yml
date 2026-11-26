@@ -1,0 +1,102 @@
+# Builds ORÉVA Preview from a branch named preview/..., so the founders can try
+# work on their iPhones before approving its merge (docs/runbooks/eas-update.md).
+#
+# - Builds only (no EAS Update is published from a branch).
+# - Preview profile only; development and production are never touched.
+# - Reuses the existing credentials (--freeze-credentials).
+
+name: EAS Build (preview branch)
+
+on:
+  push:
+    branches: ['preview/**']
+
+concurrency:
+  group: eas-build-preview-branch-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  EAS_BUILD_PROFILE: preview
+  APP_VARIANT: preview
+  EAS_CLI_VERSION: 27.11.0
+  EXPO_ACCOUNT: orevawellness
+  EXPO_PROJECT: oreva
+  EXPO_NO_TELEMETRY: '1'
+
+jobs:
+  build:
+    name: Build ORÉVA Preview from ${{ github.ref_name }} (iOS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard (preview profile only)
+        run: |
+          if [ "$EAS_BUILD_PROFILE" != "preview" ] || [ "$APP_VARIANT" != "preview" ]; then
+            echo "::error::This workflow only builds the preview profile."
+            exit 1
+          fi
+          node -e "
+            const p = require('./apps/mobile/eas.json').build.preview;
+            if (!p || p.channel !== 'preview' || p.developmentClient || p.env?.APP_VARIANT !== 'preview') {
+              console.error('::error::The preview profile in apps/mobile/eas.json is missing or changed.');
+              process.exit(1);
+            }"
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::The EXPO_TOKEN secret is missing (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set up EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: ${{ env.EAS_CLI_VERSION }}
+          packager: pnpm
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Start the preview build
+        id: build
+        working-directory: apps/mobile
+        run: |
+          message="$(git log -1 --format=%s | cut -c1-120) ($GITHUB_REF_NAME, $(git rev-parse --short HEAD))"
+          eas build --profile "$EAS_BUILD_PROFILE" --platform ios --non-interactive --no-wait \
+            --freeze-credentials --message "$message" --json > build.json
+          node -e "
+            const id = require('./build.json')[0]?.id;
+            if (!id) { console.error('::error::EAS did not return a build.'); process.exit(1); }
+            require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'id=' + id + '\n');"
+
+      - name: Summary
+        if: always()
+        env:
+          BUILD_ID: ${{ steps.build.outputs.id }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          base="https://expo.dev/accounts/$EXPO_ACCOUNT/projects/$EXPO_PROJECT"
+          {
+            echo "### ORÉVA Preview build from \`$GITHUB_REF_NAME\`"
+            echo ""
+            if [ -n "$BUILD_ID" ]; then
+              echo "Build started: [follow it and install it on expo.dev]($base/builds/$BUILD_ID) (about 20 minutes)."
+              echo ""
+              echo "It replaces ORÉVA Preview on the iPhone. Nothing is published to the preview channel from a branch."
+            else
+              echo "No build was started (status: $JOB_STATUS). See the failed step above."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
