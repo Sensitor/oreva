@@ -418,7 +418,14 @@
     "sampleVideo": "Vidéo d’exemple",
     "schedule": "Planning",
     "sessions": "Séances",
-    "programProgress": "Progression du programme"
+    "programProgress": "Progression du programme",
+    "sessionsDone_one": "{{done}} séance sur {{count}}",
+    "sessionsDone_many": "{{done}} séances sur {{count}}",
+    "sessionsDone_other": "{{done}} séances sur {{count}}",
+    "continueDay": "Continuer · Jour {{day}}",
+    "startAgain": "Recommencer",
+    "upNext": "À suivre",
+    "resetFilters": "Effacer les filtres"
   },
   "player": {
     "exerciseOf": "Exercice {{current}} sur {{total}}",
@@ -428,13 +435,14 @@
     "pause": "Pause",
     "play": "Lecture",
     "finished": "Séance terminée",
-    "finishedBody": "Bravo. Cette séance est enregistrée sur ce téléphone.",
+    "finishedBody": "Bien joué. Cette séance est enregistrée sur ce téléphone.",
     "captions": "Les sous-titres ne sont pas disponibles pour les vidéos d’exemple.",
     "close": "Fermer le lecteur",
     "up": "Ensuite : {{name}}",
     "bravo": "Bravo",
     "exercisesLabel": "Exercices",
-    "sessionProgress": "Progression de la séance"
+    "sessionProgress": "Progression de la séance",
+    "minutesLabel": "Minutes"
   },
   "connect": {
     "circles": "Vos Circles",

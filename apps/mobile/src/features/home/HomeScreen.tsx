@@ -22,11 +22,10 @@ import {
   SessionPhotoCard,
   TodaySectionTitle,
 } from '@/features/today/TodayParts';
-import { TodayHero } from '@/features/today/TodayHero';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import { AppText, Button, Chip, SampleBadge, Skeleton, TAB_BAR_CLEARANCE } from '@/ui';
-import { editorialPhotos, Enter, LaLigne, SpringPressable } from '@/ui/editorial';
+import { EditorialHero, editorialPhotos, Enter, LaLigne, SpringPressable } from '@/ui/editorial';
 
 const CATEGORY_TO_FOCUS = {
   all: null,
@@ -122,7 +121,7 @@ export function HomeScreen({ now }: HomeScreenProps) {
         contentInsetAdjustmentBehavior="never"
         contentContainerStyle={{ paddingBottom: TAB_BAR_CLEARANCE + insets.bottom }}
       >
-        <TodayHero photo={editorialPhotos.today} height={heroHeight} scrollY={scrollY}>
+        <EditorialHero photo={editorialPhotos.today} height={heroHeight} scrollY={scrollY}>
           <View style={[styles.heroBar, { top: insets.top + spacing.xs }]}>
             <SpringPressable
               accessibilityRole="button"
@@ -134,7 +133,7 @@ export function HomeScreen({ now }: HomeScreenProps) {
               <Bell size={20} color={colors.textPrimary} strokeWidth={1.5} />
             </SpringPressable>
           </View>
-        </TodayHero>
+        </EditorialHero>
 
         <View style={styles.sheet}>
           <Enter index={0} after={ENTER_AFTER} style={styles.greeting}>

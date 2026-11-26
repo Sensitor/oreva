@@ -1,17 +1,18 @@
 import { resolveLocalizedText, type Workout } from '@oreva/core';
-import { colors, spacing } from '@oreva/tokens';
+import { radii, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
-import { AppText, Badge, PressableScale, SampleBadge } from '@/ui';
+import { AppText, Badge, SampleBadge } from '@/ui';
+import { EditorialImage, photoFor, SpringPressable } from '@/ui/editorial';
 
 export function workoutMinutes(workout: Workout): number {
   return Math.round(workout.exercises.reduce((sum, e) => sum + e.durationSec, 0) / 60);
 }
 
-/** A session in the library, as a line of the programme: the minutes in serif, then title and level. */
+/** A session in the library: its 4:5 photograph, then focus, title, length and level. */
 export function WorkoutCard({ workout }: { workout: Workout }) {
   const { t } = useTranslation();
   const { locale } = useLocaleSettings();
@@ -20,7 +21,7 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
   const minutes = workoutMinutes(workout);
   const inProgress = (state.workoutProgress[workout.id] ?? 0) > 0;
   return (
-    <PressableScale
+    <SpringPressable
       accessibilityRole="button"
       accessibilityLabel={[
         title,
@@ -33,19 +34,9 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
       onPress={() => router.push(`/workouts/${workout.id}`)}
       testID={`workout-card-${workout.id}`}
       style={styles.row}
+      pressedScale={0.98}
     >
-      <View
-        style={styles.stub}
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-      >
-        <AppText variant="numeralSmall" color="textBrand">
-          {String(minutes)}
-        </AppText>
-        <AppText variant="caption" weight="semibold" color="textSecondary">
-          {t('common.minutesShort')}
-        </AppText>
-      </View>
+      <EditorialImage photo={photoFor(workout.id)} style={styles.photo} />
       <View style={styles.text}>
         <AppText variant="kicker" color="textLink" numberOfLines={1}>
           {t(`focus.${workout.focus}`)}
@@ -65,30 +56,24 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
           </View>
         ) : null}
       </View>
-    </PressableScale>
+    </SpringPressable>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderSubtle,
-  },
-  stub: {
-    width: 56,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderEndWidth: 1,
-    borderEndColor: colors.borderControl,
-    paddingEnd: spacing.sm,
+    gap: spacing.md,
+  },
+  photo: {
+    width: 88,
+    aspectRatio: 4 / 5,
+    borderRadius: radii.lg + 8,
   },
   text: {
     flex: 1,
     gap: 2,
-    justifyContent: 'center',
   },
   badges: {
     flexDirection: 'row',

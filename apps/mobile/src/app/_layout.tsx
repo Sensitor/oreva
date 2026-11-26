@@ -43,6 +43,11 @@ function RootNavigator() {
         }}
       >
         <Stack.Screen name="(tabs)" />
+        {/* The player rises over everything, without a swipe that could end a session by accident. */}
+        <Stack.Screen
+          name="player/[id]"
+          options={{ presentation: 'fullScreenModal', gestureEnabled: false }}
+        />
         <Stack.Screen
           name="language"
           options={{

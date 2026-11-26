@@ -1,25 +1,14 @@
 import { resolveLocalizedText, type Program, type Workout } from '@oreva/core';
-import { colors, elevation, motion, radii, spacing } from '@oreva/tokens';
+import { colors, elevation, radii, spacing } from '@oreva/tokens';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from 'react-native-reanimated';
+import { Pressable, StyleSheet, View } from 'react-native';
 import type { ClassListItem } from '@/data/types';
 import { workoutMinutes } from '@/features/practice/WorkoutCard';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { classWhen, priceLabel } from '@/lib/format';
-import { useReduceMotion } from '@/theme/useReduceMotion';
 import { AppText, Badge, NearIcon, SampleBadge } from '@/ui';
-import { EditorialImage, photoFor, SpringPressable } from '@/ui/editorial';
-
-const ease = Easing.bezier(...motion.easing.out);
+import { EditorialImage, photoFor, ProgressThread, SpringPressable } from '@/ui/editorial';
 
 /** Width of the cards in each rail, so the next card always peeks in. */
 export const CLASS_CARD_WIDTH = 248;
@@ -197,37 +186,6 @@ export function ProgramCoverCard({ program, onPress }: { program: Program; onPre
   );
 }
 
-/**
- * A fine progress thread: it grows to the real value in 600 ms when it
- * appears; with Reduce Motion it is drawn at its value.
- */
-export function ProgressThread({ value, label }: { value: number; label: string }) {
-  const reduceMotion = useReduceMotion();
-  const clamped = Math.min(Math.max(value, 0), 1);
-  const [width, setWidth] = useState(0);
-  const progress = useSharedValue(reduceMotion ? clamped : 0);
-
-  useEffect(() => {
-    progress.value = reduceMotion
-      ? clamped
-      : withDelay(200, withTiming(clamped, { duration: motion.duration.progress, easing: ease }));
-  }, [clamped, reduceMotion, progress]);
-
-  const fill = useAnimatedStyle(() => ({ width: width * progress.value }));
-  return (
-    <View
-      style={styles.thread}
-      onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)}
-      accessible
-      accessibilityRole="progressbar"
-      accessibilityLabel={label}
-      accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
-    >
-      <Animated.View style={[styles.threadFill, fill]} />
-    </View>
-  );
-}
-
 /** A session left halfway on this phone: its photograph, its title, how far you got. */
 export function ContinueRow({
   workout,
@@ -342,18 +300,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.xxs,
     marginTop: spacing.xxs,
-  },
-  thread: {
-    height: 3,
-    borderRadius: radii.pill,
-    backgroundColor: colors.borderSubtle,
-    overflow: 'hidden',
-    marginTop: spacing.xs,
-  },
-  threadFill: {
-    height: 3,
-    borderRadius: radii.pill,
-    backgroundColor: colors.progress,
   },
   continue: {
     flexDirection: 'row',

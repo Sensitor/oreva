@@ -1,7 +1,17 @@
+export { EditorialHero } from './EditorialHero';
+export type { EditorialHeroProps } from './EditorialHero';
 export { EditorialImage } from './EditorialImage';
+export { EditorialTabs } from './EditorialTabs';
+export type { EditorialTab } from './EditorialTabs';
 export { Enter, rise } from './Enter';
 export { LaLigne } from './LaLigne';
 export { editorialPhotos, photoFor } from './photos';
 export type { EditorialPhoto, PhotoCredit, PhotoSlot } from './photos';
+export { ProgressThread } from './ProgressThread';
+export { RoundButton } from './RoundButton';
 export { SpringPressable } from './SpringPressable';
 export type { SpringPressableProps } from './SpringPressable';
+export { STICKY_ACTION_CLEARANCE, StickyAction } from './StickyAction';
+export { DetailLayout } from './DetailLayout';
+export { FactStrip } from './FactStrip';
+export type { StripFact } from './FactStrip';

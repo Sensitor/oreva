@@ -430,7 +430,15 @@
     "sampleVideo": "Демонстрационное видео",
     "schedule": "Расписание",
     "sessions": "Занятия",
-    "programProgress": "Прогресс программы"
+    "programProgress": "Прогресс программы",
+    "sessionsDone_one": "{{done}} из {{count}} занятия",
+    "sessionsDone_few": "{{done}} из {{count}} занятий",
+    "sessionsDone_many": "{{done}} из {{count}} занятий",
+    "sessionsDone_other": "{{done}} из {{count}} занятия",
+    "continueDay": "Продолжить · День {{day}}",
+    "startAgain": "Начать заново",
+    "upNext": "Следующее",
+    "resetFilters": "Сбросить фильтры"
   },
   "player": {
     "exerciseOf": "Упражнение {{current}} из {{total}}",
@@ -446,7 +454,8 @@
     "up": "Далее: {{name}}",
     "bravo": "Браво",
     "exercisesLabel": "Упражнения",
-    "sessionProgress": "Прогресс занятия"
+    "sessionProgress": "Прогресс занятия",
+    "minutesLabel": "Минуты"
   },
   "connect": {
     "circles": "Ваши Circles",
