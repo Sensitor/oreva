@@ -47,7 +47,7 @@ Made by Claude on the founders' behalf, on the brief above, through the official
 * **Five photographs chosen for the same light:** an arch opening onto the sea, morning light on a cream wall, a hand on a mat, a Pilates ring in lilac, a stone arcade. No people where the brief allows a place.
 * **Left out on purpose:** gyms, black or green studios, saturated mats (pink, blue, purple), photographs where the person poses for the camera, and every Unsplash+ photograph.
 * **Verification, for each photograph:** its record from the Unsplash API (`GET /photos/:id`) shows a free photograph served from `images.unsplash.com` (Unsplash+ photographs are served from `plus.unsplash.com`), with its photographer and page; several records carry the camera model (Sony A7R IV, Canon EOS R5, Sony A6000, iPhone 12). Unsplash does not accept AI-generated images in its free library; the Popovici photographs are several frames of one session. Each download was recorded with Unsplash through the API's download link, as its guidelines require.
-* **One retouch:** on the Today photograph, an air-conditioning unit was removed from a plain wall (`tools/photography/retouch.py`). Nothing else is altered beyond the shared grade and the crops.
+* **Two retouches, both on plain walls** (`tools/photography/retouch.py`): an air-conditioning unit on the Today photograph, and a small security camera on `pg-on-the-go` (removed on 26 November 2026, when the photograph became a full-width cover in Practice). Nothing else is altered beyond the shared grade and the crops.
 
 ## Processing (done once per photograph, then bundled in the app)
 
@@ -66,7 +66,7 @@ Unsplash does not require credit, but ORÉVA credits every photographer. The lis
 | `today` (retouched) | Roxana Popovici | [Unsplash](https://unsplash.com/photos/woman-performs-pilates-on-a-reformer-machine-lKe5jm-Sypw) | Unsplash License |
 | `pg-foundations` | Roxana Popovici | [Unsplash](https://unsplash.com/photos/woman-doing-pilates-workout-on-a-reformer-machine-hiHBILFNah4) | Unsplash License |
 | `pg-strong-centre` | Roxana Popovici | [Unsplash](https://unsplash.com/photos/woman-doing-pilates-on-a-reformer-machine-Zp4APUiwEsM) | Unsplash License |
-| `pg-on-the-go` | Ositadinma Onyeobi | [Unsplash](https://unsplash.com/photos/archway-framing-bridge-over-water-JHGPC0NLv8s) | Unsplash License |
+| `pg-on-the-go` (retouched) | Ositadinma Onyeobi | [Unsplash](https://unsplash.com/photos/archway-framing-bridge-over-water-JHGPC0NLv8s) | Unsplash License |
 | `wk-morning-reset` | Huma Kabakci | [Unsplash](https://unsplash.com/photos/black-metal-window-frame-during-daytime-mnnAa1CBrM8) | Unsplash License |
 | `wk-core-foundations` | David (dcube91) | [Unsplash](https://unsplash.com/photos/a-person-with-their-hands-on-a-yoga-mat-u87cFacgTNg) | Unsplash License |
 | `wk-full-body-flow` | Roxana Popovici | [Unsplash](https://unsplash.com/photos/JvYE9bdyDG4) | Unsplash License |

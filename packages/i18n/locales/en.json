@@ -406,7 +406,13 @@
     "sampleVideo": "Sample video",
     "schedule": "Schedule",
     "sessions": "Sessions",
-    "programProgress": "Program progress"
+    "programProgress": "Program progress",
+    "sessionsDone_one": "{{done}} of {{count}} session",
+    "sessionsDone_other": "{{done}} of {{count}} sessions",
+    "continueDay": "Continue · Day {{day}}",
+    "startAgain": "Start again",
+    "upNext": "Up next",
+    "resetFilters": "Clear filters"
   },
   "player": {
     "exerciseOf": "Exercise {{current}} of {{total}}",
@@ -422,7 +428,8 @@
     "up": "Up next: {{name}}",
     "bravo": "Bravo",
     "exercisesLabel": "Exercises",
-    "sessionProgress": "Session progress"
+    "sessionProgress": "Session progress",
+    "minutesLabel": "Minutes"
   },
   "connect": {
     "circles": "Your Circles",
