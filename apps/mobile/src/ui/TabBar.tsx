@@ -1,8 +1,12 @@
-import { colors, spacing, touchTarget } from '@oreva/tokens';
+import { colors, motion, radii, spacing, touchTarget } from '@oreva/tokens';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import Animated, { useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { haptics } from '@/theme/haptics';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 import { AppText } from './AppText';
+import { SpringPressable } from './editorial/SpringPressable';
 import {
   ConnectIcon,
   DiscoverIcon,
@@ -11,8 +15,6 @@ import {
   TodayIcon,
   type IconComponent,
 } from './icons';
-import { Line } from './Line';
-import { PressableScale } from './PressableScale';
 
 const ICONS: Record<string, IconComponent> = {
   index: TodayIcon,
@@ -24,20 +26,56 @@ const ICONS: Record<string, IconComponent> = {
 
 /** Labels grow with the system text size up to this factor, then stay on one line. */
 const LABEL_MAX_SCALE = 1.3;
+/** The active mark: a short iris rule above the icon. */
+const MARK_WIDTH = 20;
 
 /**
- * The ORÉVA tab bar (identity C-9): docked like the foot of a printed page,
- * a plum rule above, an ORÉVA icon and a label on every tab. The active tab
- * is plum, heavier, and marked with a short rule; selection is never shown
- * by colour alone and is announced to screen readers.
+ * The ORÉVA tab bar (editorial direction): cream, a hairline above, an ORÉVA
+ * icon and a label on every tab. The active tab is plum and heavier, and a
+ * short iris rule slides to it on a spring, like the Programs and Sessions
+ * views of Practice. Selection is never shown by colour alone and is
+ * announced to screen readers; with Reduce Motion the rule moves at once.
  */
 export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: BottomTabBarProps) {
+  const reduceMotion = useReduceMotion();
+  const [barWidth, setBarWidth] = useState(0);
+  const count = Math.max(state.routes.length, 1);
+  const itemWidth = barWidth / count;
+  const target = itemWidth * state.index + (itemWidth - MARK_WIDTH) / 2;
+
+  const mark = useAnimatedStyle(() => {
+    if (barWidth === 0) {
+      return { opacity: 0 };
+    }
+    return {
+      opacity: 1,
+      transform: [
+        {
+          translateX: reduceMotion
+            ? withTiming(target, { duration: 0 })
+            : withSpring(target, motion.springs.gentle),
+        },
+      ],
+    };
+  });
+
   return (
     <View
       pointerEvents="box-none"
       style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, spacing.xs) }]}
     >
-      <View style={styles.bar} accessibilityRole="tablist">
+      <View
+        style={styles.bar}
+        accessibilityRole="tablist"
+        onLayout={(event: LayoutChangeEvent) => setBarWidth(event.nativeEvent.layout.width)}
+      >
+        <Animated.View
+          style={[styles.mark, mark]}
+          pointerEvents="none"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          testID="tab-line"
+        />
         {state.routes.map((route, index) => {
           const focused = index === state.index;
           const options = descriptors[route.key]?.options;
@@ -58,7 +96,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
           };
 
           return (
-            <PressableScale
+            <SpringPressable
               key={route.key}
               accessibilityRole="tab"
               accessibilityLabel={label}
@@ -66,11 +104,9 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
               testID={`tab-${route.name}`}
               onPress={onPress}
               onLongPress={() => emitter.emit({ type: 'tabLongPress', target: route.key })}
+              pressedScale={0.92}
               style={styles.item}
             >
-              <View style={styles.indicator}>
-                {focused ? <Line variant="tab" testID="tab-line" /> : null}
-              </View>
               <Icon size={24} color={tint} strokeWidth={focused ? 1.75 : 1.5} />
               <AppText
                 variant="caption"
@@ -85,7 +121,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
               >
                 {label}
               </AppText>
-            </PressableScale>
+            </SpringPressable>
           );
         })}
       </View>
@@ -100,13 +136,12 @@ const styles = StyleSheet.create({
     end: 0,
     bottom: 0,
     backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderTopColor: colors.actionPrimary,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderControl,
   },
   bar: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    paddingHorizontal: spacing.xxs,
     maxWidth: 560,
     alignSelf: 'center',
     width: '100%',
@@ -118,6 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     gap: 3,
+    paddingTop: spacing.xs + 2,
     paddingBottom: spacing.xxs,
   },
   // 11pt like the system tab bar, so the longest labels fit at 320pt wide
@@ -129,10 +165,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'stretch',
   },
-  // The active tab's rule sits just under the plum line of the bar.
-  indicator: {
-    height: 6,
-    alignSelf: 'stretch',
-    alignItems: 'center',
+  // The active mark rests on the hairline, above the active icon. ORÉVA's
+  // languages (EN, FR, RU) read left to right; an RTL language would need the
+  // offset mirrored.
+  mark: {
+    position: 'absolute',
+    top: 0,
+    start: 0,
+    width: MARK_WIDTH,
+    height: 2,
+    borderRadius: radii.pill,
+    backgroundColor: colors.progress,
   },
 });
