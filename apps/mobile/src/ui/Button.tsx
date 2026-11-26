@@ -20,6 +20,8 @@ export interface ButtonProps extends Omit<PressableScaleProps, 'children' | 'sty
   /** An arrow after the label: this starts something. */
   withArrow?: boolean;
   fullWidth?: boolean;
+  /** Pill on the editorial screens (Today); square on the printed ones. */
+  shape?: 'square' | 'pill';
 }
 
 const looks: Record<ButtonVariant, { container: ViewStyle; label: ColorToken }> = {
@@ -46,6 +48,7 @@ export function Button({
   variant = 'primary',
   withArrow,
   fullWidth,
+  shape = 'square',
   disabled,
   haptic,
   ...rest
@@ -64,6 +67,7 @@ export function Button({
         isText ? styles.text : styles.base,
         look.container,
         fullWidth && styles.fullWidth,
+        shape === 'pill' && !isText && styles.pill,
         withArrow && styles.withArrow,
         disabled && styles.disabled,
       ]}
@@ -111,6 +115,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   // A full-width bar: label at the start, arrow at the end, like a printed ticket stub.
+  pill: {
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.lg,
+  },
   fullWidth: {
     alignSelf: 'stretch',
     justifyContent: 'space-between',

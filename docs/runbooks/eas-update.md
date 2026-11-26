@@ -25,6 +25,10 @@ Each run writes a summary in the **Actions** tab: commit, fingerprint, what happ
 
 ORÉVA Preview shows sample data with its labels, like ORÉVA Dev (it is not production). Both apps can sit side by side on the same iPhone.
 
+## Trying a branch before it is merged
+
+Push the branch under a name starting with `preview/` (for example `preview/today-editorial`). The **EAS Build (preview branch)** workflow (`.github/workflows/eas-build-preview-branch.yml`) starts an ORÉVA Preview build of that branch, with the same profile, channel and frozen credentials. Install it from the link in the run summary (or expo.dev, project, Builds): it replaces ORÉVA Preview on the iPhone. Nothing is published to the preview channel from a branch. Once the branch is merged, the main workflow takes over again.
+
 ## Safety rules built in
 
 - The workflow can only publish to the `preview` channel. The channel, build profile and app variant are fixed in the workflow, and a guard step stops the run if they or the `preview` profile in `eas.json` change.
