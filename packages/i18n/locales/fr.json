@@ -354,7 +354,8 @@
     "a11yCluster_one": "{{count}} lieu, zoomer",
     "a11yCluster_many": "{{count}} de lieux, zoomer",
     "a11yCluster_other": "{{count}} lieux, zoomer",
-    "a11yMap": "Carte des cours de Pilates"
+    "a11yMap": "Carte des cours de Pilates",
+    "everywhere": "Partout"
   },
   "organization": {
     "about": "À propos",

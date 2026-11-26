@@ -7,24 +7,27 @@ import type { ClassListItem } from '@/data/types';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { classWhen, priceLabel } from '@/lib/format';
 import { useFontScale } from '@/theme/useFontScale';
-import { AppText, Badge, NearIcon, PressableScale, SampleBadge } from '@/ui';
+import { AppText, NearIcon, SampleBadge } from '@/ui';
+import { SpringPressable } from '@/ui/editorial';
 
 export interface ClassCardProps {
   item: ClassListItem;
   /** Distance label, e.g. "2.5 km", when searching near the member. */
   distance?: string;
-  compact?: boolean;
+  /** Under a day heading the date is already said: only the time is shown. */
+  hideDate?: boolean;
 }
 
-/** From this text scale the stub sits above the details instead of beside them. */
+/** From this text scale the time sits above the details instead of beside them. */
 const STACK_SCALE = 1.3;
 
 /**
- * A class as a line of the printed timetable (identity C-9): the day and the
- * time in serif numerals, a dotted rule, then what, who and where; price and
- * places below. The whole line is one button with a complete spoken label.
+ * A class as a line of an editorial timetable: the time in serif at the
+ * start, then what, who and where, and on the last line its kind and level,
+ * the price and the places left. No photograph: a partner's class never wears
+ * a stock picture (C-8). The whole line is one button with a complete label.
  */
-export function ClassCard({ item, distance, compact }: ClassCardProps) {
+export function ClassCard({ item, distance, hideDate }: ClassCardProps) {
   const { t } = useTranslation();
   const { locale, formatLocale } = useLocaleSettings();
   const fontScale = useFontScale();
@@ -40,7 +43,7 @@ export function ClassCard({ item, distance, compact }: ClassCardProps) {
   const price = priceLabel(session, t, formatLocale);
 
   return (
-    <PressableScale
+    <SpringPressable
       accessibilityRole="button"
       accessibilityLabel={[
         title,
@@ -54,19 +57,21 @@ export function ClassCard({ item, distance, compact }: ClassCardProps) {
         .filter(Boolean)
         .join(', ')}
       onPress={() => router.push(`/classes/${session.id}`)}
+      pressedScale={0.985}
       testID={`class-card-${session.id}`}
-      style={[styles.ticket, compact && styles.compact]}
+      style={styles.row}
     >
       <View style={[styles.top, stacked && styles.topStacked]} testID={`ticket-top-${session.id}`}>
-        <View style={[styles.stub, stacked && styles.stubStacked]}>
-          <AppText variant="kicker" color="textLink" numberOfLines={1}>
-            {when.date}
-          </AppText>
+        <View style={[styles.time, stacked && styles.timeStacked]}>
+          {hideDate ? null : (
+            <AppText variant="caption" weight="semibold" color="textLink" numberOfLines={1}>
+              {when.date}
+            </AppText>
+          )}
           <AppText variant="numeralSmall" color="textBrand">
             {when.time}
           </AppText>
         </View>
-        <View style={stacked ? styles.ruleHorizontal : styles.ruleVertical} />
         <View style={styles.details}>
           <AppText variant="headline" numberOfLines={2}>
             {title}
@@ -75,66 +80,50 @@ export function ClassCard({ item, distance, compact }: ClassCardProps) {
             {organization.name} · {instructor.displayName}
           </AppText>
           <View style={styles.place}>
-            <NearIcon size={15} color={colors.textSecondary} />
+            <NearIcon size={14} color={colors.textSecondary} />
             <AppText variant="footnote" color="textSecondary" numberOfLines={1} style={styles.flex}>
               {distance ? `${place} · ${distance}` : place}
             </AppText>
           </View>
+          <View style={styles.foot}>
+            <AppText variant="footnote" color="textSecondary" style={styles.flex}>
+              {t(`specialty.${session.specialty}`)} · {t(`level.${session.level}`)}
+            </AppText>
+            {session.isPlaceholder ? <SampleBadge /> : null}
+          </View>
+          <View style={styles.foot}>
+            <AppText variant="callout" weight="semibold" style={styles.flex}>
+              {price}
+            </AppText>
+            <AppText variant="footnote" weight="semibold" color={full ? 'danger' : 'textLink'}>
+              {spots}
+            </AppText>
+          </View>
         </View>
       </View>
-      <View style={styles.bottom}>
-        <View style={styles.tags}>
-          <Badge label={t(`specialty.${session.specialty}`)} tone="surfaceMuted" />
-          <Badge label={t(`level.${session.level}`)} tone="surfaceMuted" />
-          {session.isPlaceholder ? <SampleBadge /> : null}
-        </View>
-        <View style={styles.footer}>
-          <AppText variant="callout" weight="semibold">
-            {price}
-          </AppText>
-          <AppText variant="callout" weight="semibold" color={full ? 'danger' : 'textBrand'}>
-            {spots}
-          </AppText>
-        </View>
-      </View>
-    </PressableScale>
+    </SpringPressable>
   );
 }
 
 const styles = StyleSheet.create({
-  ticket: {
-    paddingVertical: spacing.sm,
+  row: {
+    paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderControl,
-    gap: spacing.xs,
+    borderBottomColor: colors.borderSubtle,
   },
-  compact: {},
   top: {
     flexDirection: 'row',
     gap: spacing.md,
   },
   topStacked: {
     flexDirection: 'column',
-    gap: spacing.xs,
+    gap: spacing.xxs,
   },
-  stub: {
-    minWidth: 72,
-    gap: 0,
+  time: {
+    width: 76,
   },
-  stubStacked: {
-    minWidth: 0,
-  },
-  ruleVertical: {
-    width: 0,
-    borderStartWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.borderControl,
-  },
-  ruleHorizontal: {
-    height: 0,
-    borderTopWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.borderControl,
+  timeStacked: {
+    width: 'auto',
   },
   details: {
     flex: 1,
@@ -144,23 +133,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xxs,
-    marginTop: 2,
+  },
+  foot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginTop: spacing.xxs,
   },
   flex: {
     flex: 1,
-  },
-  bottom: {
-    gap: spacing.xs,
-  },
-  tags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xxs,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-    flexWrap: 'wrap',
   },
 });

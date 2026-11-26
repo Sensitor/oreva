@@ -345,7 +345,8 @@
     "a11yPoint": "{{name}}, {{classes}}",
     "a11yCluster_one": "{{count}} place, zoom in",
     "a11yCluster_other": "{{count}} places, zoom in",
-    "a11yMap": "Map of Pilates classes"
+    "a11yMap": "Map of Pilates classes",
+    "everywhere": "Everywhere"
   },
   "organization": {
     "about": "About",

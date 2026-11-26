@@ -55,7 +55,7 @@ export function WorkoutScreen({ id }: { id: string }) {
 
   return (
     <DetailLayout
-      photo={photoFor(workout.id)}
+      hero={{ kind: 'photo', photo: photoFor(workout.id) }}
       heroTestID="workout-cover"
       action={
         <Button

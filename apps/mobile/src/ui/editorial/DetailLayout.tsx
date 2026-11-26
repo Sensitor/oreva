@@ -10,14 +10,26 @@ import { EditorialHero } from './EditorialHero';
 import type { EditorialPhoto } from './photos';
 import { RoundButton } from './RoundButton';
 import { STICKY_ACTION_CLEARANCE, StickyAction } from './StickyAction';
+import { TypeHero, type TypeHeroProps } from './TypeHero';
 
 /** The photograph takes a little under half the screen, so the title shows at once. */
 const HERO_SHARE = 0.44;
 const HERO_MIN = 280;
 const HERO_MAX = 440;
+/** Without a photograph, a shorter panel: the page gets to its content sooner. */
+const TYPE_HERO_SHARE = 0.34;
+const TYPE_HERO_MIN = 240;
+const TYPE_HERO_MAX = 330;
+
+export type DetailHero =
+  | { kind: 'photo'; photo: EditorialPhoto }
+  | ({ kind: 'type' } & Pick<TypeHeroProps, 'tone' | 'glyph' | 'children'>);
 
 export interface DetailLayoutProps {
-  photo: EditorialPhoto;
+  /** A photograph (ORÉVA's own content) or a typographic panel (a partner, C-8). */
+  hero: DetailHero;
+  /** A control at the end of the bar over the hero (Follow). */
+  trailing?: ReactNode;
   /** The one action of the page (Start), kept within reach at the bottom. */
   action?: ReactNode;
   children: ReactNode;
@@ -25,19 +37,36 @@ export interface DetailLayoutProps {
 }
 
 /**
- * A detail page in the editorial direction (a program, a session): the
- * photograph edge to edge with a back button, a cream sheet laid over it, and
- * the page's one action fixed at the bottom.
+ * A detail page in the editorial direction: the hero edge to edge (a
+ * photograph for a program or a session, a typographic panel for a partner)
+ * with a back button, a cream sheet laid over it, and the page's one action
+ * fixed at the bottom.
  */
-export function DetailLayout({ photo, action, children, heroTestID }: DetailLayoutProps) {
+export function DetailLayout({ hero, trailing, action, children, heroTestID }: DetailLayoutProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
-  const heroHeight = Math.round(Math.min(Math.max(windowHeight * HERO_SHARE, HERO_MIN), HERO_MAX));
+  const heroHeight =
+    hero.kind === 'photo'
+      ? Math.round(Math.min(Math.max(windowHeight * HERO_SHARE, HERO_MIN), HERO_MAX))
+      : Math.round(
+          Math.min(Math.max(windowHeight * TYPE_HERO_SHARE, TYPE_HERO_MIN), TYPE_HERO_MAX),
+        );
   const scrollY = useSharedValue(0);
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
+  const bar = (
+    <View style={[styles.heroBar, { top: insets.top + spacing.xs }]}>
+      <RoundButton
+        icon={ChevronLeft}
+        accessibilityLabel={t('a11y.back')}
+        onPress={() => router.back()}
+        testID="detail-back"
+      />
+      {trailing}
+    </View>
+  );
   const bottom = action ? STICKY_ACTION_CLEARANCE + insets.bottom : spacing.xxl + insets.bottom;
 
   return (
@@ -49,16 +78,27 @@ export function DetailLayout({ photo, action, children, heroTestID }: DetailLayo
         contentInsetAdjustmentBehavior="never"
         contentContainerStyle={{ paddingBottom: bottom }}
       >
-        <EditorialHero photo={photo} height={heroHeight} scrollY={scrollY} testID={heroTestID}>
-          <View style={[styles.heroBar, { top: insets.top + spacing.xs }]}>
-            <RoundButton
-              icon={ChevronLeft}
-              accessibilityLabel={t('a11y.back')}
-              onPress={() => router.back()}
-              testID="detail-back"
-            />
-          </View>
-        </EditorialHero>
+        {hero.kind === 'photo' ? (
+          <EditorialHero
+            photo={hero.photo}
+            height={heroHeight}
+            scrollY={scrollY}
+            testID={heroTestID}
+          >
+            {bar}
+          </EditorialHero>
+        ) : (
+          <TypeHero
+            tone={hero.tone}
+            glyph={hero.glyph}
+            height={heroHeight}
+            scrollY={scrollY}
+            testID={heroTestID}
+          >
+            {hero.children}
+            {bar}
+          </TypeHero>
+        )}
         <View style={styles.sheet}>{children}</View>
       </Animated.ScrollView>
       {action ? <StickyAction>{action}</StickyAction> : null}
@@ -74,6 +114,10 @@ const styles = StyleSheet.create({
   heroBar: {
     position: 'absolute',
     start: spacing.gutter,
+    end: spacing.gutter,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   sheet: {
     marginTop: -radii.sheet,

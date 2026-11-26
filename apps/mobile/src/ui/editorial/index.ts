@@ -15,3 +15,6 @@ export { STICKY_ACTION_CLEARANCE, StickyAction } from './StickyAction';
 export { DetailLayout } from './DetailLayout';
 export { FactStrip } from './FactStrip';
 export type { StripFact } from './FactStrip';
+export { TypeHero } from './TypeHero';
+export type { DetailHero } from './DetailLayout';
+export { Monogram } from './Monogram';
