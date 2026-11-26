@@ -17,10 +17,10 @@ import {
   ScreenHeader,
   Skeleton,
 } from '@/ui';
-import { DetailLayout, Enter, FactStrip, Monogram, SpringPressable } from '@/ui/editorial';
+import { DetailLayout, dropCap, Enter, FactStrip, Monogram, SpringPressable } from '@/ui/editorial';
 import { ClassCard } from './ClassCard';
 import { FollowButton } from './FollowButton';
-import { dropCap, PartnerSection, partnerStyles } from './PartnerParts';
+import { PartnerSection, partnerStyles } from './PartnerParts';
 
 const ENTER_AFTER = 100;
 

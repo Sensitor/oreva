@@ -32,6 +32,8 @@ export interface DetailLayoutProps {
   trailing?: ReactNode;
   /** The one action of the page (Start), kept within reach at the bottom. */
   action?: ReactNode;
+  /** A bar under the page, in the flow (a message composer that grows). */
+  footer?: ReactNode;
   children: ReactNode;
   heroTestID?: string;
 }
@@ -42,7 +44,14 @@ export interface DetailLayoutProps {
  * with a back button, a cream sheet laid over it, and the page's one action
  * fixed at the bottom.
  */
-export function DetailLayout({ hero, trailing, action, children, heroTestID }: DetailLayoutProps) {
+export function DetailLayout({
+  hero,
+  trailing,
+  action,
+  footer,
+  children,
+  heroTestID,
+}: DetailLayoutProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
@@ -67,7 +76,11 @@ export function DetailLayout({ hero, trailing, action, children, heroTestID }: D
       {trailing}
     </View>
   );
-  const bottom = action ? STICKY_ACTION_CLEARANCE + insets.bottom : spacing.xxl + insets.bottom;
+  const bottom = action
+    ? STICKY_ACTION_CLEARANCE + insets.bottom
+    : footer
+      ? spacing.lg
+      : spacing.xxl + insets.bottom;
 
   return (
     <View style={styles.screen}>
@@ -102,6 +115,7 @@ export function DetailLayout({ hero, trailing, action, children, heroTestID }: D
         <View style={styles.sheet}>{children}</View>
       </Animated.ScrollView>
       {action ? <StickyAction>{action}</StickyAction> : null}
+      {footer}
     </View>
   );
 }

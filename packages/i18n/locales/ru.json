@@ -492,7 +492,9 @@
     "you": "Вы",
     "members_title": "Участницы",
     "emptyCircles": "У вас пока нет Circle.",
-    "messageActions": "Действия с сообщением"
+    "messageActions": "Действия с сообщением",
+    "privateCircle": "Закрытый Circle",
+    "conversation": "Переписка"
   },
   "profile2": {
     "guestTitle": "Добро пожаловать в ORÉVA",

@@ -1,11 +1,11 @@
-import { colors, radii, type TintName } from '@oreva/tokens';
+import { colors, elevation, radii, tints, type TintName } from '@oreva/tokens';
 import { StyleSheet, View } from 'react-native';
-import { AppText, initialsOf, toneColor } from '@/ui';
+import { AppText, initialsOf } from '@/ui';
 
 export interface MedallionProps {
   /** The Circle's name: its initials sit in the centre, in the serif. */
   name: string;
-  /** Members' display names, placed around the arc (up to five). */
+  /** Members' display names, placed around the ring (up to five). */
   members: readonly string[];
   size?: number;
   tint?: TintName;
@@ -14,19 +14,20 @@ export interface MedallionProps {
 const MAX_AROUND = 5;
 
 /**
- * A Circle's medallion: the Circle's initials in a tinted disc, and its
- * members' initials on the arc around it. Decorative: the row or header
- * that holds it carries the spoken name and member count.
+ * A Circle's medallion (editorial direction): the Circle's initials in serif
+ * on its tint, a fine iris ring set a little apart, like the monograms of
+ * Discover, and its members as small paper seals resting on the ring.
+ * Decorative: the row or header that holds it carries the name and members.
  */
 export function Medallion({ name, members, size = 72, tint = 'lilac' }: MedallionProps) {
-  const dot = Math.round(size * 0.34);
-  const box = size + dot;
-  const center = box / 2;
+  const seal = Math.round(size * 0.32);
+  const box = size + seal;
+  const centre = box / 2;
+  const ring = size / 2;
   const around = members.slice(0, MAX_AROUND);
-  // Spread the members over the upper arc, from about 8 to 4 o'clock.
-  const angles = around.map((_, i) =>
-    around.length === 1 ? -90 : -200 + (i * 220) / (around.length - 1),
-  );
+  // Seals rest on the ring from about 10 o'clock round to 6, 42° apart, so
+  // they never overlap one another (five seals span 168°).
+  const angles = around.map((_, i) => (around.length === 1 ? 45 : -80 + i * 42));
   return (
     <View
       style={{ width: box, height: box }}
@@ -34,21 +35,18 @@ export function Medallion({ name, members, size = 72, tint = 'lilac' }: Medallio
       importantForAccessibility="no-hide-descendants"
       testID="medallion"
     >
-      <View
-        style={[
-          styles.disc,
-          {
-            width: size,
-            height: size,
-            top: dot / 2,
-            start: dot / 2,
-            backgroundColor: toneColor(tint),
-          },
-        ]}
-      >
-        <AppText variant={size >= 88 ? 'title1' : 'title2'} color="textBrand">
-          {initialsOf(name)}
-        </AppText>
+      <View style={[styles.ring, { width: size, height: size, top: seal / 2, start: seal / 2 }]}>
+        <View
+          style={[styles.disc, { width: size - 8, height: size - 8, backgroundColor: tints[tint] }]}
+        >
+          <AppText
+            variant={size >= 88 ? 'title1' : 'title2'}
+            color="textBrand"
+            maxFontSizeMultiplier={1}
+          >
+            {initialsOf(name)}
+          </AppText>
+        </View>
       </View>
       {around.map((member, i) => {
         const radians = ((angles[i] ?? 0) * Math.PI) / 180;
@@ -56,12 +54,12 @@ export function Medallion({ name, members, size = 72, tint = 'lilac' }: Medallio
           <View
             key={`${member}-${String(i)}`}
             style={[
-              styles.member,
+              styles.seal,
               {
-                width: dot,
-                height: dot,
-                top: center + (size / 2) * Math.sin(radians) - dot / 2,
-                start: center + (size / 2) * Math.cos(radians) - dot / 2,
+                width: seal,
+                height: seal,
+                top: centre + ring * Math.sin(radians) - seal / 2,
+                start: centre + ring * Math.cos(radians) - seal / 2,
               },
             ]}
           >
@@ -76,19 +74,27 @@ export function Medallion({ name, members, size = 72, tint = 'lilac' }: Medallio
 }
 
 const styles = StyleSheet.create({
-  disc: {
+  ring: {
     position: 'absolute',
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: colors.progress,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  disc: {
     borderRadius: radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  member: {
+  seal: {
     position: 'absolute',
     borderRadius: radii.pill,
     backgroundColor: colors.surface,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderControl,
     alignItems: 'center',
     justifyContent: 'center',
+    boxShadow: elevation.soft,
   },
 });

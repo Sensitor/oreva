@@ -9,7 +9,7 @@ import { DiscoverScreen } from '@/features/discover/DiscoverScreen';
 import { InstructorScreen } from '@/features/discover/InstructorScreen';
 import type { DiscoverMapProps } from '@/features/discover/map/types';
 import { OrganizationScreen } from '@/features/discover/OrganizationScreen';
-import { dropCap } from '@/features/discover/PartnerParts';
+import { dropCap } from '@/ui/editorial';
 import { useReduceMotion } from '@/theme/useReduceMotion';
 import { renderWithProviders } from '@/test-utils';
 
