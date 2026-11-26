@@ -20,3 +20,10 @@ jest.mock('expo-haptics', () => ({
   ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
   NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
 }));
+
+// Reanimated 4 needs a native worklet runtime that Jest does not have, and its
+// published mocks expect a DOM that would make Expo modules think they run on
+// the web. Tests use a small local mock instead: animations land on their end
+// value at once (see test-mocks/reanimated.js for what it covers).
+jest.mock('react-native-reanimated', () => require('./test-mocks/reanimated'));
+jest.mock('react-native-worklets', () => ({ scheduleOnRN: (fn, ...args) => fn(...args) }));

@@ -27,6 +27,14 @@ export const radii = {
   lg: 6,
   xl: 8,
   pill: 999,
+  /**
+   * Editorial surfaces (Today, 26 Nov 2026): photographs and cards are softly
+   * rounded again; the printed screens keep the small radii above until they
+   * move to the editorial direction.
+   */
+  card: 20,
+  cover: 24,
+  sheet: 28,
 } as const;
 
 /** Minimum touch target (iOS HIG 44pt, Material 48dp). */
@@ -76,4 +84,20 @@ export const motion = {
     stiffness: 180,
     mass: 1,
   },
+  /**
+   * Springs for the editorial screens (Reanimated): no bounce you can see,
+   * just weight. `press` answers the finger, `gentle` places content.
+   */
+  springs: {
+    press: { damping: 22, stiffness: 420, mass: 0.6 },
+    gentle: { damping: 26, stiffness: 170, mass: 1 },
+  },
+  /** A photograph settling into place (scale 1.04 to 1), never blocking a task. */
+  settle: 800,
+  /** Content entering a screen. */
+  enter: 460,
+  /** How far a section rises as it enters, in points. */
+  rise: 14,
+  /** Hero image moves at this fraction of the scroll (parallax). */
+  parallax: 0.35,
 } as const;

@@ -93,6 +93,17 @@ describe('scales', () => {
     expect(radii.pill).toBeGreaterThan(100);
   });
 
+  it('keeps editorial motion short, with springs that do not visibly bounce', () => {
+    expect(motion.enter).toBeLessThanOrEqual(500);
+    expect(motion.settle).toBeLessThanOrEqual(900);
+    // Critical damping is 2 * sqrt(stiffness * mass); stay close to it (no wobble).
+    for (const spring of Object.values(motion.springs)) {
+      const critical = 2 * Math.sqrt(spring.stiffness * spring.mass);
+      expect(spring.damping / critical).toBeGreaterThan(0.55);
+    }
+    expect(radii.card).toBeGreaterThan(radii.xl);
+  });
+
   it('motion stays short and soft', () => {
     expect(motion.duration.fast).toBeLessThanOrEqual(150);
     expect(motion.duration.entrance).toBeLessThanOrEqual(300);

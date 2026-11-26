@@ -1,7 +1,16 @@
 import react from '@oreva/config/eslint/react';
 
 export default [
-  { ignores: ['.expo/**', 'dist/**', 'expo-env.d.ts', 'jest.setup.js', 'jest.config.js'] },
+  {
+    ignores: [
+      '.expo/**',
+      'dist/**',
+      'expo-env.d.ts',
+      'jest.setup.js',
+      'jest.config.js',
+      'test-mocks/**',
+    ],
+  },
   ...react,
   {
     // Tests and configuration may use plain strings.
