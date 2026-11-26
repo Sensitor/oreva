@@ -1,30 +1,33 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, spacing } from '@oreva/tokens';
+import { colors, radii } from '@oreva/tokens';
 import { router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { useInstructorProfile } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { languagesLabel } from '@/lib/format';
 import {
   AppText,
-  Avatar,
   EmptyState,
-  FactList,
   FictionalBanner,
-  Line,
-  PressableScale,
   SampleBadge,
   Screen,
   ScreenHeader,
-  Section,
   Skeleton,
 } from '@/ui';
+import { DetailLayout, Enter, FactStrip, Monogram, SpringPressable } from '@/ui/editorial';
 import { ClassCard } from './ClassCard';
 import { FollowButton } from './FollowButton';
+import { dropCap, PartnerSection, partnerStyles } from './PartnerParts';
 
-/** Public instructor profile. An instructor can teach for several organizations (P-02). */
+const ENTER_AFTER = 100;
+
+/**
+ * An instructor (editorial direction). An instructor can teach for several
+ * organizations (P-02). No portrait photograph until one used with
+ * permission exists (P-15, C-8): the page opens on lilac with their initial.
+ */
 export function InstructorScreen({ id }: { id: string }) {
   const { t } = useTranslation();
   const { locale } = useLocaleSettings();
@@ -34,7 +37,7 @@ export function InstructorScreen({ id }: { id: string }) {
     return (
       <Screen withTabBar={false}>
         <ScreenHeader />
-        <Skeleton height={200} />
+        <Skeleton height={240} radius={radii.cover} />
       </Screen>
     );
   }
@@ -50,99 +53,91 @@ export function InstructorScreen({ id }: { id: string }) {
   const { instructor, organizations, upcoming } = profile;
 
   return (
-    <Screen withTabBar={false}>
-      <ScreenHeader
-        trailing={
-          <FollowButton kind="instructor" id={instructor.id} name={instructor.displayName} />
-        }
-      />
-      {/* A portrait in initials until a photo used with permission exists (P-15). */}
-      <View style={styles.hero}>
-        <Avatar name={instructor.displayName} size={112} tone="lilac" />
-        <AppText variant="display" color="textBrand" accessibilityRole="header" align="center">
+    <DetailLayout
+      heroTestID="instructor-cover"
+      hero={{ kind: 'type', tone: 'lilac', glyph: dropCap(instructor.displayName) }}
+      trailing={<FollowButton kind="instructor" id={instructor.id} name={instructor.displayName} />}
+    >
+      <Enter index={0} after={ENTER_AFTER} style={partnerStyles.heading}>
+        <View style={partnerStyles.kickerRow}>
+          <AppText variant="kicker" color="textLink" style={partnerStyles.flex}>
+            {t('classDetail.instructor')}
+          </AppText>
+          {instructor.isPlaceholder ? <SampleBadge /> : null}
+        </View>
+        <AppText variant="display" color="textBrand" accessibilityRole="header">
           {instructor.displayName}
         </AppText>
-        <Line />
-        {instructor.isPlaceholder ? <SampleBadge /> : null}
-      </View>
+      </Enter>
+
       {instructor.isPlaceholder ? <FictionalBanner /> : null}
 
-      <FactList
-        facts={[
-          {
-            label: t('organization.specialtiesLabel'),
-            value: instructor.specialties.map((code) => t(`specialty.${code}`)).join(', '),
-          },
-          { label: t('instructor.speaks'), value: languagesLabel(instructor.spokenLanguages, t) },
-        ]}
-        testID="instructor-facts"
-      />
+      <Enter index={1} after={ENTER_AFTER}>
+        <FactStrip
+          facts={[
+            {
+              label: t('organization.specialtiesLabel'),
+              value: instructor.specialties.map((code) => t(`specialty.${code}`)).join(', '),
+            },
+            { label: t('instructor.speaks'), value: languagesLabel(instructor.spokenLanguages, t) },
+          ]}
+          testID="instructor-facts"
+        />
+      </Enter>
 
-      <Section title={t('instructor.about')}>
-        <AppText variant="body">{resolveLocalizedText(instructor.bio, locale)?.text}</AppText>
-      </Section>
+      <Enter index={2} after={ENTER_AFTER}>
+        <PartnerSection title={t('instructor.about')}>
+          <AppText variant="body">{resolveLocalizedText(instructor.bio, locale)?.text}</AppText>
+        </PartnerSection>
+      </Enter>
 
-      <Section title={t('instructor.teachesAt')}>
+      <PartnerSection title={t('instructor.teachesAt')}>
         <View>
           {organizations.map((organization) => (
-            <PressableScale
+            <SpringPressable
               key={organization.id}
               accessibilityRole="button"
               accessibilityLabel={`${organization.name}, ${t(`orgType.${organization.type}`)}`}
               onPress={() => router.push(`/organizations/${organization.id}`)}
-              style={styles.row}
+              pressedScale={0.98}
+              style={partnerStyles.row}
               testID={`affiliation-${organization.id}`}
             >
-              <Avatar name={organization.name} size={40} tone={organization.tone} />
-              <View style={styles.flex}>
-                <AppText variant="bodyStrong">{organization.name}</AppText>
+              <Monogram name={organization.name} size={52} tone={organization.tone} />
+              <View style={partnerStyles.flex}>
+                <AppText variant="headline">{organization.name}</AppText>
                 <AppText variant="footnote" color="textSecondary">
                   {t(`orgType.${organization.type}`)}
                 </AppText>
               </View>
               <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.5} />
-            </PressableScale>
+            </SpringPressable>
           ))}
         </View>
-      </Section>
+      </PartnerSection>
 
-      <Section title={t('instructor.qualifications')}>
+      <PartnerSection title={t('instructor.qualifications')}>
         <AppText variant="body">
           {resolveLocalizedText(instructor.qualificationsDeclared, locale)?.text}
         </AppText>
         <AppText variant="footnote" color="textSecondary">
           {t('instructor.qualificationsNote')}
         </AppText>
-      </Section>
+      </PartnerSection>
 
-      <Section title={t('instructor.upcoming')}>
+      <PartnerSection title={t('instructor.upcoming')}>
         {upcoming.length === 0 ? (
           <AppText variant="body" color="textSecondary">
             {t('organization.noUpcoming')}
           </AppText>
         ) : (
-          upcoming.map((item) => <ClassCard key={item.session.id} item={item} />)
+          <View>
+            {upcoming.map((item) => (
+              <ClassCard key={item.session.id} item={item} />
+            ))}
+          </View>
         )}
-      </Section>
-    </Screen>
+      </PartnerSection>
+    </DetailLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  hero: {
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    minHeight: 64,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderSubtle,
-  },
-  flex: {
-    flex: 1,
-  },
-});

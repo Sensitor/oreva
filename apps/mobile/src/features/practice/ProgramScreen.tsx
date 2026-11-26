@@ -73,7 +73,7 @@ export function ProgramScreen({ id }: { id: string }) {
 
   return (
     <DetailLayout
-      photo={photoFor(data.id)}
+      hero={{ kind: 'photo', photo: photoFor(data.id) }}
       heroTestID="program-cover"
       action={
         target?.workoutId ? (

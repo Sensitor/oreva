@@ -197,6 +197,20 @@ export const contrastPairs: readonly ContrastPair[] = [
   { foreground: 'textBrand', background: 'tintSand', kind: 'text', usage: 'initials on sand' },
   { foreground: 'success', background: 'background', kind: 'nonText', usage: 'completed mark' },
   { foreground: 'textBrand', background: 'tintMist', kind: 'text', usage: 'initials on mist' },
+  // Partner heroes (Discover, editorial direction): the class time, its date and local-time note.
+  { foreground: 'textBrand', background: 'tintLilac', kind: 'text', usage: 'class time on lilac' },
+  {
+    foreground: 'textOnPastelSecondary',
+    background: 'tintLilac',
+    kind: 'text',
+    usage: 'local time note on lilac',
+  },
+  {
+    foreground: 'textOnPastelSecondary',
+    background: 'tintMist',
+    kind: 'text',
+    usage: 'local time note on mist',
+  },
   {
     foreground: 'textBrand',
     background: 'backgroundTint',

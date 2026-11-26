@@ -22,10 +22,10 @@ export function FactStrip({ facts, testID }: { facts: readonly StripFact[]; test
           accessible
           accessibilityLabel={`${fact.label}, ${fact.value}`}
         >
-          <AppText variant="caption" color="textSecondary" numberOfLines={1}>
+          <AppText variant="caption" color="textSecondary" numberOfLines={2}>
             {fact.label}
           </AppText>
-          <AppText variant="callout" weight="semibold" numberOfLines={2}>
+          <AppText variant="callout" weight="semibold" numberOfLines={4}>
             {fact.value}
           </AppText>
         </View>

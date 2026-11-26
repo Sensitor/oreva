@@ -1,7 +1,7 @@
 import { resolveLocalizedText } from '@oreva/core';
-import { colors, radii, spacing } from '@oreva/tokens';
+import { colors, radii, spacing, type TintName } from '@oreva/tokens';
 import { router } from 'expo-router';
-import { ChevronRight, Gauge, Languages, Lock, Tag, Users } from 'lucide-react-native';
+import { ChevronRight, Lock } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { useClassDetail } from '@/data/hooks';
@@ -9,23 +9,25 @@ import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { classWhen, languagesLabel, priceLabel } from '@/lib/format';
 import {
   AppText,
-  Avatar,
-  Badge,
   Button,
   EmptyState,
   FictionalBanner,
-  InfoRow,
   NearIcon,
-  PressableScale,
   SampleBadge,
   Screen,
   ScreenHeader,
   Skeleton,
 } from '@/ui';
+import { DetailLayout, Enter, FactStrip, Monogram, SpringPressable } from '@/ui/editorial';
+
+/** Content enters while the panel settles. */
+const ENTER_AFTER = 100;
 
 /**
- * Class detail. Booking is not part of Phase 2 (roadmap revision 4, Phase 7):
- * the button is shown disabled with an explanation, never a fake booking.
+ * A class (editorial direction). It opens on the studio's tint with the day
+ * and the time in large serif, in the class's own time zone: the time is
+ * the picture. Then what it is, the facts, where, who, and Book, shown
+ * disabled with its reason until booking exists (never a fake booking).
  */
 export function ClassDetailScreen({ id }: { id: string }) {
   const { t } = useTranslation();
@@ -36,7 +38,7 @@ export function ClassDetailScreen({ id }: { id: string }) {
     return (
       <Screen withTabBar={false}>
         <ScreenHeader />
-        <Skeleton height={200} />
+        <Skeleton height={240} radius={radii.cover} />
       </Screen>
     );
   }
@@ -50,129 +52,135 @@ export function ClassDetailScreen({ id }: { id: string }) {
   }
 
   const { session, organization, instructor, venue, city } = item;
-  const title = resolveLocalizedText(session.title, locale, session.sourceLanguage);
+  const title = resolveLocalizedText(session.title, locale, session.sourceLanguage)?.text ?? '';
   const when = classWhen(session, city, formatLocale);
   const isPrivate = venue.visibility === 'after_booking';
   const cityName = resolveLocalizedText(city.name, locale)?.text ?? '';
-
   const spots =
     session.spotsLeft > 0
       ? t('home.upcoming.spotsLeft', { count: session.spotsLeft })
       : t('classDetail.full');
+  const PlaceIcon = isPrivate ? Lock : NearIcon;
 
   return (
-    <Screen withTabBar={false}>
-      <ScreenHeader />
-
-      {/* The ticket, full size: what, when (in the class's own time zone), how long. */}
-      <View style={styles.ticket} testID="class-ticket">
-        <View style={styles.ticketTop}>
-          <View style={styles.tags}>
-            <Badge label={t(`specialty.${session.specialty}`)} tone="surfaceMuted" />
-            {session.isPlaceholder ? <SampleBadge /> : null}
-          </View>
-          <AppText variant="title1" color="textBrand" accessibilityRole="header">
-            {title?.text}
-          </AppText>
-          <AppText variant="callout" color="textSecondary">
-            {organization.name} · {instructor.displayName}
-          </AppText>
-        </View>
-        <View style={styles.perforation} />
-        <View
-          style={styles.ticketBottom}
-          accessible
-          accessibilityLabel={[
-            t('classDetail.when'),
-            `${when.date} ${when.time}`,
-            t('classDetail.localTime', { city: cityName }),
-            t('classDetail.minutes', { count: session.durationMin }),
-          ].join(', ')}
-        >
-          <View style={styles.flex}>
-            <AppText variant="kicker" color="textLink">
+    <DetailLayout
+      heroTestID="class-ticket"
+      hero={{
+        kind: 'type',
+        tone: organization.tone,
+        children: (
+          <View
+            style={styles.when}
+            accessible
+            accessibilityLabel={[
+              t('classDetail.when'),
+              `${when.date} ${when.time}`,
+              t('classDetail.localTime', { city: cityName }),
+              t('classDetail.minutes', { count: session.durationMin }),
+            ].join(', ')}
+          >
+            <AppText variant="kicker" color="textBrand">
               {when.date}
             </AppText>
-            <AppText variant="numeral" color="textBrand">
-              {when.time}
-            </AppText>
-            <AppText variant="footnote" color="textSecondary">
+            <View style={styles.timeRow}>
+              <AppText variant="numeral" color="textBrand" style={styles.time}>
+                {when.time}
+              </AppText>
+              <AppText variant="callout" weight="semibold" color="textBrand">
+                {t('classDetail.minutes', { count: session.durationMin })}
+              </AppText>
+            </View>
+            <AppText variant="footnote" color="textOnPastelSecondary">
               {t('classDetail.localTime', { city: cityName })}
             </AppText>
           </View>
-          <View style={styles.duration}>
-            <AppText variant="kicker" color="textSecondary">
-              {t('classDetail.duration')}
-            </AppText>
-            <AppText variant="bodyStrong" color="textBrand">
-              {t('classDetail.minutes', { count: session.durationMin })}
+        ),
+      }}
+    >
+      <Enter index={0} after={ENTER_AFTER} style={styles.heading}>
+        <View style={styles.kickerRow}>
+          <AppText variant="kicker" color="textLink" style={styles.flex}>
+            {t(`specialty.${session.specialty}`)}
+          </AppText>
+          {session.isPlaceholder ? <SampleBadge /> : null}
+        </View>
+        <AppText variant="display" color="textBrand" accessibilityRole="header">
+          {title}
+        </AppText>
+        <AppText variant="callout" color="textSecondary">
+          {organization.name} · {instructor.displayName}
+        </AppText>
+      </Enter>
+
+      {session.isPlaceholder ? <FictionalBanner /> : null}
+
+      <Enter index={1} after={ENTER_AFTER} style={styles.block}>
+        <FactStrip
+          facts={[
+            { label: t('classDetail.level'), value: t(`level.${session.level}`) },
+            {
+              label: t('classDetail.language'),
+              value: languagesLabel(session.instructionLanguages, t),
+            },
+            { label: t('classDetail.availability'), value: spots },
+          ]}
+          testID="class-facts"
+        />
+        <View
+          style={styles.price}
+          accessible
+          accessibilityLabel={`${t('classDetail.price')}, ${priceLabel(session, t, formatLocale)}`}
+        >
+          <AppText variant="kicker" color="textSecondary">
+            {t('classDetail.price')}
+          </AppText>
+          <AppText variant="title2" color="textPrimary">
+            {priceLabel(session, t, formatLocale)}
+          </AppText>
+        </View>
+      </Enter>
+
+      <Enter index={2} after={ENTER_AFTER} style={styles.block}>
+        <AppText variant="title2" color="textBrand" accessibilityRole="header">
+          {t('classDetail.where')}
+        </AppText>
+        <View style={styles.place}>
+          <PlaceIcon
+            size={20}
+            color={isPrivate ? colors.info : colors.textBrand}
+            strokeWidth={1.5}
+          />
+          <View style={styles.flex}>
+            <AppText variant="bodyStrong">{resolveLocalizedText(venue.name, locale)?.text}</AppText>
+            <AppText variant="footnote" color={isPrivate ? 'info' : 'textSecondary'}>
+              {isPrivate ? t('discover.privateArea') : (venue.addressLine ?? cityName)}
             </AppText>
           </View>
         </View>
-      </View>
-      {session.isPlaceholder ? <FictionalBanner /> : null}
-
-      <View style={styles.list}>
-        <InfoRow
-          icon={isPrivate ? Lock : NearIcon}
-          label={t('classDetail.where')}
-          value={resolveLocalizedText(venue.name, locale)?.text ?? ''}
-          detail={isPrivate ? t('discover.privateArea') : (venue.addressLine ?? undefined)}
-        />
-        <InfoRow icon={Gauge} label={t('classDetail.level')} value={t(`level.${session.level}`)} />
-        <InfoRow
-          icon={Languages}
-          label={t('classDetail.language')}
-          value={languagesLabel(session.instructionLanguages, t)}
-        />
-        <InfoRow
-          icon={Tag}
-          label={t('classDetail.price')}
-          value={priceLabel(session, t, formatLocale)}
-        />
-        <InfoRow icon={Users} label={t('classDetail.availability')} value={spots} />
-      </View>
+      </Enter>
 
       <View>
-        <PressableScale
-          accessibilityRole="button"
-          accessibilityLabel={`${t('classDetail.instructor')}: ${instructor.displayName}`}
+        <PersonRow
+          label={t('classDetail.instructor')}
+          name={instructor.displayName}
           onPress={() => router.push(`/instructors/${instructor.id}`)}
-          style={styles.row}
           testID="class-instructor"
-        >
-          <Avatar name={instructor.displayName} />
-          <View style={styles.flex}>
-            <AppText variant="footnote" color="textSecondary">
-              {t('classDetail.instructor')}
-            </AppText>
-            <AppText variant="bodyStrong">{instructor.displayName}</AppText>
-          </View>
-          <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.5} />
-        </PressableScale>
-        <PressableScale
-          accessibilityRole="button"
-          accessibilityLabel={`${t('classDetail.studio')}: ${organization.name}`}
+        />
+        <PersonRow
+          label={t('classDetail.studio')}
+          name={organization.name}
+          tone={organization.tone}
           onPress={() => router.push(`/organizations/${organization.id}`)}
-          style={styles.row}
           testID="class-studio"
-        >
-          <Avatar name={organization.name} tone={organization.tone} />
-          <View style={styles.flex}>
-            <AppText variant="footnote" color="textSecondary">
-              {t('classDetail.studio')}
-            </AppText>
-            <AppText variant="bodyStrong">{organization.name}</AppText>
-          </View>
-          <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.5} />
-        </PressableScale>
+        />
       </View>
 
-      {/* Booking arrives in a later phase: an honest outline button and its reason. */}
+      {/* Booking arrives in a later phase: an honest disabled button and its reason. */}
       <View style={styles.book}>
         <Button
           label={t('classDetail.book')}
           variant="secondary"
+          shape="pill"
           fullWidth
           disabled
           testID="book-class"
@@ -181,57 +189,91 @@ export function ClassDetailScreen({ id }: { id: string }) {
           {t('classDetail.bookingSoon')}
         </AppText>
       </View>
-    </Screen>
+    </DetailLayout>
+  );
+}
+
+function PersonRow({
+  label,
+  name,
+  tone,
+  onPress,
+  testID,
+}: {
+  label: string;
+  name: string;
+  tone?: TintName;
+  onPress: () => void;
+  testID: string;
+}) {
+  return (
+    <SpringPressable
+      accessibilityRole="button"
+      accessibilityLabel={`${label}: ${name}`}
+      onPress={onPress}
+      pressedScale={0.98}
+      style={styles.person}
+      testID={testID}
+    >
+      <Monogram name={name} size={52} tone={tone} />
+      <View style={styles.flex}>
+        <AppText variant="caption" color="textSecondary">
+          {label}
+        </AppText>
+        <AppText variant="headline">{name}</AppText>
+      </View>
+      <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.5} />
+    </SpringPressable>
   );
 }
 
 const styles = StyleSheet.create({
-  ticket: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.xs,
-    borderWidth: 1,
-    borderColor: colors.actionPrimary,
+  when: {
+    position: 'absolute',
+    start: spacing.gutter,
+    end: spacing.gutter,
+    bottom: spacing.xl + spacing.md,
   },
-  ticketTop: {
-    gap: spacing.xs,
-    padding: spacing.gutter,
-  },
-  perforation: {
-    marginHorizontal: spacing.gutter,
-    borderTopWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.borderControl,
-  },
-  ticketBottom: {
+  timeRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: spacing.md,
-    padding: spacing.gutter,
-  },
-  duration: {
-    alignItems: 'flex-end',
-    gap: 2,
-  },
-  tags: {
-    flexDirection: 'row',
+    alignItems: 'baseline',
     flexWrap: 'wrap',
-    gap: spacing.xxs,
+    columnGap: spacing.sm,
   },
-  list: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.borderSubtle,
+  time: {
+    fontSize: 76,
+    lineHeight: 84,
   },
-  row: {
+  heading: {
+    gap: spacing.xs,
+  },
+  kickerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    minHeight: 64,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderSubtle,
   },
   flex: {
     flex: 1,
+  },
+  block: {
+    gap: spacing.md,
+  },
+  price: {
+    gap: 2,
+  },
+  place: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  person: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    minHeight: 72,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderSubtle,
   },
   book: {
     gap: spacing.xs,

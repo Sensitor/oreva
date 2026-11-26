@@ -12,6 +12,7 @@ import { List, Map as MapIcon, Search, SlidersHorizontal, X } from 'lucide-react
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, SectionList, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useClock } from '@/data/DataProvider';
 import { applyClassFilters, countActiveFilters } from '@/data/filters';
@@ -20,16 +21,8 @@ import { DEFAULT_CLASS_FILTERS, type ClassFilters, type ClassListItem } from '@/
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import { useReduceMotion } from '@/theme/useReduceMotion';
-import {
-  AppText,
-  Button,
-  EmptyState,
-  IconButton,
-  Line,
-  NearIcon,
-  PressableScale,
-  TAB_BAR_CLEARANCE,
-} from '@/ui';
+import { AppText, Button, EmptyState, NearIcon, TAB_BAR_CLEARANCE } from '@/ui';
+import { rise, RoundButton, SpringPressable } from '@/ui/editorial';
 import {
   EXPLORE,
   EXPLORE_CAMERA,
@@ -97,6 +90,8 @@ export function DiscoverScreen() {
   // What the search field shows: the city, "Near me", or nothing (explore).
   const areaLabel =
     area.kind === 'city' ? cityName : area.kind === 'near' ? t('discover.nearMe') : null;
+  // Above the count: where the classes are (the city, near me, everywhere).
+  const areaKicker = areaLabel ?? t('discover.everywhere');
 
   // The list, the count and the map all use the same area (city, explore or near me).
   const areaItems = useMemo(() => itemsInArea(filtered, area), [filtered, area]);
@@ -154,7 +149,12 @@ export function DiscoverScreen() {
 
   const controls = (
     <View
-      style={[styles.controls, { paddingTop: insets.top + spacing.xs }]}
+      style={[
+        styles.controls,
+        { paddingTop: insets.top + spacing.xs },
+        // Over the list the controls sit on cream, so the timetable never shows through.
+        mode === 'list' && styles.controlsOverList,
+      ]}
       pointerEvents="box-none"
     >
       <View style={styles.searchRow}>
@@ -203,17 +203,17 @@ export function DiscoverScreen() {
             </Pressable>
           ) : null}
         </View>
-        <IconButton
+        <RoundButton
           icon={NearIcon}
           accessibilityLabel={t('discover.nearMe')}
           onPress={() => void nearMe.start().then(goNearMe)}
           testID="near-me"
-          floating
         />
       </View>
       <View style={styles.actionRow}>
-        <PressableScale
+        <SpringPressable
           accessibilityRole="button"
+          pressedScale={0.95}
           accessibilityLabel={
             activeFilterCount > 0
               ? `${t('discover.filters')}, ${String(activeFilterCount)}`
@@ -230,10 +230,12 @@ export function DiscoverScreen() {
               ? `${t('discover.filters')} · ${String(activeFilterCount)}`
               : t('discover.filters')}
           </AppText>
-        </PressableScale>
+        </SpringPressable>
         {!isWeb ? (
-          <PressableScale
+          <SpringPressable
             accessibilityRole="button"
+            pressedScale={0.95}
+            haptic="selection"
             accessibilityLabel={mode === 'map' ? t('discover.showList') : t('discover.showMap')}
             onPress={() => setMode(mode === 'map' ? 'list' : 'map')}
             style={styles.pill}
@@ -247,7 +249,7 @@ export function DiscoverScreen() {
             <AppText variant="callout" weight="semibold">
               {mode === 'map' ? t('discover.showList') : t('discover.showMap')}
             </AppText>
-          </PressableScale>
+          </SpringPressable>
         ) : null}
       </View>
       {state.mapProvider === 'mapbox' && !mapboxConfigured && !isWeb && mode === 'map' ? (
@@ -290,22 +292,32 @@ export function DiscoverScreen() {
               { paddingBottom: TAB_BAR_CLEARANCE + insets.bottom - spacing.lg },
             ]}
           >
-            {selected ? (
-              <PointPreview point={selected} items={filtered} onClose={() => setSelected(null)} />
-            ) : (
-              <View style={styles.summary}>
-                <View style={styles.summaryText}>
-                  <AppText variant="title2" color="textBrand" accessibilityLiveRegion="polite">
-                    {t('discover.classesFound', { count: areaItems.length })}
-                  </AppText>
+            {/* The card under the map changes with a short rise (at once with Reduce Motion). */}
+            <Animated.View
+              key={selected?.id ?? 'summary'}
+              entering={reduceMotion ? undefined : rise(0)}
+            >
+              {selected ? (
+                <PointPreview point={selected} items={filtered} onClose={() => setSelected(null)} />
+              ) : (
+                <View style={styles.summary}>
+                  <View style={styles.summaryText}>
+                    <AppText variant="kicker" color="textLink" numberOfLines={1}>
+                      {areaKicker}
+                    </AppText>
+                    <AppText variant="title1" color="textBrand" accessibilityLiveRegion="polite">
+                      {t('discover.classesFound', { count: areaItems.length })}
+                    </AppText>
+                  </View>
+                  <Button
+                    label={t('discover.showList')}
+                    variant="secondary"
+                    shape="pill"
+                    onPress={() => setMode('list')}
+                  />
                 </View>
-                <Button
-                  label={t('discover.showList')}
-                  variant="secondary"
-                  onPress={() => setMode('list')}
-                />
-              </View>
-            )}
+              )}
+            </Animated.View>
           </View>
         </>
       ) : (
@@ -314,11 +326,13 @@ export function DiscoverScreen() {
           <SectionList
             sections={sections}
             keyExtractor={(item) => item.session.id}
-            renderItem={({ item }) => <ClassCard item={item} distance={distanceFor(item)} />}
+            renderItem={({ item }) => (
+              <ClassCard item={item} distance={distanceFor(item)} hideDate />
+            )}
             renderSectionHeader={({ section }) => (
               <AppText
-                variant="kicker"
-                color="textSecondary"
+                variant="title2"
+                color="textBrand"
                 accessibilityRole="header"
                 style={styles.day}
               >
@@ -332,15 +346,17 @@ export function DiscoverScreen() {
             ]}
             ListHeaderComponent={
               <View style={styles.listHeader}>
+                <AppText variant="kicker" color="textLink" numberOfLines={1}>
+                  {areaKicker}
+                </AppText>
                 <AppText
-                  variant="title1"
+                  variant="display"
                   color="textBrand"
                   accessibilityRole="header"
                   accessibilityLiveRegion="polite"
                 >
                   {t('discover.classesFound', { count: areaItems.length })}
                 </AppText>
-                <Line />
                 {isWeb ? (
                   <AppText variant="callout" color="textSecondary">
                     {t('discover.mapUnavailable')}
@@ -417,11 +433,18 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     zIndex: 2,
   },
+  controlsOverList: {
+    paddingBottom: spacing.sm,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderSubtle,
+  },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
   },
+  // A paper pill over the map.
   search: {
     flex: 1,
     flexDirection: 'row',
@@ -429,7 +452,7 @@ const styles = StyleSheet.create({
     minHeight: touchTarget.comfortable + 4,
     paddingStart: spacing.md,
     paddingEnd: spacing.xxs,
-    borderRadius: radii.xs,
+    borderRadius: radii.pill,
     backgroundColor: colors.surface,
     boxShadow: elevation.raised,
     borderWidth: StyleSheet.hairlineWidth,
@@ -469,10 +492,10 @@ const styles = StyleSheet.create({
     gap: spacing.xxs + 2,
     minHeight: touchTarget.min,
     paddingHorizontal: spacing.md,
-    borderRadius: radii.xs,
+    borderRadius: radii.pill,
     backgroundColor: colors.surface,
-    boxShadow: elevation.soft,
-    borderWidth: 1,
+    boxShadow: elevation.raised,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderControl,
   },
   // Active filters read like a selected chip: lilac with an iris edge.
@@ -497,6 +520,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     paddingHorizontal: spacing.md,
   },
+  // Paper card under the map: where, how many, and the way to the list.
   summary: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -504,11 +528,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.md,
     paddingStart: spacing.gutter,
-    borderRadius: radii.xs,
+    borderRadius: radii.card,
     backgroundColor: colors.surface,
-    boxShadow: elevation.soft,
-    borderWidth: 1,
-    borderColor: colors.actionPrimary,
+    boxShadow: elevation.raised,
   },
   summaryText: {
     flex: 1,
@@ -517,14 +539,16 @@ const styles = StyleSheet.create({
   list: {
     paddingTop: 150,
     paddingHorizontal: spacing.gutter,
-    gap: spacing.sm,
   },
   listHeader: {
-    gap: spacing.xs,
+    gap: spacing.xxs,
     paddingBottom: spacing.xs,
   },
+  // A day of the timetable: a serif heading on a fine rule.
   day: {
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xxs,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xs,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderControl,
   },
 });

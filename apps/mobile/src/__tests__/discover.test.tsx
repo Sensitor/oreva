@@ -85,7 +85,10 @@ describe('Discover', () => {
     ['ru', 'Монако', 'Фильтры'],
   ] as const)('opens on Monaco in %s', async (locale, city, filters) => {
     await renderWithProviders(<DiscoverScreen />, locale);
-    expect(await screen.findByText(city)).toBeTruthy();
+    // The search field shows the city (the card under the map names it too).
+    expect(
+      await within(await screen.findByTestId('open-city-picker')).findByText(city),
+    ).toBeTruthy();
     expect(screen.getByText(filters)).toBeTruthy();
   });
 
@@ -117,7 +120,9 @@ describe('Discover', () => {
     expect(screen.queryByTestId('city-paris')).toBeNull();
     await fireEvent.press(screen.getByTestId('city-london'));
     expect(mockLastMapProps.current?.camera.center.latitude).toBeCloseTo(51.5072, 3);
-    expect(await screen.findByText('London')).toBeTruthy();
+    expect(
+      await within(await screen.findByTestId('open-city-picker')).findByText('London'),
+    ).toBeTruthy();
   });
 
   it('explains before asking for location, then uses a coarse position only', async () => {
@@ -235,7 +240,9 @@ describe('Discover: city, explore and Near me', () => {
 
   it('clears the city with the X: explore mode, no city, no default, no location request', async () => {
     await renderWithProviders(<DiscoverScreen />);
-    expect(await screen.findByText('Monaco')).toBeTruthy();
+    expect(
+      await within(await screen.findByTestId('open-city-picker')).findByText('Monaco'),
+    ).toBeTruthy();
     expect(screen.getByLabelText('Clear Monaco')).toBeTruthy();
 
     await fireEvent.press(screen.getByTestId('clear-area'));
@@ -265,7 +272,9 @@ describe('Discover: city, explore and Near me', () => {
     await fireEvent.press(screen.getByTestId('open-city-picker'));
     await fireEvent.press(screen.getByTestId('city-paris'));
 
-    expect(await screen.findByText('Paris')).toBeTruthy();
+    expect(
+      await within(await screen.findByTestId('open-city-picker')).findByText('Paris'),
+    ).toBeTruthy();
     expect(screen.getByLabelText('Clear Paris')).toBeTruthy();
     expect(mapVenueIds()).toEqual(['ven-luxembourg', 'ven-monceau', 'ven-velours-studio']);
     expect(screen.getByText('3 classes')).toBeTruthy();

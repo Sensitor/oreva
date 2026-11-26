@@ -55,6 +55,7 @@ export function FiltersSheet({ visible, filters, countFor, onApply, onClose }: F
         <View style={styles.chips}>
           {WHEN.map((value) => (
             <Chip
+              shape="pill"
               key={value}
               label={t(`discover.when.${value}`)}
               selected={draft.when === value}
@@ -68,6 +69,7 @@ export function FiltersSheet({ visible, filters, countFor, onApply, onClose }: F
         <View style={styles.chips}>
           {LEVELS.map((value) => (
             <Chip
+              shape="pill"
               key={value}
               label={t(`level.${value}`)}
               selected={draft.levels.includes(value)}
@@ -81,6 +83,7 @@ export function FiltersSheet({ visible, filters, countFor, onApply, onClose }: F
         <View style={styles.chips}>
           {SPECIALTIES.map((value) => (
             <Chip
+              shape="pill"
               key={value}
               label={t(`specialty.${value}`)}
               selected={draft.specialties.includes(value)}
@@ -94,12 +97,14 @@ export function FiltersSheet({ visible, filters, countFor, onApply, onClose }: F
         <AppText variant="headline">{t('discover.filterLanguage')}</AppText>
         <View style={styles.chips}>
           <Chip
+            shape="pill"
             label={t('discover.anyLanguage')}
             selected={draft.language === null}
             onPress={() => setDraft({ ...draft, language: null })}
           />
           {LANGUAGES.map((value) => (
             <Chip
+              shape="pill"
               key={value}
               label={t(`spokenLanguage.${value}`)}
               selected={draft.language === value}

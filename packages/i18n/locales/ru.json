@@ -363,7 +363,8 @@
     "a11yCluster_few": "{{count}} места, приблизьте",
     "a11yCluster_many": "{{count}} мест, приблизьте",
     "a11yCluster_other": "{{count}} места, приблизьте",
-    "a11yMap": "Карта занятий пилатесом"
+    "a11yMap": "Карта занятий пилатесом",
+    "everywhere": "Везде"
   },
   "organization": {
     "about": "О студии",
