@@ -1,6 +1,8 @@
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
-import { AppText, Card, Screen, ScreenHeader, ToggleRow } from '@/ui';
+import { AppText, ToggleRow } from '@/ui';
+import { SettingsPage, settingsStyles } from './SettingsPage';
 
 /** Notification preferences (cahier des charges 9). Saved on the phone until accounts exist. */
 export function NotificationsScreen() {
@@ -9,9 +11,8 @@ export function NotificationsScreen() {
   const set = (key: keyof typeof state.notifications) => (value: boolean) =>
     update((s) => ({ ...s, notifications: { ...s.notifications, [key]: value } }));
   return (
-    <Screen withTabBar={false}>
-      <ScreenHeader title={t('profile2.notifications')} />
-      <Card padded={false}>
+    <SettingsPage title={t('profile2.notifications')}>
+      <View style={settingsStyles.list}>
         <ToggleRow
           label={t('notificationsScreen.classReminders')}
           value={state.notifications.classReminders}
@@ -34,10 +35,10 @@ export function NotificationsScreen() {
           onValueChange={set('news')}
           testID="toggle-news"
         />
-      </Card>
+      </View>
       <AppText variant="footnote" color="textSecondary">
         {t('notificationsScreen.deviceOnly')}
       </AppText>
-    </Screen>
+    </SettingsPage>
   );
 }

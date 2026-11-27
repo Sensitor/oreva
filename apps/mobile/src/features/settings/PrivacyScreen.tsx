@@ -1,9 +1,10 @@
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking } from 'react-native';
+import { Linking, View } from 'react-native';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
-import { AppText, Card, LinkRow, Screen, ScreenHeader, ToggleRow } from '@/ui';
+import { AppText, LinkRow, ToggleRow } from '@/ui';
+import { SettingsPage, settingsStyles } from './SettingsPage';
 
 type LocationStatus = 'granted' | 'denied' | 'undetermined';
 
@@ -28,9 +29,8 @@ export function PrivacyScreen() {
   }[status];
 
   return (
-    <Screen withTabBar={false}>
-      <ScreenHeader title={t('profile2.privacy')} />
-      <Card padded={false}>
+    <SettingsPage title={t('profile2.privacy')}>
+      <View style={settingsStyles.list}>
         <ToggleRow
           label={t('privacyScreen.mapTelemetry')}
           hint={t('privacyScreen.mapTelemetryHint')}
@@ -43,10 +43,10 @@ export function PrivacyScreen() {
           value={statusLabel}
           onPress={() => void Linking.openSettings()}
         />
-      </Card>
+      </View>
       <AppText variant="footnote" color="textSecondary">
         {t('privacyScreen.locationHint')}
       </AppText>
-    </Screen>
+    </SettingsPage>
   );
 }

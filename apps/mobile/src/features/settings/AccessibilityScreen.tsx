@@ -1,24 +1,33 @@
-import { spacing } from '@oreva/tokens';
+import { colors, spacing } from '@oreva/tokens';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet } from 'react-native';
-import { AppText, Card, Screen, ScreenHeader } from '@/ui';
+import { StyleSheet, View } from 'react-native';
+import { AppText } from '@/ui';
+import { SettingsPage } from './SettingsPage';
 
 export function AccessibilityScreen() {
   const { t } = useTranslation();
+  const points = [
+    t('accessibilityScreen.textSize'),
+    t('accessibilityScreen.motion'),
+    t('accessibilityScreen.screenReader'),
+  ];
   return (
-    <Screen withTabBar={false}>
-      <ScreenHeader title={t('profile2.accessibility')} />
-      <Card style={styles.card}>
-        <AppText variant="body">{t('accessibilityScreen.textSize')}</AppText>
-        <AppText variant="body">{t('accessibilityScreen.motion')}</AppText>
-        <AppText variant="body">{t('accessibilityScreen.screenReader')}</AppText>
-      </Card>
-    </Screen>
+    <SettingsPage title={t('profile2.accessibility')}>
+      <View>
+        {points.map((point) => (
+          <View key={point} style={styles.point}>
+            <AppText variant="body">{point}</AppText>
+          </View>
+        ))}
+      </View>
+    </SettingsPage>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    gap: spacing.sm,
+  point: {
+    paddingVertical: spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderSubtle,
   },
 });

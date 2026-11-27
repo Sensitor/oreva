@@ -19,3 +19,4 @@ export { TypeHero } from './TypeHero';
 export type { DetailHero } from './DetailLayout';
 export { Monogram } from './Monogram';
 export { dropCap } from './dropCap';
+export { WeekRings } from './WeekRings';
