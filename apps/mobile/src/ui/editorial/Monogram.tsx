@@ -25,20 +25,41 @@ export function Monogram({
       style={[styles.ring, { width: size, height: size }]}
     >
       <View style={[styles.disc, { width: inner, height: inner, backgroundColor: tints[tone] }]}>
-        <AppText
-          variant={size >= 64 ? 'title1' : 'title2'}
-          color="textBrand"
-          maxFontSizeMultiplier={1}
-          style={size < 64 ? { fontSize: Math.max(22, inner * 0.42) } : undefined}
-        >
-          {initialsOf(name)}
-        </AppText>
+        {size >= SERIF_FROM ? (
+          <AppText
+            variant={size >= 64 ? 'title1' : 'title2'}
+            color="textBrand"
+            maxFontSizeMultiplier={1}
+            style={size < 64 ? styles.serifSmall : undefined}
+          >
+            {initialsOf(name)}
+          </AppText>
+        ) : (
+          // The serif is never set under 22 pt: small seals use the sans.
+          <AppText
+            variant="caption"
+            weight="bold"
+            color="textBrand"
+            maxFontSizeMultiplier={1}
+            style={{ fontSize: Math.round(inner * 0.34), lineHeight: Math.round(inner * 0.42) }}
+          >
+            {initialsOf(name)}
+          </AppText>
+        )}
       </View>
     </View>
   );
 }
 
+/** From this size the initials fit in the serif at 22 pt or more. */
+const SERIF_FROM = 52;
+
 const styles = StyleSheet.create({
+  // Two serif initials at the serif's smallest size fit inside a 52 pt seal.
+  serifSmall: {
+    fontSize: 22,
+    lineHeight: 28,
+  },
   ring: {
     borderRadius: radii.pill,
     borderWidth: 1,

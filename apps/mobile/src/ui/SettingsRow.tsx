@@ -87,12 +87,12 @@ export function ToggleRow({ icon, label, hint, value, onValueChange, testID }: T
 }
 
 const styles = StyleSheet.create({
+  // Editorial direction: rows on fine rules, aligned with the page's text (no boxes).
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    minHeight: 64,
-    paddingHorizontal: spacing.md,
+    gap: spacing.md,
+    minHeight: 60,
     paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderSubtle,
@@ -107,6 +107,6 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   pressed: {
-    backgroundColor: colors.surfaceMuted,
+    opacity: 0.6,
   },
 });

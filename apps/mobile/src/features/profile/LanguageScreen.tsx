@@ -1,29 +1,37 @@
 import { LOCALE_INFO, SUPPORTED_LOCALES, type Locale } from '@oreva/i18n';
-import { colors, radii, spacing } from '@oreva/tokens';
+import { colors, radii } from '@oreva/tokens';
 import { Check } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
-import { AppText, Card, Screen } from '@/ui';
+import { haptics } from '@/theme/haptics';
+import { AppText, Screen } from '@/ui';
 
-/** Language picker. Names are shown in their own language so anyone can find theirs. */
+/**
+ * Language picker (editorial direction): the title in serif, then each
+ * language in its own name on a fine rule, the chosen one marked with an
+ * iris ring and a check. Never shown by colour alone: announced as checked.
+ */
 export function LanguageScreen() {
   const { t } = useTranslation();
   const { locale, setLocale } = useLocaleSettings();
 
   const choose = (next: Locale) => {
+    if (next !== locale) {
+      haptics.selection();
+    }
     void setLocale(next);
   };
 
   return (
     <Screen withTabBar={false}>
-      <AppText variant="title1" accessibilityRole="header">
+      <AppText variant="display" color="textBrand" accessibilityRole="header">
         {t('profile.language')}
       </AppText>
       <AppText variant="body" color="textSecondary">
         {t('profile.languageHint')}
       </AppText>
-      <Card padded={false} accessibilityRole="radiogroup">
+      <View style={styles.list} accessibilityRole="radiogroup">
         {SUPPORTED_LOCALES.map((code) => {
           const selected = code === locale;
           return (
@@ -37,28 +45,35 @@ export function LanguageScreen() {
               onPress={() => choose(code)}
               style={({ pressed }) => [styles.row, pressed && styles.pressed]}
             >
-              <AppText variant="bodyStrong" style={styles.label}>
+              <AppText
+                variant="title2"
+                color={selected ? 'textBrand' : 'textPrimary'}
+                style={styles.label}
+              >
                 {LOCALE_INFO[code].nativeName}
               </AppText>
               <View style={[styles.check, selected && styles.checkSelected]}>
                 {selected ? (
-                  <Check size={16} color={colors.textOnAccent} strokeWidth={2.5} />
+                  <Check size={16} color={colors.textOnAction} strokeWidth={2.25} />
                 ) : null}
               </View>
             </Pressable>
           );
         })}
-      </Card>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  list: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderSubtle,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 60,
-    paddingHorizontal: spacing.md,
+    minHeight: 64,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderSubtle,
   },
@@ -66,7 +81,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pressed: {
-    backgroundColor: colors.surfaceMuted,
+    opacity: 0.6,
   },
   check: {
     width: 28,
@@ -78,7 +93,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkSelected: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accentStrong,
+    backgroundColor: colors.progress,
+    borderColor: colors.progress,
   },
 });

@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { AppText } from './AppText';
-import { IconButton } from './IconButton';
+import { RoundButton } from './editorial/RoundButton';
 
 export interface ScreenHeaderProps {
   title?: string;
@@ -14,12 +14,12 @@ export interface ScreenHeaderProps {
   onBack?: () => void;
 }
 
-/** Back button + optional title, in the round-button style of the visual reference. */
+/** Back button (the round paper button of the editorial pages) + optional title. */
 export function ScreenHeader({ title, trailing, onBack }: ScreenHeaderProps) {
   const { t } = useTranslation();
   return (
     <View style={styles.row}>
-      <IconButton
+      <RoundButton
         icon={ChevronLeft}
         accessibilityLabel={t('a11y.back')}
         onPress={onBack ?? (() => (router.canGoBack() ? router.back() : router.replace('/')))}
