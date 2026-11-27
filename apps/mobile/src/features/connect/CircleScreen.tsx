@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -17,15 +16,28 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useClassDetail } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
+import { classWhen } from '@/lib/format';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import { AppText, EmptyState, Line, LotusIcon, SampleBadge, ScreenHeader, Skeleton } from '@/ui';
-import { Medallion } from './Medallion';
+import { AppText, EmptyState, LotusIcon, SampleBadge, ScreenHeader, Skeleton } from '@/ui';
+import {
+  DetailLayout,
+  dropCap,
+  Enter,
+  Monogram,
+  ProgressThread,
+  SpringPressable,
+} from '@/ui/editorial';
 import { useCircleView } from './useCircleView';
 
 const MAX_MESSAGE_LENGTH = 1000;
 
-/** A private Circle: members, challenge, conversation (Connect, P-13). */
+/**
+ * A private Circle (Connect, P-13), editorial direction: it opens on lilac
+ * with the Circle's initial as a drop cap; then its name in serif, its
+ * members as monograms, the challenge with a thread per member, and the
+ * conversation, with the composer kept at the bottom.
+ */
 export function CircleScreen({ id }: { id: string }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -91,89 +103,117 @@ export function CircleScreen({ id }: { id: string }) {
     ]);
   };
 
+  const composer = (
+    <View style={[styles.composer, { paddingBottom: insets.bottom + spacing.xs }]}>
+      <TextInput
+        value={draft}
+        onChangeText={setDraft}
+        placeholder={t('connect.messagePlaceholder')}
+        placeholderTextColor={colors.textSecondary}
+        accessibilityLabel={t('connect.messagePlaceholder')}
+        maxLength={MAX_MESSAGE_LENGTH}
+        multiline
+        style={[styles.input, { fontFamily: fontFamily('regular') }]}
+        testID="message-input"
+      />
+      <SpringPressable
+        accessibilityRole="button"
+        accessibilityLabel={t('connect.send')}
+        accessibilityState={{ disabled: !draft.trim() }}
+        disabled={!draft.trim()}
+        onPress={send}
+        haptic="light"
+        pressedScale={0.9}
+        style={[styles.send, !draft.trim() && styles.disabled]}
+        testID="send-message"
+      >
+        <Send size={20} color={colors.textOnAction} strokeWidth={1.75} />
+      </SpringPressable>
+    </View>
+  );
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}>
-        <ScreenHeader trailing={circle.isPlaceholder ? <SampleBadge /> : undefined} />
-        <Members circle={circle} memberName={memberName} />
-        {circle.challenge ? <Challenge circle={circle} memberName={memberName} /> : null}
-        <View style={styles.messages} accessibilityRole="list">
-          {circle.messages.map((message) => (
-            <Message
-              key={message.id}
-              message={message}
-              memberName={memberName}
-              onLongPress={() => openActions(message)}
-            />
-          ))}
+      <DetailLayout
+        heroTestID="circle-cover"
+        hero={{ kind: 'type', tone: 'lilac', glyph: dropCap(circle.name) }}
+        footer={composer}
+      >
+        <Enter index={0} after={100}>
+          <Members circle={circle} memberName={memberName} />
+        </Enter>
+        {circle.challenge ? (
+          <Enter index={1} after={100}>
+            <Challenge circle={circle} memberName={memberName} />
+          </Enter>
+        ) : null}
+        <View style={styles.conversation}>
+          <AppText variant="title2" color="textBrand" accessibilityRole="header">
+            {t('connect.conversation')}
+          </AppText>
+          <View style={styles.messages} accessibilityRole="list">
+            {circle.messages.map((message) => (
+              <Message
+                key={message.id}
+                message={message}
+                memberName={memberName}
+                onLongPress={() => openActions(message)}
+              />
+            ))}
+          </View>
+          <AppText variant="caption" color="textSecondary" align="center">
+            {t('connect.prototypeNote')}
+          </AppText>
         </View>
-        <AppText variant="caption" color="textSecondary" align="center">
-          {t('connect.prototypeNote')}
-        </AppText>
-      </ScrollView>
-      <View style={[styles.composer, { paddingBottom: insets.bottom + spacing.xs }]}>
-        <TextInput
-          value={draft}
-          onChangeText={setDraft}
-          placeholder={t('connect.messagePlaceholder')}
-          placeholderTextColor={colors.textSecondary}
-          accessibilityLabel={t('connect.messagePlaceholder')}
-          maxLength={MAX_MESSAGE_LENGTH}
-          multiline
-          style={[styles.input, { fontFamily: fontFamily('regular') }]}
-          testID="message-input"
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('connect.send')}
-          accessibilityState={{ disabled: !draft.trim() }}
-          disabled={!draft.trim()}
-          onPress={send}
-          style={({ pressed }) => [
-            styles.send,
-            !draft.trim() && styles.disabled,
-            pressed && styles.pressed,
-          ]}
-          testID="send-message"
-        >
-          <Send size={20} color={colors.textOnAction} strokeWidth={1.75} />
-        </Pressable>
-      </View>
+      </DetailLayout>
     </KeyboardAvoidingView>
   );
 }
 
-/** The Circle's medallion, its name in the serif, and who is in it. */
+/** "Private Circle", its name in serif, and who is in it, as monograms. */
 function Members({ circle, memberName }: { circle: Circle; memberName: (id: string) => string }) {
   const { t } = useTranslation();
   const names = circle.members.map((member) => memberName(member.id));
   return (
     <View style={styles.header}>
-      <Medallion name={circle.name} members={names} size={96} />
-      <AppText variant="display" color="textBrand" align="center" accessibilityRole="header">
+      <View style={styles.kickerRow}>
+        <AppText variant="kicker" color="textLink" style={styles.flex}>
+          {t('connect.privateCircle')}
+        </AppText>
+        {circle.isPlaceholder ? <SampleBadge /> : null}
+      </View>
+      <AppText variant="display" color="textBrand" accessibilityRole="header">
         {circle.name}
       </AppText>
-      <Line />
-      <AppText
-        variant="callout"
-        color="textSecondary"
-        align="center"
+      <View
+        style={styles.members}
+        accessible
         accessibilityLabel={[t('connect.members', { count: circle.members.length }), ...names].join(
           ', ',
         )}
       >
-        {t('connect.members', { count: circle.members.length })} · {names.join(', ')}
-      </AppText>
+        <View style={styles.seals}>
+          {names.slice(0, 5).map((name, index) => (
+            <View key={`${name}-${String(index)}`} style={index > 0 && styles.sealOverlap}>
+              <Monogram name={name} size={40} />
+            </View>
+          ))}
+        </View>
+        <AppText variant="callout" color="textSecondary" style={styles.flex}>
+          {t('connect.members', { count: circle.members.length })} · {names.join(', ')}
+        </AppText>
+      </View>
     </View>
   );
 }
 
 /**
- * The Circle's challenge on paper: La Ligne per member, a dot per session.
- * Members who do not share their activity show a plain line of text instead.
+ * The Circle's challenge: a fine thread per member that grows to their real
+ * progress. Members who do not share their activity show a line of text
+ * instead, never a guess.
  */
 function Challenge({ circle, memberName }: { circle: Circle; memberName: (id: string) => string }) {
   const { t } = useTranslation();
@@ -208,11 +248,9 @@ function Challenge({ circle, memberName }: { circle: Circle; memberName: (id: st
               </AppText>
             </View>
             {shared ? (
-              <Line
-                variant="progress"
+              <ProgressThread
                 value={done / challenge.targetSessions}
-                steps={challenge.targetSessions}
-                accessibilityLabel={`${memberName(member.id)}, ${t('connect.challengeProgress', { done, target: challenge.targetSessions })}`}
+                label={`${memberName(member.id)}, ${t('connect.challengeProgress', { done, target: challenge.targetSessions })}`}
               />
             ) : null}
           </View>
@@ -235,12 +273,17 @@ function Message({
   const mine = message.authorId === DEMO_SELF_ID;
 
   if (message.kind === 'system') {
+    // An event of the Circle, set between two fine rules.
     return (
-      <AppText variant="footnote" color="textSecondary" align="center">
-        {message.event === 'joined'
-          ? t('connect.joined', { name: memberName(message.authorId) })
-          : t('connect.challengeStarted')}
-      </AppText>
+      <View style={styles.system}>
+        <View style={styles.systemRule} />
+        <AppText variant="caption" color="textSecondary" align="center" style={styles.systemText}>
+          {message.event === 'joined'
+            ? t('connect.joined', { name: memberName(message.authorId) })
+            : t('connect.challengeStarted')}
+        </AppText>
+        <View style={styles.systemRule} />
+      </View>
     );
   }
 
@@ -268,28 +311,47 @@ function Message({
 
 function SharedClass({ classId }: { classId: string }) {
   const { t } = useTranslation();
-  const { locale } = useLocaleSettings();
+  const { locale, formatLocale } = useLocaleSettings();
   const { data } = useClassDetail(classId);
   if (!data) {
     return null;
   }
+  const title =
+    resolveLocalizedText(data.session.title, locale, data.session.sourceLanguage)?.text ?? '';
+  const when = classWhen(data.session, data.city, formatLocale);
+  // A shared class, like a line of the timetable: its time in serif, what and where.
   return (
-    <Pressable
+    <SpringPressable
       accessibilityRole="button"
+      accessibilityLabel={[
+        t('connect.sharedClass'),
+        title,
+        `${when.date} ${when.time}`,
+        data.organization.name,
+      ].join(', ')}
       onPress={() => router.push(`/classes/${classId}`)}
+      pressedScale={0.98}
       style={styles.shared}
       testID="shared-class"
     >
-      <AppText variant="caption" color="textSecondary">
-        {t('connect.sharedClass')}
-      </AppText>
-      <AppText variant="bodyStrong">
-        {resolveLocalizedText(data.session.title, locale, data.session.sourceLanguage)?.text}
-      </AppText>
-      <AppText variant="footnote" color="textSecondary">
-        {data.organization.name}
-      </AppText>
-    </Pressable>
+      <View style={styles.sharedTime}>
+        <AppText variant="caption" weight="semibold" color="textLink" numberOfLines={1}>
+          {when.date}
+        </AppText>
+        <AppText variant="title2" color="textBrand">
+          {when.time}
+        </AppText>
+      </View>
+      <View style={styles.flex}>
+        <AppText variant="caption" color="textSecondary">
+          {t('connect.sharedClass')}
+        </AppText>
+        <AppText variant="bodyStrong">{title}</AppText>
+        <AppText variant="footnote" color="textSecondary">
+          {data.organization.name}
+        </AppText>
+      </View>
+    </SpringPressable>
   );
 }
 
@@ -298,25 +360,37 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
-    paddingHorizontal: spacing.lg - 4,
-    paddingBottom: spacing.lg,
-    gap: spacing.md,
-  },
   header: {
-    alignItems: 'center',
     gap: spacing.xs,
+  },
+  kickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  members: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  seals: {
+    flexDirection: 'row',
+  },
+  // Monograms overlap a little, like seals laid side by side.
+  sealOverlap: {
+    marginStart: -10,
   },
   challenge: {
     gap: spacing.sm,
     padding: spacing.gutter,
-    borderRadius: radii.lg,
+    borderRadius: radii.card,
     backgroundColor: colors.surface,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle,
   },
   progressBlock: {
-    gap: spacing.xxs,
+    gap: 0,
   },
   challengeHeader: {
     flexDirection: 'row',
@@ -331,8 +405,25 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  conversation: {
+    gap: spacing.md,
+  },
   messages: {
-    gap: spacing.xs,
+    gap: spacing.sm,
+  },
+  system: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.xxs,
+  },
+  systemRule: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.borderControl,
+  },
+  systemText: {
+    flexShrink: 1,
   },
   bubbleRow: {
     flexDirection: 'row',
@@ -340,36 +431,45 @@ const styles = StyleSheet.create({
   bubbleRowMine: {
     justifyContent: 'flex-end',
   },
+  // Soft bubbles, the corner nearest the author a little tighter.
   bubble: {
-    maxWidth: '82%',
-    borderRadius: radii.lg,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    maxWidth: '84%',
+    borderRadius: radii.card,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     gap: 2,
   },
   bubbleMine: {
     backgroundColor: colors.accentSoft,
+    borderBottomEndRadius: radii.md,
   },
   bubbleOther: {
     backgroundColor: colors.surface,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle,
+    borderBottomStartRadius: radii.md,
   },
   shared: {
-    gap: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.xxs,
     padding: spacing.sm,
-    borderRadius: radii.md,
+    borderRadius: radii.lg + 6,
     backgroundColor: colors.background,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle,
+  },
+  sharedTime: {
+    minWidth: 60,
   },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: spacing.xs,
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.xs,
-    backgroundColor: colors.surface,
+    paddingTop: spacing.sm,
+    backgroundColor: colors.background,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.borderSubtle,
   },
@@ -379,8 +479,11 @@ const styles = StyleSheet.create({
     maxHeight: 120,
     paddingHorizontal: spacing.md,
     paddingTop: 12,
-    borderRadius: radii.md,
-    backgroundColor: colors.surfaceMuted,
+    paddingBottom: 12,
+    borderRadius: radii.card,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderControl,
     fontSize: 16,
     color: colors.textPrimary,
   },
@@ -394,8 +497,5 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

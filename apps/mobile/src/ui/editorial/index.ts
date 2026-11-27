@@ -18,3 +18,4 @@ export type { StripFact } from './FactStrip';
 export { TypeHero } from './TypeHero';
 export type { DetailHero } from './DetailLayout';
 export { Monogram } from './Monogram';
+export { dropCap } from './dropCap';

@@ -5,28 +5,24 @@ import { ChevronRight, KeyRound, ShieldCheck } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDirectory } from '@/data/hooks';
 import { useLocaleSettings } from '@/i18n/I18nProvider';
 import { usePrototypeStore } from '@/prototype/PrototypeStore';
 import { useTheme } from '@/theme/ThemeProvider';
-import {
-  AppText,
-  Avatar,
-  Button,
-  EditorialHeader,
-  EmptyState,
-  PressableScale,
-  SampleBadge,
-  Screen,
-  Section,
-  Sheet,
-} from '@/ui';
+import { AppText, Button, EmptyState, SampleBadge, Sheet, TAB_BAR_CLEARANCE } from '@/ui';
+import { Enter, Monogram, SpringPressable } from '@/ui/editorial';
 import { Medallion } from './Medallion';
 import { useCircleList } from './useCircleView';
 
-/** Connect (pillar 3, P-13): private Circles and the instructors and studios you follow. */
+/**
+ * Connect (pillar 3, P-13), editorial direction: a serif title, the two
+ * ways in (create, join), private Circles as rows with their medallion, and
+ * the instructors and studios you follow as a rail of monograms.
+ */
 export function ConnectScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { locale } = useLocaleSettings();
   const { fontFamily } = useTheme();
   const { state, update } = usePrototypeStore();
@@ -64,27 +60,49 @@ export function ConnectScreen() {
   };
 
   return (
-    <Screen>
-      <EditorialHeader
-        title={t('pillars.connect.title')}
-        intro={t('pillars.connect.description')}
-      />
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: insets.top + spacing.lg, paddingBottom: TAB_BAR_CLEARANCE + insets.bottom },
+      ]}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Enter index={0} style={styles.header}>
+        <AppText
+          variant="display"
+          color="textBrand"
+          accessibilityRole="header"
+          style={styles.title}
+        >
+          {t('pillars.connect.title')}
+        </AppText>
+        <AppText variant="body" color="textSecondary">
+          {t('pillars.connect.description')}
+        </AppText>
+      </Enter>
 
-      <View style={styles.actions}>
+      <Enter index={1} style={styles.actions}>
         <Button
           label={t('connect.create')}
+          shape="pill"
           onPress={() => setCreateOpen(true)}
           testID="create-circle"
         />
         <Button
           label={t('connect.join')}
           variant="secondary"
+          shape="pill"
           onPress={() => setJoinOpen(true)}
           testID="join-circle"
         />
-      </View>
+      </Enter>
 
-      <Section title={t('connect.circles')} revealIndex={2}>
+      <Enter index={2} style={styles.section}>
+        <AppText variant="title2" color="textBrand" accessibilityRole="header">
+          {t('connect.circles')}
+        </AppText>
         {circles.length === 0 ? <EmptyState title={t('connect.emptyCircles')} /> : null}
         {circles.map((circle) => {
           const last = circle.messages[circle.messages.length - 1];
@@ -95,8 +113,9 @@ export function ConnectScreen() {
                 ? t('connect.sharedClass')
                 : '';
           return (
-            <PressableScale
+            <SpringPressable
               key={circle.id}
+              pressedScale={0.98}
               accessibilityRole="button"
               accessibilityLabel={`${circle.name}, ${t('connect.members', { count: circle.members.length })}`}
               onPress={() => router.push(`/circles/${circle.id}`)}
@@ -110,7 +129,7 @@ export function ConnectScreen() {
                 )}
               />
               <View style={styles.flex}>
-                <AppText variant="headline" numberOfLines={2}>
+                <AppText variant="title2" color="textPrimary" numberOfLines={2}>
                   {circle.name}
                 </AppText>
                 <AppText variant="footnote" color="textSecondary">
@@ -125,7 +144,7 @@ export function ConnectScreen() {
                 {circle.isPlaceholder ? <SampleBadge /> : null}
               </View>
               <ChevronRight size={20} color={colors.textSecondary} strokeWidth={1.5} />
-            </PressableScale>
+            </SpringPressable>
           );
         })}
         <View style={styles.note}>
@@ -134,15 +153,18 @@ export function ConnectScreen() {
             {t('connect.privateNote')}
           </AppText>
         </View>
-      </Section>
+      </Enter>
 
-      <Section title={t('connect.following')} revealIndex={3}>
+      <Enter index={3} style={styles.section}>
+        <AppText variant="title2" color="textBrand" accessibilityRole="header">
+          {t('connect.following')}
+        </AppText>
         {followedOrgs.length + followedInstructors.length === 0 ? (
           <AppText variant="body" color="textSecondary">
             {t('connect.followingEmpty')}
           </AppText>
         ) : (
-          // A rail of round portraits (initials until photos used with permission exist).
+          // Monograms until photographs used with permission exist (P-15, C-8).
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -150,30 +172,32 @@ export function ConnectScreen() {
             contentContainerStyle={styles.portraits}
           >
             {followedInstructors.map((instructor) => (
-              <PressableScale
+              <SpringPressable
                 key={instructor.id}
                 accessibilityRole="button"
                 accessibilityLabel={instructor.displayName}
                 onPress={() => router.push(`/instructors/${instructor.id}`)}
+                pressedScale={0.96}
                 style={styles.portrait}
               >
-                <Avatar name={instructor.displayName} size={72} />
+                <Monogram name={instructor.displayName} size={80} />
                 <AppText variant="callout" weight="semibold" align="center" numberOfLines={2}>
                   {instructor.displayName}
                 </AppText>
-              </PressableScale>
+              </SpringPressable>
             ))}
             {followedOrgs.map((organization) => {
               const city = resolveLocalizedText(cityName(organization.cityId), locale)?.text;
               return (
-                <PressableScale
+                <SpringPressable
                   key={organization.id}
                   accessibilityRole="button"
                   accessibilityLabel={[organization.name, city].filter(Boolean).join(', ')}
                   onPress={() => router.push(`/organizations/${organization.id}`)}
+                  pressedScale={0.96}
                   style={styles.portrait}
                 >
-                  <Avatar name={organization.name} size={72} tone={organization.tone} />
+                  <Monogram name={organization.name} size={80} tone={organization.tone} />
                   <AppText variant="callout" weight="semibold" align="center" numberOfLines={2}>
                     {organization.name}
                   </AppText>
@@ -182,12 +206,12 @@ export function ConnectScreen() {
                       {city}
                     </AppText>
                   ) : null}
-                </PressableScale>
+                </SpringPressable>
               );
             })}
           </ScrollView>
         )}
-      </Section>
+      </Enter>
 
       <Sheet visible={createOpen} title={t('connect.create')} onClose={() => setCreateOpen(false)}>
         <AppText variant="callout">{t('connect.nameLabel')}</AppText>
@@ -206,6 +230,7 @@ export function ConnectScreen() {
         </AppText>
         <Button
           label={t('connect.createCta')}
+          shape="pill"
           onPress={createCircle}
           disabled={!name.trim()}
           fullWidth
@@ -230,27 +255,44 @@ export function ConnectScreen() {
             {t('connect.joinNote')}
           </AppText>
         </View>
-        <Button label={t('connect.joinCta')} disabled fullWidth />
+        <Button label={t('connect.joinCta')} shape="pill" disabled fullWidth />
       </Sheet>
-    </Screen>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  content: {
+    paddingHorizontal: spacing.gutter,
+    gap: spacing.xl,
+  },
+  header: {
+    gap: spacing.xs,
+  },
+  title: {
+    fontSize: 46,
+    lineHeight: 52,
+  },
   actions: {
     flexDirection: 'row',
     gap: spacing.xs,
     flexWrap: 'wrap',
   },
+  section: {
+    gap: spacing.sm,
+  },
+  // A Circle: its medallion, its name in serif, members and the last message, on a fine rule.
   circle: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.md,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderSubtle,
+    paddingVertical: spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderSubtle,
   },
   bleed: {
     marginHorizontal: -spacing.gutter,
@@ -260,22 +302,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.gutter,
   },
   portrait: {
-    width: 96,
+    width: 104,
     alignItems: 'center',
     gap: spacing.xxs,
   },
   flex: {
     flex: 1,
+    gap: 2,
   },
   note: {
     flexDirection: 'row',
     gap: spacing.xs,
     alignItems: 'flex-start',
+    marginTop: spacing.xs,
   },
   input: {
-    minHeight: 48,
+    minHeight: 52,
     paddingHorizontal: spacing.md,
-    borderRadius: radii.md,
+    borderRadius: radii.card,
     borderWidth: 1,
     borderColor: colors.borderControl,
     backgroundColor: colors.surface,

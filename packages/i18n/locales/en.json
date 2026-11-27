@@ -464,7 +464,9 @@
     "you": "You",
     "members_title": "Members",
     "emptyCircles": "You have no Circle yet.",
-    "messageActions": "Message options"
+    "messageActions": "Message options",
+    "privateCircle": "Private Circle",
+    "conversation": "Conversation"
   },
   "profile2": {
     "guestTitle": "Welcome to ORÉVA",

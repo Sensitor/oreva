@@ -3,12 +3,6 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AppText } from '@/ui';
 
-/** Initial of a name for the hero's drop cap ("L'Atelier" gives "A"). */
-export function dropCap(name: string): string {
-  const letter = name.replace(/^(l['’]|le |la |les |the )/i, '').match(/\p{L}/u)?.[0];
-  return (letter ?? name.charAt(0)).toUpperCase();
-}
-
 /** A section of a partner's page: a serif title, then its content. */
 export function PartnerSection({ title, children }: { title: string; children: ReactNode }) {
   return (
